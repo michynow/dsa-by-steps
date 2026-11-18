@@ -1,5 +1,5 @@
 import { nextPosition, previousPosition } from '@/domain';
-import type { Course, CoursePosition, Locale } from '@/domain';
+import type { Check, Course, CoursePosition, Locale } from '@/domain';
 import { segmentOf, stepIndexOf } from './step-route';
 
 export interface Neighbours {
@@ -30,11 +30,11 @@ export function neighboursOf(course: Course, position: CoursePosition): Neighbou
   };
 }
 
-export function stepHasCheck(course: Course, position: CoursePosition): boolean {
+export function checkAt(course: Course, position: CoursePosition): Check | undefined {
   const lesson = course.modules
     .find((module) => module.slug === position.module)
     ?.lessons.find((candidate) => candidate.slug === position.lesson);
-  return lesson?.steps[position.step]?.check !== undefined;
+  return lesson?.steps[position.step]?.check;
 }
 
 export function samePosition(a: CoursePosition, b: CoursePosition): boolean {

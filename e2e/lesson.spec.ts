@@ -1,11 +1,30 @@
 import { expect, test } from '@playwright/test';
+import lesson from '../src/content/foundations/linked-lists/en.json' with { type: 'json' };
 
 const stepCount = 12;
+const passedChecks = Object.fromEntries(
+  Object.keys(lesson.checks).map((id) => [
+    `foundations/linked-lists/${id}`,
+    { misses: 0, status: 'passed' },
+  ]),
+);
+const seededProgress = JSON.stringify({
+  version: 1,
+  stepsSeen: {},
+  exercises: {},
+  checks: passedChecks,
+});
+
 const firstStepTitle = 'Adding to the front is expensive';
 
 test('steps through the Linked lists Lesson, remembers seen Steps and keeps the Step on Locale switch', async ({
   page,
 }, testInfo) => {
+  await page.addInitScript(`
+    if (window.localStorage.getItem('dsa-by-steps.progress') === null) {
+      window.localStorage.setItem('dsa-by-steps.progress', ${JSON.stringify(seededProgress)});
+    }
+  `);
   await page.goto('/en');
   await page.getByRole('main').getByRole('link', { name: 'Linked lists' }).click();
   await expect(page).toHaveURL(/\/en\/foundations\/linked-lists\/1$/);
