@@ -83,6 +83,10 @@ export default defineConfig(
               allow: { to: { element: { type: 'test-support' } } },
             },
             {
+              from: { element: { type: 'test-support' } },
+              allow: { to: { element: { type: 'domain', ...publicSurface } } },
+            },
+            {
               from: { element: { type: 'renderer' } },
               allow: { to: { element: { types: ['domain', 'ui'], ...publicSurface } } },
             },
