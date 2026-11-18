@@ -32,7 +32,7 @@ The page structure every screen follows. Visual tokens live in `src/ui/tokens`; 
 - **Step Rail.** A vertical list of every Step by number and short title, ending with the Exercise. Each entry shows seen, current or unseen; a Problem Step carries a marker. Entries are links, so every Step is reachable directly. On narrow screens the Rail collapses to a horizontal strip of numbers above the Stage.
 - **Stage.** The Scene for the current Step, animated from the previous Step's Scene. Predict and Order Checks are answered here, on the Structure itself.
 - **Caption Strip.** Directly under the Stage. Holds the Caption, or the Check prompt with Choice options, Miss feedback and the Reveal button. Previous and next sit at its right edge; next is unavailable while a Check on the current Step is unanswered.
-- **Outcomes and Terms.** Collapsed panels under the Strip: the Lesson's Outcomes with their status, and the Terms introduced so far with their Polish equivalents.
+- **Outcomes and Terms.** Collapsed panels under the Strip: the Lesson's Outcomes and its Terms with their Polish equivalents. Outcome status and "Terms introduced so far" need an Outcome→Check and Term→Step mapping in the content contract, which does not exist yet.
 
 ## Exercise view
 
