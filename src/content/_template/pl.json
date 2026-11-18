@@ -1,0 +1,32 @@
+{
+  "title": "Lekcja szablonowa",
+  "outcomes": {
+    "read-an-array": "Odczytasz element tablicy po jego indeksie"
+  },
+  "steps": {
+    "the-problem": {
+      "title": "Szukanie jednej liczby",
+      "caption": "Masz rząd liczb i potrzebujesz drugiej z nich. Przeglądanie od początku wydaje się wolne."
+    },
+    "how-it-works": {
+      "title": "Skok prosto do celu",
+      "caption": "Tablica trzyma komórki obok siebie, więc indeks mówi dokładnie, gdzie szukać."
+    }
+  },
+  "checks": {
+    "which-index": {
+      "prompt": "Pod którym indeksem jest zaznaczona liczba?",
+      "options": {
+        "index-one": "1",
+        "index-two": "2"
+      },
+      "explanation": "Indeksy zaczynają się od 0, więc druga komórka ma indeks 1."
+    }
+  },
+  "terms": {
+    "array": {
+      "term": "array",
+      "gloss": "tablica: rząd komórek trzymanych obok siebie i odczytywanych po indeksie."
+    }
+  }
+}
