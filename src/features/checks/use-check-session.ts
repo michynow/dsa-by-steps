@@ -67,13 +67,13 @@ export function useCheckSession(lesson: LessonKey, check: Check): CheckSession {
 
   useEffect(() => {
     current.current = state;
-  }, [state]);
+    submitted.current = false;
+  });
 
   const settled = check.kind === 'order' || state.status !== 'open';
   const editable = check.kind !== 'order' && current.current.status === 'open';
 
   const change = (pending: Local['pending']): void => {
-    submitted.current = false;
     setLocal({ key, pending, lastVerdict: local.lastVerdict });
   };
 

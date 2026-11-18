@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import type { ReactElement, ReactNode } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import type { CheckMessages } from '@/content';
-import { lessonKey } from '@/domain';
+import { checkKey, lessonKey } from '@/domain';
 import type { Check } from '@/domain';
 import { createI18n } from '../locale';
 import { createMemoryProgressRepository, createProgressStore, ProgressProvider } from '../progress';
@@ -45,14 +45,22 @@ function Harness(props: { readonly check: Check; readonly msgs?: CheckMessages }
 function renderPanel(check: Check, msgs?: CheckMessages) {
   const store = createProgressStore(createMemoryProgressRepository());
   const i18n = createI18n('en');
-  const tree = (
+  const treeFor = (next: Check, nextMsgs?: CheckMessages): ReactElement => (
     <I18nextProvider i18n={i18n}>
       <ProgressProvider store={store}>
-        <Harness check={check} {...(msgs ? { msgs } : {})} />
+        <Harness check={next} {...(nextMsgs ? { msgs: nextMsgs } : {})} />
       </ProgressProvider>
     </I18nextProvider>
   );
-  return { user: userEvent.setup(), store, ...render(tree) };
+  const result = render(treeFor(check, msgs));
+  return {
+    user: userEvent.setup(),
+    store,
+    ...result,
+    showCheck: (next: Check) => {
+      result.rerender(treeFor(next));
+    },
+  };
 }
 
 async function missTwiceChoice(user: ReturnType<typeof userEvent.setup>) {
@@ -132,9 +140,11 @@ describe('CheckPanel choice', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Correct.');
     expect(screen.getByText('Because bravo.')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Check answer' })).not.toBeInTheDocument();
-    expect(screen.getAllByRole('radio').every((radio) => radio.hasAttribute('disabled'))).toBe(
+    expect(screen.getAllByRole('radio').map((radio) => radio.hasAttribute('disabled'))).toEqual([
       true,
-    );
+      true,
+      true,
+    ]);
   });
 
   it('does not crash and renders no radio for an option without a label', () => {
@@ -149,6 +159,51 @@ describe('CheckPanel choice', () => {
     const { prompt, explanation } = messages;
     renderPanel(choice, { prompt, explanation });
     expect(screen.queryAllByRole('radio')).toEqual([]);
+  });
+});
+
+describe('CheckPanel review fixes', () => {
+  const otherChoice: Check = { ...choice, id: 'c2' };
+
+  it('counts every wrong submit, including an unchanged answer', async () => {
+    const { user } = renderPanel(choice);
+    await user.click(screen.getByRole('radio', { name: 'Alpha' }));
+    await user.click(screen.getByRole('button', { name: 'Check answer' }));
+    await user.click(screen.getByRole('button', { name: 'Check answer' }));
+    await user.click(screen.getByRole('button', { name: 'Check answer' }));
+    expect(screen.getByRole('button', { name: 'Show me' })).toBeInTheDocument();
+  });
+
+  it('counts every wrong submit of an unchanged Predict selection', async () => {
+    const { user } = renderPanel(predict);
+    await user.click(screen.getByRole('button', { name: 'stage select' }));
+    await user.click(screen.getByRole('button', { name: 'Check answer' }));
+    await user.click(screen.getByRole('button', { name: 'Check answer' }));
+    await user.click(screen.getByRole('button', { name: 'Check answer' }));
+    expect(screen.getByRole('button', { name: 'Show me' })).toBeInTheDocument();
+  });
+
+  it('forgets an empty submit when the Check changes', async () => {
+    const { user, showCheck } = renderPanel(choice);
+    await user.click(screen.getByRole('button', { name: 'Check answer' }));
+    showCheck(otherChoice);
+    expect(screen.getByRole('status')).toBeEmptyDOMElement();
+  });
+
+  it('does not steal focus when a different, already passed Check appears', async () => {
+    const { user, store, showCheck } = renderPanel(choice);
+    store.getState().actions.setCheckState(checkKey(lesson, 'c2'), { misses: 0, status: 'passed' });
+    await user.click(screen.getByRole('radio', { name: 'Alpha' }));
+    await user.click(screen.getByRole('button', { name: 'Check answer' }));
+    showCheck(otherChoice);
+    expect(screen.getByText('Because bravo.')).not.toHaveFocus();
+  });
+
+  it('submits a focused radio on Enter', async () => {
+    const { user } = renderPanel(choice);
+    await user.click(screen.getByRole('radio', { name: 'Bravo' }));
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('status')).toHaveTextContent('Correct.');
   });
 });
 
@@ -172,6 +227,7 @@ describe('CheckPanel order', () => {
   it('renders the prompt with no controls', () => {
     renderPanel(order);
     expect(screen.getByText('Which one?')).toBeInTheDocument();
+    expect(screen.getByText('Because bravo.')).toBeInTheDocument();
     expect(screen.queryAllByRole('button').map((button) => button.textContent)).toEqual([
       'stage select',
     ]);

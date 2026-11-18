@@ -24,30 +24,31 @@ export function CheckPanel(props: {
   const { session, messages } = props;
   const text = useMessages(checkText);
   const promptId = useId();
-  const [emptyTried, setEmptyTried] = useState(false);
-  const focusExplanation = useRef(false);
+  const [emptyFor, setEmptyFor] = useState<string | null>(null);
+  const actedOn = useRef<string | null>(null);
 
   if (session.check.kind === 'order') {
     return (
       <section className={styles.panel}>
         <p>{messages.prompt}</p>
+        <p>{messages.explanation}</p>
       </section>
     );
   }
 
-  const empty = emptyTried && session.pending === null;
+  const empty = emptyFor === session.check.id && session.pending === null;
   const submit = (): void => {
-    setEmptyTried(session.pending === null);
-    focusExplanation.current = true;
+    setEmptyFor(session.pending === null ? session.check.id : null);
+    actedOn.current = session.check.id;
     session.submit();
   };
   const showMe = (): void => {
-    focusExplanation.current = true;
+    actedOn.current = session.check.id;
     session.reveal();
   };
   const focusOnMount = (node: HTMLParagraphElement | null): void => {
-    if (node && focusExplanation.current) {
-      focusExplanation.current = false;
+    if (node && actedOn.current === session.check.id) {
+      actedOn.current = null;
       node.focus();
     }
   };
@@ -60,6 +61,7 @@ export function CheckPanel(props: {
         messages={messages}
         labelledBy={promptId}
         correctMark={text.correctOption}
+        onSubmit={submit}
       />
       {session.check.kind === 'predict' && !session.settled ? <p>{text.predictHint}</p> : null}
       <div className={styles.controls}>

@@ -8,8 +8,9 @@ export function ChoiceOptions(props: {
   readonly messages: CheckMessages;
   readonly labelledBy: string;
   readonly correctMark: string;
+  readonly onSubmit: () => void;
 }): ReactElement | null {
-  const { session, messages, labelledBy, correctMark } = props;
+  const { session, messages, labelledBy, correctMark, onSubmit } = props;
   const { check } = session;
   if (check.kind !== 'choice') return null;
   const shown = session.settled ? check.correct : session.pending;
@@ -32,6 +33,11 @@ export function ChoiceOptions(props: {
                 disabled={session.settled}
                 onChange={() => {
                   session.choose(option);
+                }}
+                onKeyDown={(event) => {
+                  if (event.key !== 'Enter') return;
+                  event.preventDefault();
+                  onSubmit();
                 }}
               />
               <span>{label}</span>

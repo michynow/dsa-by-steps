@@ -121,6 +121,18 @@ describe('useCheckSession choice', () => {
     expect(result.current.session.pending).toBe('b');
   });
 
+  it('records a Miss for every deliberate re-submit of an unchanged answer', () => {
+    const { result } = setup(choice);
+    answerChoice(result, 'a');
+    act(() => {
+      result.current.session.submit();
+    });
+    act(() => {
+      result.current.session.submit();
+    });
+    expect(result.current.stored).toEqual({ misses: 3, status: 'open' });
+  });
+
   it('records one Verdict for a rapid double submit', () => {
     const { result } = setup(choice);
     act(() => {
@@ -203,6 +215,44 @@ describe('useCheckSession predict', () => {
       result.current.session.submit();
     });
     expect(result.current.stored).toEqual({ misses: 1, status: 'passed' });
+    expect(result.current.session.selection?.selected).toEqual(e2);
+  });
+
+  it('records a Miss for every deliberate re-submit of an unchanged selection', () => {
+    const { result } = setup(predict);
+    act(() => {
+      result.current.session.select(e1);
+    });
+    act(() => {
+      result.current.session.submit();
+    });
+    act(() => {
+      result.current.session.submit();
+    });
+    act(() => {
+      result.current.session.submit();
+    });
+    expect(result.current.stored).toEqual({ misses: 3, status: 'open' });
+  });
+
+  it('records one Verdict for a rapid double submit', () => {
+    const { result } = setup(predict);
+    act(() => {
+      result.current.session.select(e1);
+    });
+    act(() => {
+      result.current.session.submit();
+      result.current.session.submit();
+    });
+    expect(result.current.stored).toEqual({ misses: 1, status: 'open' });
+  });
+
+  it('ignores a selection once settled', () => {
+    const { result } = setup(predict, { misses: 0, status: 'passed' });
+    act(() => {
+      result.current.session.select(e1);
+    });
+    expect(result.current.session.pending).toBeNull();
     expect(result.current.session.selection?.selected).toEqual(e2);
   });
 
