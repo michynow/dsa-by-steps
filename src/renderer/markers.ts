@@ -1,4 +1,5 @@
 import { elementIdsOf } from '@/domain';
+import { keyOf } from './keys';
 import type { ElementId, Scene, Structure } from '@/domain';
 
 export type StructureTag = 'head' | 'front' | 'back';
@@ -35,13 +36,13 @@ export function markersAbove(scene: Scene, structure: Structure): MarkerMap {
     if (present.has(elementId)) markers.set(elementId, [...(markers.get(elementId) ?? []), marker]);
   };
   structureTags(structure).forEach(([elementId, tag]) => {
-    add(elementId, { kind: 'tag', key: `tag:${structure.id}:${tag}`, tag });
+    add(elementId, { kind: 'tag', key: keyOf('tag', structure.id, tag), tag });
   });
   scene.pointers.forEach((pointer) => {
     if (pointer.target?.structureId === structure.id) {
       add(pointer.target.elementId, {
         kind: 'pointer',
-        key: `pointer:${pointer.id}`,
+        key: keyOf('pointer', pointer.id),
         label: pointer.label,
       });
     }

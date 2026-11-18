@@ -1,4 +1,5 @@
-import type { ElementRef, HighlightTone, Scene, Structure } from '@/domain';
+import type { ElementRef, HighlightTone, Scene, Structure, StructureKind } from '@/domain';
+import { keyOf } from './keys';
 import { toneOf } from './describe-scene';
 import { layoutScene, rowTop, markerRoom } from './layout';
 import type { SceneLayout, StructureLayout } from './layout';
@@ -22,6 +23,8 @@ export interface ElementItem {
   readonly y: number;
   readonly width: number;
   readonly height: number;
+  readonly kind: StructureKind;
+  readonly position: number;
   readonly tone: HighlightTone | undefined;
   readonly leaving: boolean;
 }
@@ -58,11 +61,13 @@ export interface SceneItems {
   readonly slots: readonly SlotItem[];
 }
 
-export const elementKey = (ref: ElementRef): string => `${ref.structureId}/${ref.elementId}`;
+export const elementKey = (ref: ElementRef): string => keyOf(ref.structureId, ref.elementId);
 
 function elementItems(scene: Scene, layout: StructureLayout): readonly ElementItem[] {
-  return layout.elements.map((box) => ({
+  return layout.elements.map((box, position) => ({
     key: elementKey(box.ref),
+    kind: layout.kind,
+    position,
     ref: box.ref,
     label: box.label,
     x: box.x,
@@ -97,7 +102,7 @@ function sequenceTexts(structure: Structure, layout: StructureLayout, labels: Sc
   switch (structure.kind) {
     case 'array':
       return layout.elements.map((box, index) => ({
-        key: `index:${structure.id}:${String(index)}`,
+        key: keyOf('index', structure.id, String(index)),
         text: String(index),
         x: box.x + box.width / 2,
         y: box.y + box.height + INDEX_HEIGHT / 2,
@@ -109,7 +114,7 @@ function sequenceTexts(structure: Structure, layout: StructureLayout, labels: Sc
         ? []
         : [
             {
-              key: `top:${structure.id}`,
+              key: keyOf('top', structure.id),
               text: labels.top,
               x: top.x + top.width + ROW_GAP,
               y: top.y + top.height / 2,
@@ -122,7 +127,7 @@ function sequenceTexts(structure: Structure, layout: StructureLayout, labels: Sc
         link.to === null && link.points[0] !== undefined
           ? [
               {
-                key: `null:${structure.id}:${link.from.elementId}`,
+                key: keyOf('null', structure.id, link.from.elementId),
                 text: labels.nullLink,
                 x: link.points[0].x,
                 y: link.points[0].y + CELL_HEIGHT / 2 + INDEX_HEIGHT / 2,
@@ -140,7 +145,7 @@ function sequenceTexts(structure: Structure, layout: StructureLayout, labels: Sc
 function bucketTexts(structure: Structure, layout: StructureLayout, room: number) {
   if (structure.kind !== 'hash-map') return [];
   return structure.buckets.map((_, index) => ({
-    key: `bucket:${structure.id}:${String(index)}`,
+    key: keyOf('bucket', structure.id, String(index)),
     text: String(index),
     x: layout.x + BUCKET_INDEX_WIDTH / 2,
     y: rowTop(layout.y, room, index) + CELL_HEIGHT / 2,
@@ -154,13 +159,13 @@ function slotItems(
   room: number,
   labels: SceneLabels,
 ): readonly SlotItem[] {
-  if (structure.kind === 'hash-map') {
+  if (structure.kind === 'hash-map' && structure.buckets.length > 0) {
     return structure.buckets.flatMap((bucket, index) =>
       bucket.length > 0
         ? []
         : [
             {
-              key: `slot:${structure.id}:${String(index)}`,
+              key: keyOf('slot', structure.id, String(index)),
               x: layout.x + BUCKET_INDEX_WIDTH,
               y: rowTop(layout.y, room, index),
               width: ENTRY_WIDTH,
@@ -173,10 +178,10 @@ function slotItems(
     ? []
     : [
         {
-          key: `slot:${structure.id}`,
-          x: layout.x,
+          key: keyOf('slot', structure.id),
+          x: layout.x + (structure.kind === 'hash-map' ? BUCKET_INDEX_WIDTH : 0),
           y: layout.y,
-          width: CELL_WIDTH,
+          width: structure.kind === 'hash-map' ? ENTRY_WIDTH : CELL_WIDTH,
           text: labels.empty,
         },
       ];

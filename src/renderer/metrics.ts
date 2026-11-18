@@ -13,3 +13,6 @@ export const ROUTE_INSET = 8;
 export const STUB_LENGTH = 8;
 export const TOP_LABEL_WIDTH = 56;
 export const BUCKET_INDEX_WIDTH = 32;
+
+export const TRANSITION_MILLISECONDS = 220;
+export const FALLBACK_MILLISECONDS = TRANSITION_MILLISECONDS + 50;

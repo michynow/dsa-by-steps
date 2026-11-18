@@ -1,7 +1,8 @@
-import type { ElementRef, Scene, StructureKind } from '@/domain';
+import type { ElementRef, HighlightTone, Scene, StructureKind } from '@/domain';
 
 export interface SceneLabels {
   readonly structure: Readonly<Record<StructureKind, string>>;
+  readonly tone: Readonly<Record<HighlightTone, string>>;
   readonly head: string;
   readonly top: string;
   readonly front: string;

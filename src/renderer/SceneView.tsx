@@ -1,4 +1,5 @@
-import type { ReactElement } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
+import { TRANSITION_MILLISECONDS } from './metrics';
 import { AnnotationLayer } from './AnnotationLayer';
 import { describeScene } from './describe-scene';
 import { ElementNode } from './ElementNode';
@@ -9,38 +10,50 @@ import { SelectionLayer } from './SelectionLayer';
 import { useRetainedElements } from './use-retained-elements';
 import type { SceneViewProps } from './scene-view-types';
 
-export type { SceneLabels, SceneSelection, SceneViewProps } from './scene-view-types';
+const motionStyle: CSSProperties & Record<`--${string}`, string> = {
+  '--scene-motion': `${String(TRANSITION_MILLISECONDS)}ms`,
+};
 
 export function SceneView({ scene, labels, selection }: SceneViewProps): ReactElement {
   const items = sceneItems(scene, labels);
-  const elements = useRetainedElements(scene, items.elements);
+  const { elements, release } = useRetainedElements(scene, items.elements);
   const { width, height } = items.layout;
   const selected = selection?.selected ?? null;
   return (
-    <figure className={styles.figure} aria-label={labels.sceneDescription}>
-      <svg
-        className={styles.drawing}
-        aria-hidden="true"
-        width={width}
-        height={height}
-        viewBox={`0 0 ${String(width)} ${String(height)}`}
+    <figure className={styles.figure} aria-label={labels.sceneDescription} style={motionStyle}>
+      <div
+        className={styles.canvas}
+        data-canvas="true"
+        style={{ maxWidth: width, aspectRatio: `${String(width)} / ${String(height)}` }}
       >
-        <LinkLayer structures={items.layout.structures} />
-        {elements.map((item) => (
-          <ElementNode
-            key={item.key}
-            item={item}
-            selected={
-              selected?.structureId === item.ref.structureId &&
-              selected.elementId === item.ref.elementId
-            }
+        <svg
+          className={styles.drawing}
+          aria-hidden="true"
+          viewBox={`0 0 ${String(width)} ${String(height)}`}
+        >
+          <LinkLayer structures={items.layout.structures} />
+          {elements.map((item) => (
+            <ElementNode
+              key={item.key}
+              item={item}
+              onFaded={release}
+              selected={
+                selected?.structureId === item.ref.structureId &&
+                selected.elementId === item.ref.elementId
+              }
+            />
+          ))}
+          <AnnotationLayer items={items} />
+        </svg>
+        {selection === undefined ? null : (
+          <SelectionLayer
+            elements={elements}
+            layout={items.layout}
+            labels={labels}
+            selection={selection}
           />
-        ))}
-        <AnnotationLayer items={items} />
-      </svg>
-      {selection === undefined ? null : (
-        <SelectionLayer elements={elements} labels={labels} selection={selection} />
-      )}
+        )}
+      </div>
       <ol className={styles.description}>
         {describeScene(scene, items.layout.structures, labels).map((line, index) => (
           <li key={index}>{line}</li>

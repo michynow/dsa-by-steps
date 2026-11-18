@@ -303,6 +303,20 @@ describe('layoutScene', () => {
     ]);
   });
 
+  it('draws a cyclic list once per node', () => {
+    const list = listOf('list', 'a', node('a', 'b'), node('b', 'a'));
+    expect(layoutScene(sceneOf([list])).structures[0]?.elements).toEqual([
+      box('list', 'a', 8, 28),
+      box('list', 'b', 88, 28),
+    ]);
+  });
+
+  it('lays a hash map with no buckets out as a single empty slot', () => {
+    expect(layoutScene(sceneOf([mapOf('map')])).structures).toEqual([
+      { id: 'map', kind: 'hash-map', x: 8, y: 8, width: 128, height: 40, elements: [], links: [] },
+    ]);
+  });
+
   it('lays an empty scene out as just padding', () => {
     expect(layoutScene(sceneOf([]))).toEqual({ width: 16, height: 16, structures: [] });
   });

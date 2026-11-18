@@ -83,7 +83,7 @@ interface Slot {
   readonly width: number;
 }
 
-export const labelOf = (value: Primitive): string => String(value);
+const labelOf = (value: Primitive): string => String(value);
 
 export function markerRoom(markers: MarkerMap): number {
   return tallestStack(markers) * MARKER_HEIGHT;

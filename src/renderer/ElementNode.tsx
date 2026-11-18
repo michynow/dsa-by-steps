@@ -7,9 +7,10 @@ import { truncateToWidth } from './truncate';
 export interface ElementNodeProps {
   readonly item: ElementItem;
   readonly selected: boolean;
+  readonly onFaded: (key: string) => void;
 }
 
-export function ElementNode({ item, selected }: ElementNodeProps): ReactElement {
+export function ElementNode({ item, selected, onFaded }: ElementNodeProps): ReactElement {
   return (
     <g
       className={styles.element}
@@ -18,6 +19,9 @@ export function ElementNode({ item, selected }: ElementNodeProps): ReactElement 
       data-leaving={item.leaving ? 'true' : undefined}
       data-selected={selected ? 'true' : undefined}
       style={{ transform: translate(item.x, item.y) }}
+      onTransitionEnd={(event) => {
+        if (item.leaving && event.target === event.currentTarget) onFaded(item.key);
+      }}
     >
       <rect className={styles.box} width={item.width} height={item.height} />
       <text className={styles.value} x={item.width / 2} y={item.height / 2}>

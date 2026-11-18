@@ -32,7 +32,7 @@ function notesOf(context: Context, box: ElementBox): readonly string[] {
   return [
     ...(isTop(structure, box.ref.elementId) ? [labels.top] : []),
     ...marked,
-    ...(tone === undefined ? [] : [tone]),
+    ...(tone === undefined ? [] : [labels.tone[tone]]),
   ];
 }
 
@@ -56,6 +56,7 @@ function describeSequence(context: Context): readonly string[] {
 
 function describeBuckets(context: Context, structure: Extract<Structure, { kind: 'hash-map' }>) {
   const byId = new Map(context.layout.elements.map((box) => [box.ref.elementId, box]));
+  if (structure.buckets.length === 0) return context.labels.empty;
   const buckets = structure.buckets.map((bucket, index) => {
     const entries = bucket.flatMap((entry) => {
       const box = byId.get(entry.id);

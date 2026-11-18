@@ -1,11 +1,17 @@
 .figure {
-  position: relative;
-  display: inline-block;
+  display: block;
   margin: 0;
+}
+
+.canvas {
+  position: relative;
+  width: 100%;
 }
 
 .drawing {
   display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .overlay {
@@ -25,14 +31,16 @@
   border-radius: var(--radius-control);
   cursor: pointer;
   pointer-events: auto;
-  transition: transform var(--motion-base) ease-out;
+  transition:
+    left var(--scene-motion) ease-out,
+    top var(--scene-motion) ease-out;
 }
 
 .element {
   transition:
-    transform var(--motion-base) ease-out,
-    opacity var(--motion-base) ease-out;
-  animation: enter var(--motion-base) ease-out;
+    transform var(--scene-motion) ease-out,
+    opacity var(--scene-motion) ease-out;
+  animation: enter var(--scene-motion) ease-out;
 }
 
 .element[data-leaving='true'] {
@@ -98,8 +106,8 @@
 }
 
 .marker {
-  transition: transform var(--motion-base) ease-out;
-  animation: enter var(--motion-base) ease-out;
+  transition: transform var(--scene-motion) ease-out;
+  animation: enter var(--scene-motion) ease-out;
 }
 
 .markerBox {
@@ -119,6 +127,7 @@
   fill: none;
   stroke: var(--color-line);
   stroke-width: var(--border-width);
+  transition: d var(--scene-motion) ease-out;
 }
 
 .arrowHead {

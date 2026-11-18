@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { CELL_HEIGHT, MARKER_HEIGHT } from './metrics';
 import styles from './scene.module.css';
 import { translate } from './translate';
+import { truncateToWidth } from './truncate';
 import type { SceneItems } from './scene-items';
 
 export interface AnnotationLayerProps {
@@ -44,7 +45,7 @@ export function AnnotationLayer({ items }: AnnotationLayerProps): ReactElement {
         >
           <rect className={styles.markerBox} width={marker.width} height={MARKER_HEIGHT - 2} />
           <text className={styles.markerText} x={marker.width / 2} y={(MARKER_HEIGHT - 2) / 2}>
-            {marker.text}
+            {truncateToWidth(marker.text, marker.width)}
           </text>
         </g>
       ))}
