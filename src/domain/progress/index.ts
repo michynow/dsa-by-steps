@@ -7,3 +7,16 @@ export type {
   ProgressError,
   ProgressV1,
 } from './types';
+export {
+  checkKey,
+  checkStateOf,
+  exerciseProgressOf,
+  lessonKey,
+  markStepSeen,
+  recordSubmit,
+  saveExerciseCode,
+  setCheckState,
+  stepsSeenIn,
+  takeHint,
+} from './transitions';
+export { parseProgress, parseProgressJson, progressSchema, serializeProgress } from './parse';
