@@ -21,7 +21,12 @@ describe('registry', () => {
   });
 
   it('derives the course from the modules', () => {
-    expect(course).toEqual({ modules: [{ slug: 'foundations', lessons: [] }] });
+    expect(
+      course.modules.map((module) => ({
+        slug: module.slug,
+        lessons: module.lessons.map((lesson) => lesson.slug),
+      })),
+    ).toEqual([{ slug: 'foundations', lessons: ['linked-lists'] }]);
   });
 
   it('preserves Module and Lesson order when deriving a course', () => {

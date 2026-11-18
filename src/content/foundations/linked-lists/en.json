@@ -1,0 +1,144 @@
+{
+  "title": "Linked lists",
+  "outcomes": {
+    "explain-nodes-and-links": "Explain how nodes and links make up a linked list",
+    "traverse-from-head": "Traverse a linked list from its head with a pointer",
+    "insert-in-constant-time": "Insert a node at the head or after a known node in O(1)",
+    "delete-by-relinking": "Delete a node by relinking around it",
+    "compare-with-arrays": "Compare the costs of linked lists and arrays"
+  },
+  "steps": {
+    "the-problem": {
+      "title": "Adding to the front is expensive",
+      "caption": "Your task list is an array and a new task Z must go first. Every task already there shifts one cell to the right to make room. With thousands of tasks, one insert moves thousands of cells."
+    },
+    "a-node": {
+      "title": "A node holds a value and a next",
+      "caption": "You store each item in its own node. A node holds two things: a value and a link called next. Here the single node holds A, and its next points nowhere yet."
+    },
+    "linking-nodes": {
+      "title": "Nodes joined by links",
+      "caption": "You add B, C and D, then link each node to the one after it. Following the links takes you from A to D. The last node's next is null, which marks the end of the list."
+    },
+    "the-head": {
+      "title": "The head is where the list starts",
+      "caption": "The list needs one more thing: the head, a reference to its first node. You set the head to A, the one node that no other node links to. From the head, the links reach every other node."
+    },
+    "current-pointer": {
+      "title": "A pointer marks a node",
+      "caption": "A pointer is a labelled marker that refers to one node. You place current on the head, A, and follow A's next link. Now current sits on B."
+    },
+    "traversal": {
+      "title": "Walking the whole list",
+      "caption": "You keep following next links. current goes from B to C and then to D, whose next is null, so you stop and put the pointer away. Visiting the nodes one after another like this is called traversal."
+    },
+    "insert-at-head": {
+      "title": "Insert at the head",
+      "caption": "You create node Z and link its next to A, the old head. Then you make Z the new head. No other node is touched, so the cost does not depend on the length of the list."
+    },
+    "insert-after": {
+      "title": "Insert after a node",
+      "caption": "The pointer prev marks A, the node you insert after. You link the new node X to B, prev's next, first. Then you link prev to X, so no node is lost."
+    },
+    "delete-after": {
+      "title": "Delete by relinking",
+      "caption": "To delete X, you link prev, which is A, to B, the node after X. Nothing points to X any more, so you remove it. prev's next now points to B, and the rest of the list never moves."
+    },
+    "access-by-index": {
+      "title": "Reaching an index takes a walk",
+      "caption": "A list has no index to jump to. To reach index 3, which holds C, you start at the head and follow next three times. Reaching index k takes k moves."
+    },
+    "arrays-vs-lists": {
+      "title": "Arrays versus linked lists",
+      "caption": "You compare the array's slot at index 3 with the list's node C. The array reaches it in one jump, while the list needs three moves. In return, the list inserts at the front in one step, where the array shifts every cell."
+    },
+    "reverse-preview": {
+      "title": "Next up: reverse a list",
+      "caption": "In the Exercise you reverse a list in place with three pointers: prev, current and next. Before the first move, prev is null, current sits on the head and next is one node ahead. You redirect each node's link, one node at a time."
+    }
+  },
+  "checks": {
+    "what-a-node-holds": {
+      "prompt": "Besides its value, what does each node of a linked list hold?",
+      "options": {
+        "next-link": "A link to the next node, because the list continues from it",
+        "index": "Its index, because the list finds a node by its position",
+        "previous-link": "A link to the previous node, because the list is read from the end"
+      },
+      "explanation": "Each node holds a link to the next node, called next, and the list continues by following it. Nodes have no index, because a list finds a node by walking the links, not by position. A link back is not needed to read the list forward, so the simplest node has only next."
+    },
+    "which-node-becomes-head": {
+      "prompt": "The list has no head yet. Select the node the head should refer to.",
+      "explanation": "The head is A, because no link leads into A, so only the head can lead you there. If you pointed the head at C, you would lose A and B. If you pointed it at D, the last node, you could reach nothing else, since its next is null."
+    },
+    "where-current-moves": {
+      "prompt": "current is on B. After it follows one more link, which node is it on?",
+      "explanation": "current is on C. Links only point forward, so current never goes back to A. It also never skips a node, because B's next leads straight to C."
+    },
+    "cost-of-insert-at-head": {
+      "prompt": "A list holds n nodes. How does the work of inserting a node at the head grow as n grows?",
+      "options": {
+        "constant": "O(1), because only the new node and the head change",
+        "shift-everything": "O(n), because every node moves one place",
+        "walk-to-the-end": "O(n), because you walk to the end first",
+        "update-every-link": "O(n), because every node's link has to be updated"
+      },
+      "explanation": "It is O(1): one new node, one link and one head change, whatever the length. Nodes never shift, because a node's place comes from links, not from its position in memory. You never walk to the end, because the head is already in hand. Only the new node and the head change, and every other link stays as it is."
+    },
+    "first-link-to-change": {
+      "prompt": "You insert a new node X after A. Which link do you set first?",
+      "options": {
+        "new-to-next": "The new node's next, set to B, because the new node must know what follows it",
+        "prev-to-new": "A's next, set to the new node, because A must know what follows it",
+        "new-to-prev": "The new node's next, set to A, because the new node must know where it came from",
+        "either-order": "Either one first, because both links are set in the end"
+      },
+      "explanation": "You set the new node's next to B first. If you link A to the new node first, nothing points to B any more, and B, C and D are lost. If you set the new node's next back to A, you then link A to the new node, so A leads to X and X leads back to A. The list loops, and B onward can no longer be reached. The order matters because A's old next is the only reference to the rest of the list."
+    },
+    "prev-next-after-deletion": {
+      "prompt": "prev is on A, and X will be removed by relinking. Which node will prev's next point to afterwards?",
+      "explanation": "prev's next points to B. Before the removal A links to X and X links to B, so you link A straight to B and X drops out. prev's next does not point to X, and it does not become null, because the list continues after X."
+    },
+    "cost-of-reaching-index-k": {
+      "prompt": "What does it cost to reach the node at index k of a linked list, counting from the head?",
+      "options": {
+        "k-moves": "k moves, because you follow k links from the head: O(n) at worst",
+        "one-move": "1 move, because the list knows where each node is: O(1)",
+        "whole-list": "n moves, because you must walk the whole list every time: O(n)",
+        "halving": "About log k moves, because you can skip nodes along the way"
+      },
+      "explanation": "You follow k links from the head, so the cost grows with k and is O(n) in the worst case. A list cannot jump the way an array does, because nodes are not stored side by side. You stop at index k rather than at the end, and a link only leads to the next node, so there is nothing to skip."
+    },
+    "cheaper-on-a-list": {
+      "prompt": "Which operation is cheaper on a linked list than on an array?",
+      "options": {
+        "insert-at-front": "Inserting a new item at the front, because no item has to move",
+        "read-by-index": "Reading the item at index k, because the links lead straight to it",
+        "visit-every-element": "Visiting every item once, because links lead from one to the next"
+      },
+      "explanation": "Inserting at the front is cheaper: O(1) on a list, while the array shifts every cell, O(n). Reading by index favours the array, with O(1) against a walk of k moves. Visiting every item costs O(n) on both, because each item is visited once either way."
+    }
+  },
+  "terms": {
+    "linked-list": {
+      "term": "linked list",
+      "gloss": "A chain of nodes where each node links to the next one and the last links to nothing."
+    },
+    "node": {
+      "term": "node",
+      "gloss": "One item of a linked list: a value plus a link to the next node."
+    },
+    "head": {
+      "term": "head",
+      "gloss": "The first node of a linked list, where every traversal starts."
+    },
+    "pointer": {
+      "term": "pointer",
+      "gloss": "A labelled marker that refers to one node, like current or prev."
+    },
+    "traversal": {
+      "term": "traversal",
+      "gloss": "Visiting the nodes one after another by following their links."
+    }
+  }
+}
