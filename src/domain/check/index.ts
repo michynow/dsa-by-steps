@@ -9,3 +9,5 @@ export type {
   OptionId,
   Verdict,
 } from './types';
+export { judge } from './judge';
+export { canReveal, recordVerdict, reveal } from './check-state';
