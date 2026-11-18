@@ -1,6 +1,6 @@
 import { err, ok } from '../result';
 import type { Result } from '../result';
-import type { Course, CourseError, CoursePosition, Lesson, Module } from './types';
+import type { Course, CourseError, CoursePosition, Lesson, Module, ModuleSlug } from './types';
 
 export interface LocatedPosition {
   readonly module: Module;
@@ -12,7 +12,7 @@ export interface LocatedPosition {
 }
 
 interface LessonRef {
-  readonly module: string;
+  readonly module: ModuleSlug;
   readonly lesson: Lesson;
 }
 
@@ -72,6 +72,10 @@ function endOf(ref: LessonRef | undefined): CoursePosition | null {
     : { module: ref.module, lesson: ref.lesson.slug, step: ref.lesson.steps.length };
 }
 
+function positionAt(position: CoursePosition, step: number): CoursePosition {
+  return { module: position.module, lesson: position.lesson, step };
+}
+
 export function firstPosition(course: Course): CoursePosition | null {
   return startOf(lessonsInOrder(course)[0]);
 }
@@ -82,7 +86,7 @@ export function nextPosition(
 ): Result<CoursePosition | null, CourseError> {
   const located = locate(course, position);
   if (!located.ok) return located;
-  if (!located.value.isExercise) return ok({ ...position, step: position.step + 1 });
+  if (!located.value.isExercise) return ok(positionAt(position, position.step + 1));
   const lessons = lessonsInOrder(course);
   return ok(startOf(lessons[indexOfLesson(lessons, located.value) + 1]));
 }
@@ -93,7 +97,7 @@ export function previousPosition(
 ): Result<CoursePosition | null, CourseError> {
   const located = locate(course, position);
   if (!located.ok) return located;
-  if (position.step > 0) return ok({ ...position, step: position.step - 1 });
+  if (position.step > 0) return ok(positionAt(position, position.step - 1));
   const lessons = lessonsInOrder(course);
   return ok(endOf(lessons[indexOfLesson(lessons, located.value) - 1]));
 }

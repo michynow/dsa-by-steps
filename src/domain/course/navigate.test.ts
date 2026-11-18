@@ -44,6 +44,22 @@ const courseWithEmptyModules: Course = {
   ],
 };
 
+const zeroStepAcrossModules: Course = {
+  modules: [module('a', [lesson('x', 1)]), module('b', [lesson('z', 0)])],
+};
+
+const sharedSlugCourse: Course = {
+  modules: [module('m1', [lesson('shared', 1)]), module('m2', [lesson('shared', 1)])],
+};
+
+function deepFreeze<T>(value: T): T {
+  if (typeof value === 'object' && value !== null && !Object.isFrozen(value)) {
+    Object.freeze(value);
+    Object.values(value).forEach(deepFreeze);
+  }
+  return value;
+}
+
 describe('locate', () => {
   it('resolves a Step', () => {
     expect(locate(course, at('lists', 'reverse', 1))).toEqual({
@@ -154,6 +170,32 @@ describe('nextPosition', () => {
       ok: false,
       error: { code: 'unknown-module', module: 'graphs' },
     });
+    expect(nextPosition(course, at('arrays', 'nope', 0))).toEqual({
+      ok: false,
+      error: { code: 'unknown-lesson', module: 'arrays', lesson: 'nope' },
+    });
+    expect(nextPosition(course, at('arrays', 'basics', 9))).toEqual({
+      ok: false,
+      error: {
+        code: 'step-out-of-range',
+        module: 'arrays',
+        lesson: 'basics',
+        step: 9,
+        stepCount: 2,
+      },
+    });
+  });
+  it('returns a fresh position without extra properties of the input', () => {
+    const input = { ...at('arrays', 'basics', 0), extra: 'x' };
+    expect(nextPosition(course, input)).toEqual({ ok: true, value: at('arrays', 'basics', 1) });
+    const result = nextPosition(course, input);
+    expect(result.ok && result.value && 'extra' in result.value).toBe(false);
+  });
+  it('moves from a Lesson Exercise to a following zero-Step Lesson in the next Module', () => {
+    expect(nextPosition(zeroStepAcrossModules, at('a', 'x', 1))).toEqual({
+      ok: true,
+      value: at('b', 'z', 0),
+    });
   });
 });
 
@@ -196,7 +238,36 @@ describe('previousPosition', () => {
     });
   });
   it('propagates errors', () => {
-    expect(previousPosition(course, at('arrays', 'basics', 9)).ok).toBe(false);
+    expect(previousPosition(course, at('graphs', 'x', 0))).toEqual({
+      ok: false,
+      error: { code: 'unknown-module', module: 'graphs' },
+    });
+    expect(previousPosition(course, at('arrays', 'nope', 0))).toEqual({
+      ok: false,
+      error: { code: 'unknown-lesson', module: 'arrays', lesson: 'nope' },
+    });
+    expect(previousPosition(course, at('arrays', 'basics', 9))).toEqual({
+      ok: false,
+      error: {
+        code: 'step-out-of-range',
+        module: 'arrays',
+        lesson: 'basics',
+        step: 9,
+        stepCount: 2,
+      },
+    });
+  });
+  it('returns a fresh position without extra properties of the input', () => {
+    const input = { ...at('arrays', 'basics', 2), extra: 'x' };
+    const result = previousPosition(course, input);
+    expect(result).toEqual({ ok: true, value: at('arrays', 'basics', 1) });
+    expect(result.ok && result.value && 'extra' in result.value).toBe(false);
+  });
+  it('moves from a zero-Step Lesson in one Module to the previous Module Exercise', () => {
+    expect(previousPosition(zeroStepAcrossModules, at('b', 'z', 0))).toEqual({
+      ok: true,
+      value: at('a', 'x', 1),
+    });
   });
 });
 
@@ -236,12 +307,18 @@ describe('walking the Course', () => {
 });
 
 describe('purity', () => {
-  it('does not mutate the Course or position', () => {
-    const snapshot = structuredClone(course);
-    const position = at('arrays', 'basics', 1);
-    nextPosition(course, position);
-    previousPosition(course, position);
-    expect(course).toEqual(snapshot);
+  it('does not mutate deep-frozen inputs in any navigation function', () => {
+    const frozenCourse = deepFreeze(structuredClone(course));
+    const position = deepFreeze(at('arrays', 'basics', 1));
+    const progress = deepFreeze(recordSubmit(emptyProgress, lessonKey('arrays', 'search'), 'pass'));
+    expect(() => {
+      locate(frozenCourse, position);
+      firstPosition(frozenCourse);
+      nextPosition(frozenCourse, position);
+      previousPosition(frozenCourse, position);
+      moduleProgress(frozenCourse, 'arrays', progress);
+    }).not.toThrow();
+    expect(frozenCourse).toEqual(course);
     expect(position).toEqual(at('arrays', 'basics', 1));
   });
 });
@@ -278,5 +355,13 @@ describe('moduleProgress', () => {
       ok: false,
       error: { code: 'unknown-module', module: 'graphs' },
     });
+  });
+  it('keeps a Lesson slug shared by two Modules separate per Module', () => {
+    const progress = recordSubmit(emptyProgress, lessonKey('m1', 'shared'), 'pass');
+    const first = moduleProgress(sharedSlugCourse, 'm1', progress);
+    const second = moduleProgress(sharedSlugCourse, 'm2', progress);
+    expect(first.ok && first.value.passedCount).toBe(1);
+    expect(second.ok && second.value.lessons).toEqual([{ lesson: 'shared', passed: false }]);
+    expect(second.ok && second.value.passedCount).toBe(0);
   });
 });
