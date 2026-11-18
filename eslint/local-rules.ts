@@ -1,6 +1,6 @@
 import type { ESLint, Rule } from 'eslint';
 
-const compilerDirective = /^\/\s*<reference\s/;
+const compilerDirective = /^(\/\s*<reference\s|\s*@ts-expect-error\s+\S)/;
 
 const noComments: Rule.RuleModule = {
   meta: {
