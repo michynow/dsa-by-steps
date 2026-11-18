@@ -81,7 +81,7 @@ Keyboard-complete: every Step, Check (including Order Checks) and Exercise actio
 
 ## Testing
 
-- **Vitest** for `domain`, `runner`, `renderer` and `content`. Domain and runner logic is built test-first.
+- **Vitest** for `domain`, `runner`, `renderer` and `content`.
 - **React Testing Library** for feature components, queried by role and accessible name.
 - **Playwright** for end-to-end flows: complete a Lesson, answer each Check type, Pass an Exercise, switch Locale, export and import Progress.
 - **Content tests** run every Lesson's Reference Solution against all its Tests, assert every Locale defines every message key, and assert every Step's Step Events reduce to a valid Scene.
