@@ -14,7 +14,7 @@ const layers = ['app', 'feature', 'renderer', 'runner', 'domain', 'content', 'ui
 const publicSurface = { fileInternalPath: ['index.ts', 'index.tsx'] };
 
 export default defineConfig(
-  { ignores: ['dist', 'coverage', 'playwright-report', 'test-results'] },
+  { ignores: ['dist', 'coverage', 'playwright-report', 'test-results', '.claude/worktrees'] },
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
