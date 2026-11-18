@@ -13,7 +13,7 @@ src/content/<module-slug>/<lesson-slug>/
   index.ts       public surface consumed by the Course registry
 ```
 
-Start from `src/content/_template/`. Slugs are kebab-case English and never change once published, because they appear in URLs and stored Progress.
+Start from `src/content/_template/`. Slugs and ids (Module, Lesson, Step, Check, Outcome, element) are kebab-case English and never change once published, because they appear in URLs and stored Progress.
 
 ## Steps
 
