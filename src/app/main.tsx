@@ -1,15 +1,18 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter } from 'react-router';
+import { modules } from '@/content';
+import { noStepCheck } from '@/features/lesson-player';
 import {
   createI18n,
   createLocalePreferenceStore,
   localeFromLanguageTags,
   localeFromPath,
 } from '@/features/locale';
+import { createBrowserProgressRepository, createProgressStore } from '@/features/progress';
 import '@/ui';
 import { App } from './App';
-import { routes } from './routes';
+import { createRoutes } from './routes';
 
 const container = document.getElementById('root');
 if (!container) throw new Error('Missing #root container');
@@ -21,6 +24,10 @@ const initialLocale =
 
 createRoot(container).render(
   <StrictMode>
-    <App i18n={createI18n(initialLocale)} router={createBrowserRouter(routes)} />
+    <App
+      i18n={createI18n(initialLocale)}
+      router={createBrowserRouter(createRoutes({ modules, useStepCheck: noStepCheck }))}
+      progress={createProgressStore(createBrowserProgressRepository(window.localStorage))}
+    />
   </StrictMode>,
 );

@@ -1,0 +1,62 @@
+{
+  "document": "{lesson} · {course}",
+  "error": {
+    "title": "Nie można pokazać tej lekcji.",
+    "body": "Jej treść jest uszkodzona. Zgłoś ten problem."
+  },
+  "stage": {
+    "figure": "Scena",
+    "select": "Wybierz",
+    "structure": {
+      "array": "Tablica",
+      "linked-list": "Lista powiązana",
+      "stack": "Stos",
+      "queue": "Kolejka",
+      "hash-map": "Mapa haszująca"
+    },
+    "tone": {
+      "focus": "wyróżniony",
+      "compare": "porównywany",
+      "done": "gotowy",
+      "error": "błąd"
+    },
+    "head": "head",
+    "top": "szczyt",
+    "front": "początek",
+    "back": "koniec",
+    "nullLink": "null",
+    "empty": "pusty",
+    "bucket": "Kubełek",
+    "index": "Indeks"
+  },
+  "rail": {
+    "label": "Kroki",
+    "exercise": "Ćwiczenie",
+    "problem": "Problem",
+    "seen": "obejrzany",
+    "current": "bieżący",
+    "unseen": "jeszcze nie obejrzany"
+  },
+  "caption": {
+    "navigation": "Nawigacja po krokach",
+    "previous": "Wstecz",
+    "next": "Dalej",
+    "nextBlocked": "Odpowiedz na pytanie, aby przejść dalej."
+  },
+  "panels": {
+    "outcomes": "Efekty",
+    "terms": "Terminy"
+  },
+  "exercise": {
+    "title": "Ćwiczenie",
+    "soon": "Ćwiczenie pojawi się wkrótce."
+  },
+  "progress": {
+    "segment": "{lesson}, {status}",
+
+    "label": "Postęp w module",
+    "position": "Lekcja {number} z {count}",
+    "passed": "zaliczona",
+    "notPassed": "niezaliczona"
+  }
+}

@@ -1,0 +1,7 @@
+.stage {
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-hard);
+}
