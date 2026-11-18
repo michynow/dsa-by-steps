@@ -7,6 +7,7 @@ dsa-by-steps is a static, client-only course that animates data structures and a
 - `CONTEXT.md` is the ubiquitous language. Use its terms verbatim in code, tests, file names, commits and conversation. When a term you need is missing or fuzzy, stop and resolve it with the user, then add it to `CONTEXT.md` before writing code that uses it.
 - `docs/adr/` records the architectural decisions. Read the relevant ADRs before touching runtime, persistence, i18n, content format, or Exercise judging. A change that contradicts an ADR needs a new ADR that supersedes it, agreed with the user first.
 - `docs/curriculum.md` is the Course map and build order.
+- `docs/layout.md` fixes the page structure: Shell, Step Rail, Stage, Caption Strip, Exercise view, keyboard map. Follow it for any change to `src/app/` or a feature's page-level components.
 - `docs/authoring.md` is the procedure for writing or changing a Lesson. Follow it for any change under `src/content/`.
 
 ## Architecture
