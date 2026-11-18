@@ -1,0 +1,15 @@
+.panel {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius-card);
+}
+
+.summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.list {
+  margin: var(--space-2) 0 0;
+}
