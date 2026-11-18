@@ -1,5 +1,6 @@
 import type { RouteObject } from 'react-router';
 import type { ModuleContent } from '@/content';
+import { useStepCheckBinding } from '@/features/checks';
 import { LocaleRoute, RootRedirect } from '@/features/locale';
 import { LessonError, LessonPage, LessonRedirect } from '@/features/lesson-player';
 import type { UseStepCheck } from '@/features/lesson-player';
@@ -8,10 +9,13 @@ import { Shell } from './Shell';
 
 export interface RouteDependencies {
   readonly modules: readonly ModuleContent[];
-  readonly useStepCheck: UseStepCheck;
+  readonly useStepCheck?: UseStepCheck;
 }
 
-export function createRoutes({ modules, useStepCheck }: RouteDependencies): RouteObject[] {
+export function createRoutes({
+  modules,
+  useStepCheck = useStepCheckBinding,
+}: RouteDependencies): RouteObject[] {
   return [
     { path: '/', Component: RootRedirect },
     {

@@ -2,7 +2,6 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter } from 'react-router';
 import { modules } from '@/content';
-import { noStepCheck } from '@/features/lesson-player';
 import {
   createI18n,
   createLocalePreferenceStore,
@@ -26,7 +25,7 @@ createRoot(container).render(
   <StrictMode>
     <App
       i18n={createI18n(initialLocale)}
-      router={createBrowserRouter(createRoutes({ modules, useStepCheck: noStepCheck }))}
+      router={createBrowserRouter(createRoutes({ modules }))}
       progress={createProgressStore(createBrowserProgressRepository(window.localStorage))}
     />
   </StrictMode>,

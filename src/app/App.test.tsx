@@ -5,17 +5,24 @@ import { createI18n } from '@/features/locale';
 import { testModules } from '@/test/lesson-fixtures';
 import { modules } from '@/content';
 import { noStepCheck } from '@/features/lesson-player';
+import type { UseStepCheck } from '@/features/lesson-player';
 import { createMemoryProgressRepository, createProgressStore } from '@/features/progress';
 import { App } from './App';
 import { createRoutes } from './routes';
 
-function renderAt(path: string, content = modules) {
-  const router = createMemoryRouter(createRoutes({ modules: content, useStepCheck: noStepCheck }), {
+function renderAt(path: string, content = modules, useStepCheck: UseStepCheck = noStepCheck) {
+  const router = createMemoryRouter(createRoutes({ modules: content, useStepCheck }), {
     initialEntries: [path],
   });
   const progress = createProgressStore(createMemoryProgressRepository());
   render(<App i18n={createI18n('en')} router={router} progress={progress} />);
   return Object.assign(router, { progress });
+}
+
+function renderWithDefaultChecks(path: string) {
+  const router = createMemoryRouter(createRoutes({ modules }), { initialEntries: [path] });
+  const progress = createProgressStore(createMemoryProgressRepository());
+  render(<App i18n={createI18n('en')} router={router} progress={progress} />);
 }
 
 describe('App', () => {
@@ -159,5 +166,31 @@ describe('App', () => {
     );
     expect(screen.getByRole('link', { name: 'Course home' })).toBeVisible();
     vi.restoreAllMocks();
+  });
+
+  describe('Checks in the Lesson player', () => {
+    const wrongOption = 'Its index, because the list finds a node by its position';
+    const caption = /You store each item in its own node/;
+
+    it('gates the Step, counts Misses, offers Show me and unblocks next on Reveal', async () => {
+      const user = userEvent.setup();
+      renderWithDefaultChecks('/en/foundations/linked-lists/2');
+      await screen.findByRole('radiogroup');
+      expect(screen.getByRole('button', { name: 'Next' })).toHaveAttribute('aria-disabled', 'true');
+      expect(screen.queryByText(caption)).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Show me' })).toBeNull();
+      for (let miss = 0; miss < 3; miss += 1) {
+        await user.click(screen.getByRole('radio', { name: wrongOption }));
+        await user.click(screen.getByRole('button', { name: 'Check answer' }));
+        expect(screen.getByRole('status')).toHaveTextContent('Not right. Try again.');
+      }
+      await user.click(screen.getByRole('button', { name: 'Show me' }));
+      expect(screen.getByRole('button', { name: 'Next' })).not.toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
+      expect(screen.getByText(caption)).toBeVisible();
+      expect(screen.getByText(/Each node holds a link to the next node/)).toBeVisible();
+    });
   });
 });
