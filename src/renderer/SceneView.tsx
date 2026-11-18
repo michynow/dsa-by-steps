@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement } from 'react';
-import { TRANSITION_MILLISECONDS } from './metrics';
+import { MAXIMUM_SCALE, TRANSITION_MILLISECONDS } from './metrics';
 import { AnnotationLayer } from './AnnotationLayer';
 import { describeScene } from './describe-scene';
 import { ElementNode } from './ElementNode';
@@ -24,14 +24,17 @@ export function SceneView({ scene, labels, selection }: SceneViewProps): ReactEl
       <div
         className={styles.canvas}
         data-canvas="true"
-        style={{ maxWidth: width, aspectRatio: `${String(width)} / ${String(height)}` }}
+        style={{
+          width: '100%',
+          maxWidth: width * MAXIMUM_SCALE,
+          aspectRatio: `${String(width)} / ${String(height)}`,
+        }}
       >
         <svg
           className={styles.drawing}
           aria-hidden="true"
           viewBox={`0 0 ${String(width)} ${String(height)}`}
         >
-          <LinkLayer structures={items.layout.structures} />
           {elements.map((item) => (
             <ElementNode
               key={item.key}
@@ -43,6 +46,7 @@ export function SceneView({ scene, labels, selection }: SceneViewProps): ReactEl
               }
             />
           ))}
+          <LinkLayer structures={items.layout.structures} />
           <AnnotationLayer items={items} />
         </svg>
         {selection === undefined ? null : (

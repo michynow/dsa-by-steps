@@ -297,7 +297,7 @@ describe('SceneView', () => {
   it('draws a list without a head using its stored order and describes it', () => {
     const { container } = renderScene(sceneOf([listOf('list', null, node('x', 'y'), node('y'))]));
     expect(elementNode(container, 'list', 'x')).toHaveStyle({ transform: 'translate(8px, 8px)' });
-    expect(elementNode(container, 'list', 'y')).toHaveStyle({ transform: 'translate(88px, 8px)' });
+    expect(elementNode(container, 'list', 'y')).toHaveStyle({ transform: 'translate(104px, 8px)' });
     expect(descriptionOf()).toEqual(['Linked list: x, y, null']);
   });
 
@@ -326,17 +326,29 @@ describe('SceneView', () => {
       sceneOf([listOf('list', 'a', node('a', 'b'), node('b'))]),
     );
     const before = byAttribute(container, 'data-link', link);
-    expect(before).toHaveAttribute('d', 'M72 48 L88 48');
+    expect(before).toHaveAttribute('d', 'M72 48 L104 48');
     rerender(viewOf(sceneOf([listOf('list', 'z', node('z', 'a'), node('a', 'b'), node('b'))])));
     const after = byAttribute(container, 'data-link', link);
     expect(after).toBe(before);
-    expect(after).toHaveAttribute('d', 'M152 48 L168 48');
+    expect(after).toHaveAttribute('d', 'M168 48 L200 48');
   });
 
-  it('scales the drawing down to its container but never above natural size', () => {
+  it('fills its container up to twice natural size and shrinks below natural size', () => {
     const { container } = renderScene(sceneOf([arrayOf('arr', 'a', 'b')]));
     expect(container.querySelector('svg')).toHaveAttribute('viewBox', '0 0 160 76');
-    expect(byAttribute(container, 'data-canvas', 'true')).toHaveStyle({ maxWidth: '160px' });
+    expect(byAttribute(container, 'data-canvas', 'true')).toHaveStyle({
+      maxWidth: '320px',
+      width: '100%',
+    });
+  });
+
+  it('draws links above the element shadows', () => {
+    const { container } = renderScene(sceneOf([listOf('list', 'a', node('a', 'b'), node('b'))]));
+    const link = byAttribute(container, 'data-link', JSON.stringify(['list', 'a', 'b']));
+    const element = elementNode(container, 'list', 'b');
+    expect(link?.compareDocumentPosition(element ?? container)).toBe(
+      Node.DOCUMENT_POSITION_PRECEDING,
+    );
   });
 
   describe('selection', () => {

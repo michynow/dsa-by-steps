@@ -44,7 +44,7 @@ describe('layoutScene', () => {
   it('lays a linked list out in traversal order, then unreachable nodes, with null links', () => {
     const list = listOf('list', 'n1', node('n3'), node('n2'), node('n1', 'n2'));
     expect(layoutScene(sceneOf([list]))).toEqual({
-      width: 256,
+      width: 288,
       height: 116,
       structures: [
         {
@@ -52,12 +52,12 @@ describe('layoutScene', () => {
           kind: 'linked-list',
           x: 8,
           y: 8,
-          width: 240,
+          width: 272,
           height: 100,
           elements: [
             box('list', 'n1', 8, 28),
-            box('list', 'n2', 88, 28),
-            box('list', 'n3', 168, 28),
+            box('list', 'n2', 104, 28),
+            box('list', 'n3', 200, 28),
           ],
           links: [
             {
@@ -65,23 +65,23 @@ describe('layoutScene', () => {
               to: ref('list', 'n2'),
               points: [
                 { x: 72, y: 48 },
-                { x: 88, y: 48 },
+                { x: 104, y: 48 },
               ],
             },
             {
               from: ref('list', 'n2'),
               to: null,
               points: [
-                { x: 152, y: 48 },
-                { x: 160, y: 48 },
+                { x: 168, y: 48 },
+                { x: 176, y: 48 },
               ],
             },
             {
               from: ref('list', 'n3'),
               to: null,
               points: [
-                { x: 232, y: 48 },
-                { x: 240, y: 48 },
+                { x: 264, y: 48 },
+                { x: 272, y: 48 },
               ],
             },
           ],
@@ -99,15 +99,15 @@ describe('layoutScene', () => {
         to: ref('list', 'b'),
         points: [
           { x: 72, y: 48 },
-          { x: 88, y: 48 },
+          { x: 104, y: 48 },
         ],
       },
       {
         from: ref('list', 'b'),
         to: ref('list', 'a'),
         points: [
-          { x: 128, y: 68 },
-          { x: 128, y: 96 },
+          { x: 144, y: 68 },
+          { x: 144, y: 96 },
           { x: 32, y: 96 },
           { x: 32, y: 68 },
         ],
@@ -118,7 +118,7 @@ describe('layoutScene', () => {
   it('shows a head-less list with its nodes in stored order and no head room', () => {
     const list = listOf('list', null, node('x', 'y'), node('y'));
     const [structure] = layoutScene(sceneOf([list])).structures;
-    expect(structure?.elements).toEqual([box('list', 'x', 8, 8), box('list', 'y', 88, 8)]);
+    expect(structure?.elements).toEqual([box('list', 'x', 8, 8), box('list', 'y', 104, 8)]);
   });
 
   it('puts the top of a stack first', () => {
@@ -307,7 +307,7 @@ describe('layoutScene', () => {
     const list = listOf('list', 'a', node('a', 'b'), node('b', 'a'));
     expect(layoutScene(sceneOf([list])).structures[0]?.elements).toEqual([
       box('list', 'a', 8, 28),
-      box('list', 'b', 88, 28),
+      box('list', 'b', 104, 28),
     ]);
   });
 
