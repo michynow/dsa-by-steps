@@ -14,12 +14,22 @@ Status: `building` · `planned`
 | 4   | Stacks and queues       | LIFO vs FIFO; the operations define the structure                | stack, queue           | Order, Choice   | `isBalanced(brackets)`                                        | O(n)     |
 | 5   | Hash maps               | Hash to bucket, handle collisions, amortised O(1) lookup         | hash map (buckets)     | Predict, Choice | `firstDuplicate(nums)`                                        | O(n)     |
 
+Stories (one product situation per Lesson, values named after it):
+
+1. Big-O: a search box that is fast with 100 products and crawls with 100,000.
+2. Arrays and two pointers: finding two prices in a sorted price list that add up to a gift-card balance.
+3. Linked lists: a music app's play queue (play next, remove from queue, jump to song 500).
+4. Stacks and queues: undo in a text editor; a print queue.
+5. Hash maps: checking whether a username is taken at sign-up.
+
 ## Module 2 — Searching and recursion `planned`
 
-1. Binary search: halving a sorted range; off-by-one boundaries.
-2. Recursion: the call stack as a Structure; base and recursive cases.
-3. Sliding window: fixed and variable windows over arrays and strings.
-4. Prefix sums: precompute once, answer range queries in O(1).
+1. Binary search: halving a sorted range; off-by-one boundaries. Story: finding the commit that broke the build.
+2. Recursion: the call stack as a Structure; base and recursive cases. Story: listing every file in nested folders.
+3. Sliding window: fixed and variable windows over arrays and strings. Story: busiest 5-minute window in a server log.
+4. Prefix sums: precompute once, answer range queries in O(1). Story: sales totals between any two dates on a dashboard.
+
+Later Modules get their Stories when they move to `building`; each must be one real product situation, not an abstract array.
 
 ## Module 3 — Sorting `planned`
 

@@ -60,6 +60,7 @@ Each folder exposes a deliberate public surface through `index.ts`. Deep imports
 - Named exports only. One React component per file, file named after the component in PascalCase; non-component modules in kebab-case.
 - Styling uses CSS Modules co-located with components, built only from the design tokens in `ui/tokens`. Every token has a light and a dark value. Raw colours, spacing or font sizes in component styles are a lint error.
 - Interface text and Captions come only from Locale message files. A string literal rendered to the Learner is a bug.
+- Every union value shown to the Learner (Structure kinds, tones, statuses) has an entry in a typed label map (`Record<Union, string>`), so adding a variant fails compilation until it is labelled.
 - Functions stay small and do one thing. A function that needs a comment to explain a block gets that block extracted under a name that explains it.
 
 ## State
