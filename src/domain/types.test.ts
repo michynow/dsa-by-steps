@@ -305,6 +305,29 @@ describe('exhaustive switches over discriminated unions', () => {
     expect(() => stepEventTypeMissingVariant(clear)).toThrow();
 
     const cycle: SceneError = { code: 'cycle', event: clear, structureId: 's' };
+    const duplicate: SceneError = {
+      code: 'duplicate-id',
+      event: clear,
+      namespace: 'element',
+      id: 'x',
+    };
+    const unknownElement: SceneError = {
+      code: 'unknown-element',
+      event: clear,
+      structureId: 's',
+      elementId: 'e',
+    };
+    const outOfRange: SceneError = {
+      code: 'index-out-of-range',
+      event: clear,
+      structureId: 's',
+      index: 3,
+    };
+    expect([duplicate, unknownElement, outOfRange].map(sceneErrorCode)).toEqual([
+      'duplicate-id',
+      'unknown-element',
+      'index-out-of-range',
+    ]);
     expect(sceneErrorCode(cycle)).toBe('cycle');
     expect(() => sceneErrorCodeMissingVariant(cycle)).toThrow();
 
@@ -325,7 +348,14 @@ describe('exhaustive switches over discriminated unions', () => {
     expect(checkErrorCode(settled)).toBe('already-settled');
     expect(() => checkErrorCodeMissingVariant(settled)).toThrow();
 
-    const range: CourseError = { code: 'step-out-of-range', step: 9 };
+    const range: CourseError = {
+      code: 'step-out-of-range',
+      module: 'm',
+      lesson: 'l',
+      step: 9,
+      stepCount: 4,
+    };
+    expectTypeOf(range).toHaveProperty('code');
     expect(courseErrorCode(range)).toBe('step-out-of-range');
     expect(() => courseErrorCodeMissingVariant(range)).toThrow();
 
@@ -340,11 +370,16 @@ describe('Result', () => {
     expectTypeOf(ok(1)).toEqualTypeOf<Result<number, never>>();
     expectTypeOf(err('x')).toEqualTypeOf<Result<never, string>>();
 
-    const result = ok(1) as Result<number, string>;
+    const result: Result<number, string> = ok(1);
     if (result.ok) {
       expectTypeOf(result.value).toBeNumber();
     } else {
       expectTypeOf(result.error).toBeString();
+    }
+    const failure: Result<number, string> = err('x');
+    if (!failure.ok) {
+      expectTypeOf(failure.error).toBeString();
+      expect(failure.error).toBe('x');
     }
     expect(ok(1)).toEqual({ ok: true, value: 1 });
     expect(err('x')).toEqual({ ok: false, error: 'x' });

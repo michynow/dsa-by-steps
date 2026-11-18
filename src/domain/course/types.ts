@@ -39,5 +39,15 @@ export interface CoursePosition {
 
 export type CourseError =
   | { readonly code: 'unknown-module'; readonly module: ModuleSlug }
-  | { readonly code: 'unknown-lesson'; readonly lesson: LessonSlug }
-  | { readonly code: 'step-out-of-range'; readonly step: number };
+  | {
+      readonly code: 'unknown-lesson';
+      readonly module: ModuleSlug;
+      readonly lesson: LessonSlug;
+    }
+  | {
+      readonly code: 'step-out-of-range';
+      readonly module: ModuleSlug;
+      readonly lesson: LessonSlug;
+      readonly step: number;
+      readonly stepCount: number;
+    };

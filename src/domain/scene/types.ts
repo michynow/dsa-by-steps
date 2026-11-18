@@ -158,6 +158,7 @@ export type SceneError =
   | {
       readonly code: 'unknown-element';
       readonly event: StepEvent;
+      readonly structureId: StructureId;
       readonly elementId: ElementId;
     }
   | {
@@ -168,6 +169,7 @@ export type SceneError =
   | {
       readonly code: 'duplicate-id';
       readonly event: StepEvent;
+      readonly namespace: 'structure' | 'element' | 'pointer';
       readonly id: string;
     }
   | {
@@ -184,6 +186,7 @@ export type SceneError =
   | {
       readonly code: 'index-out-of-range';
       readonly event: StepEvent;
+      readonly structureId: StructureId;
       readonly index: number;
     }
   | {
