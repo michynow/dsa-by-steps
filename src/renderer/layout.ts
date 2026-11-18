@@ -17,6 +17,7 @@ import {
   GAP,
   INDEX_HEIGHT,
   LIST_FOOT,
+  LIST_GAP,
   MARKER_HEIGHT,
   PADDING,
   ROUTE_DEPTH,
@@ -104,8 +105,8 @@ function boxOf(item: Item, slot: Slot): ElementBox {
   };
 }
 
-function rowWidth(count: number, cellWidth: number): number {
-  return count === 0 ? cellWidth : count * cellWidth + (count - 1) * GAP;
+function rowWidth(count: number, cellWidth: number, gap: number = GAP): number {
+  return count === 0 ? cellWidth : count * cellWidth + (count - 1) * gap;
 }
 
 function arrangeRow(
@@ -114,11 +115,12 @@ function arrangeRow(
   room: number,
   y: number,
   x: number,
+  gap: number = GAP,
 ): readonly ElementBox[] {
   return items.map((item, index) =>
     boxOf(item, {
       structureId: structure.id,
-      x: x + index * (CELL_WIDTH + GAP),
+      x: x + index * (CELL_WIDTH + gap),
       y: y + room,
       width: CELL_WIDTH,
     }),
@@ -223,7 +225,7 @@ function arrangeList(
 ): Arranged {
   const nodes = traversalOrder(structure);
   const items = nodes.map((n) => ({ id: n.id, label: labelOf(n.value) }));
-  const elements = arrangeRow(structure, items, room, y, x);
+  const elements = arrangeRow(structure, items, room, y, x, LIST_GAP);
   const indexOf = new Map(nodes.map((n, index) => [n.id, index]));
   const links = elements.map((from, index) => {
     const next = nodes[index]?.next ?? null;
@@ -235,7 +237,7 @@ function arrangeList(
     );
   });
   return {
-    width: nodes.length === 0 ? CELL_WIDTH : rowWidth(nodes.length, CELL_WIDTH) + GAP,
+    width: nodes.length === 0 ? CELL_WIDTH : rowWidth(nodes.length, CELL_WIDTH, LIST_GAP) + GAP,
     height: nodes.length === 0 ? CELL_HEIGHT : room + CELL_HEIGHT + LIST_FOOT,
     elements,
     links,
