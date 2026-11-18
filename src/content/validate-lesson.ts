@@ -56,6 +56,13 @@ export type ContentIssue =
       readonly check: CheckId;
       readonly structure: string;
     }
+  | {
+      readonly code: 'order-element-missing';
+      readonly step: StepId;
+      readonly check: CheckId;
+      readonly structure: string;
+      readonly element: string;
+    }
   | { readonly code: 'invalid-id'; readonly kind: IdKind; readonly id: string }
   | { readonly code: 'duplicate-step-id'; readonly step: StepId }
   | { readonly code: 'duplicate-check-id'; readonly check: CheckId };
@@ -187,6 +194,34 @@ function sceneHasElement(scene: Scene, target: ElementRef): boolean {
   );
 }
 
+function orderIssues(
+  step: Step,
+  check: Extract<Check, { readonly kind: 'order' }>,
+  scene: Scene | undefined,
+): readonly ContentIssue[] {
+  const structure = scene?.structures.find((s) => s.id === check.structureId);
+  if (structure === undefined) {
+    return [
+      {
+        code: 'order-structure-missing',
+        step: step.id,
+        check: check.id,
+        structure: check.structureId,
+      },
+    ];
+  }
+  const present = elementIdsOf(structure);
+  return check.correct
+    .filter((element) => !present.includes(element))
+    .map((element): ContentIssue => ({
+      code: 'order-element-missing',
+      step: step.id,
+      check: check.id,
+      structure: check.structureId,
+      element,
+    }));
+}
+
 function checkIssues(step: Step, check: Check, scene: Scene | undefined): readonly ContentIssue[] {
   switch (check.kind) {
     case 'choice':
@@ -205,16 +240,7 @@ function checkIssues(step: Step, check: Check, scene: Scene | undefined): readon
             },
           ];
     case 'order':
-      return scene?.structures.some((s) => s.id === check.structureId) === true
-        ? []
-        : [
-            {
-              code: 'order-structure-missing',
-              step: step.id,
-              check: check.id,
-              structure: check.structureId,
-            },
-          ];
+      return orderIssues(step, check, scene);
   }
 }
 
@@ -255,8 +281,11 @@ function expectedKeys(content: LessonContent): readonly ExpectedKey[] {
 }
 
 function keyPaths(value: unknown, prefix: string): readonly string[] {
+  if (value === undefined) return [];
   if (typeof value !== 'object' || value === null) return [prefix];
-  return Object.entries(value).flatMap(([key, child]) =>
+  const entries = Object.entries(value);
+  if (entries.length === 0) return prefix.includes('.') ? [prefix] : [];
+  return entries.flatMap(([key, child]) =>
     keyPaths(child, prefix === '' ? key : `${prefix}.${key}`),
   );
 }
@@ -267,6 +296,8 @@ function localeIssues(
   actual: ReadonlySet<string>,
 ): readonly ContentIssue[] {
   const expectedPaths = new Set(expected.map((key) => key.path));
+  const isContainer = (path: string): boolean =>
+    [...expectedPaths].some((candidate) => candidate.startsWith(`${path}.`));
   const missing = expected
     .filter((key) => !actual.has(key.path))
     .map((key): ContentIssue =>
@@ -275,7 +306,7 @@ function localeIssues(
         : { code: 'choice-option-without-label', locale, ...key.option },
     );
   const extra = [...actual]
-    .filter((path) => !expectedPaths.has(path))
+    .filter((path) => !expectedPaths.has(path) && !isContainer(path))
     .map((path): ContentIssue => ({ code: 'extra-message-key', locale, path }));
   return [...missing, ...extra];
 }
@@ -298,7 +329,9 @@ function mismatchIssues(actual: ReadonlyMap<Locale, ReadonlySet<string>>): reado
 }
 
 function messageIssues(content: LessonContent): readonly ContentIssue[] {
-  const expected = expectedKeys(content);
+  const expected = expectedKeys(content).filter(
+    (key, index, all) => all.findIndex((other) => other.path === key.path) === index,
+  );
   const actual = new Map(
     contentLocales.map((locale): [Locale, ReadonlySet<string>] => [
       locale,

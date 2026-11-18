@@ -6,7 +6,7 @@ const stepMessages = z.strictObject({ title: text, caption: text });
 
 const checkMessages = z.strictObject({
   prompt: text,
-  options: z.record(z.string(), text).optional(),
+  options: z.exactOptional(z.record(z.string(), text)),
   explanation: text,
 });
 

@@ -368,3 +368,268 @@ describe('validateLessonContent', () => {
     expect(validate(content)).toEqual([{ code: 'duplicate-check-id', check: 'arrange' }]);
   });
 });
+
+describe('validateLessonContent: Check targets', () => {
+  it('accepts a Predict target created by the Check own Step', () => {
+    const content = withSteps([
+      {
+        ...stepAt(0),
+        check: {
+          kind: 'predict',
+          id: 'find-second',
+          correct: { structureId: 'numbers', elementId: 'second' },
+        },
+      },
+      stepAt(1),
+      { id: 'find-it', kind: 'explain', events: [] },
+      stepAt(3),
+    ]);
+    expect(validate(content)).toEqual([]);
+  });
+
+  it('reports an Order element missing from its Structure', () => {
+    const content = withSteps([
+      stepAt(0),
+      stepAt(1),
+      stepAt(2),
+      {
+        ...stepAt(3),
+        check: {
+          kind: 'order',
+          id: 'arrange',
+          structureId: 'numbers',
+          correct: ['first', 'ghost', 'second'],
+        },
+      },
+    ]);
+    expect(validate(content)).toEqual([
+      {
+        code: 'order-element-missing',
+        step: 'arrange-it',
+        check: 'arrange',
+        structure: 'numbers',
+        element: 'ghost',
+      },
+    ]);
+  });
+});
+
+describe('validateLessonContent: ids in every position', () => {
+  const extraStructures: Step['events'] = [
+    { type: 'create', structure: { kind: 'stack', id: 'pile', items: [] } },
+    { type: 'create', structure: { kind: 'queue', id: 'line', items: [] } },
+    { type: 'create', structure: { kind: 'linked-list', id: 'chain', nodes: [], head: null } },
+    { type: 'create', structure: { kind: 'hash-map', id: 'table', buckets: [[]] } },
+  ];
+
+  const cases: readonly (readonly [string, Step['events'][number], string])[] = [
+    [
+      'insert-cell',
+      { type: 'insert-cell', structureId: 'numbers', index: 0, cell: { id: 'Ins_Cell', value: 0 } },
+      'Ins_Cell',
+    ],
+    [
+      'push',
+      { type: 'push', structureId: 'pile', cell: { id: 'Push_Cell', value: 0 } },
+      'Push_Cell',
+    ],
+    [
+      'enqueue',
+      { type: 'enqueue', structureId: 'line', cell: { id: 'Enq_Cell', value: 0 } },
+      'Enq_Cell',
+    ],
+    [
+      'add-node',
+      { type: 'add-node', structureId: 'chain', node: { id: 'Add_Node', value: 0, next: null } },
+      'Add_Node',
+    ],
+    [
+      'put-entry',
+      {
+        type: 'put-entry',
+        structureId: 'table',
+        bucket: 0,
+        entry: { id: 'Put_Entry', key: 'k', value: 0 },
+      },
+      'Put_Entry',
+    ],
+  ];
+
+  it.each(cases)('reports an invalid element id from %s', (_name, event, id) => {
+    const content = withSteps([
+      { ...stepAt(0), events: [...stepAt(0).events, ...extraStructures, event] },
+      stepAt(1),
+      stepAt(2),
+      stepAt(3),
+    ]);
+    expect(validate(content)).toEqual([{ code: 'invalid-id', kind: 'element', id }]);
+  });
+
+  it('reports an invalid pointer id from a point event', () => {
+    const content = withSteps([
+      stepAt(0),
+      {
+        ...stepAt(1),
+        events: [{ type: 'point', pointer: { id: 'Bad_Ptr', label: 'p', target: null } }],
+      },
+      stepAt(2),
+      stepAt(3),
+    ]);
+    expect(validate(content)).toEqual([{ code: 'invalid-id', kind: 'pointer', id: 'Bad_Ptr' }]);
+  });
+
+  it('reports invalid ids in the initial Scene', () => {
+    const content: LessonContent = {
+      ...baseContent,
+      lesson: {
+        ...baseLesson,
+        initialScene: {
+          structures: [
+            { kind: 'array', id: 'Init_Struct', cells: [{ id: 'Init_Cell', value: 0 }] },
+          ],
+          pointers: [{ id: 'Init_Ptr', label: 'p', target: null }],
+          highlights: [],
+        },
+      },
+    };
+    expect(validate(content)).toEqual([
+      { code: 'invalid-id', kind: 'structure', id: 'Init_Struct' },
+      { code: 'invalid-id', kind: 'element', id: 'Init_Cell' },
+      { code: 'invalid-id', kind: 'pointer', id: 'Init_Ptr' },
+    ]);
+  });
+});
+
+describe('validateLessonContent: message keys', () => {
+  it('reports a missing title', () => {
+    // @ts-expect-error title is deliberately undefined
+    const content = withPolish({ title: undefined });
+    expect(validate(content)).toEqual([
+      { code: 'missing-message-key', locale: 'pl', path: 'title' },
+      { code: 'locale-key-mismatch', path: 'title', presentIn: 'en', absentIn: 'pl' },
+    ]);
+  });
+
+  it('reports a missing Outcome', () => {
+    const content = withPolish({ outcomes: {} });
+    expect(validate(content)).toEqual([
+      { code: 'missing-message-key', locale: 'pl', path: 'outcomes.read-an-array' },
+      {
+        code: 'locale-key-mismatch',
+        path: 'outcomes.read-an-array',
+        presentIn: 'en',
+        absentIn: 'pl',
+      },
+    ]);
+  });
+
+  it('reports an extra Outcome', () => {
+    const content = withPolish({
+      outcomes: { ...polishMessages.outcomes, 'ghost-outcome': 'x' },
+    });
+    expect(validate(content)).toEqual([
+      { code: 'extra-message-key', locale: 'pl', path: 'outcomes.ghost-outcome' },
+      {
+        code: 'locale-key-mismatch',
+        path: 'outcomes.ghost-outcome',
+        presentIn: 'pl',
+        absentIn: 'en',
+      },
+    ]);
+  });
+
+  it('reports a missing Term gloss', () => {
+    const content = withPolish({
+      terms: {
+        // @ts-expect-error the gloss is deliberately absent
+        array: { term: 'array' },
+      },
+    });
+    expect(validate(content)).toEqual([
+      { code: 'missing-message-key', locale: 'pl', path: 'terms.array.gloss' },
+      { code: 'locale-key-mismatch', path: 'terms.array.gloss', presentIn: 'en', absentIn: 'pl' },
+    ]);
+  });
+
+  it('reports an extra Term', () => {
+    const content = withPolish({
+      terms: { ...polishMessages.terms, ghost: { term: 'ghost', gloss: 'duch' } },
+    });
+    expect(validate(content)).toEqual([
+      { code: 'extra-message-key', locale: 'pl', path: 'terms.ghost.term' },
+      { code: 'extra-message-key', locale: 'pl', path: 'terms.ghost.gloss' },
+      { code: 'locale-key-mismatch', path: 'terms.ghost.term', presentIn: 'pl', absentIn: 'en' },
+      { code: 'locale-key-mismatch', path: 'terms.ghost.gloss', presentIn: 'pl', absentIn: 'en' },
+    ]);
+  });
+
+  it('reports an extra top-level key', () => {
+    const content = withPolish({
+      // @ts-expect-error subtitle is not part of LessonMessages
+      subtitle: 'x',
+    });
+    expect(validate(content)).toEqual([
+      { code: 'extra-message-key', locale: 'pl', path: 'subtitle' },
+      { code: 'locale-key-mismatch', path: 'subtitle', presentIn: 'pl', absentIn: 'en' },
+    ]);
+  });
+
+  it('reports an empty object for an unknown Check as an extra key', () => {
+    const content = withPolish({
+      checks: {
+        ...polishMessages.checks,
+        // @ts-expect-error an empty Check messages object is deliberately malformed
+        'ghost-check': {},
+      },
+    });
+    expect(validate(content)).toEqual([
+      { code: 'extra-message-key', locale: 'pl', path: 'checks.ghost-check' },
+      { code: 'locale-key-mismatch', path: 'checks.ghost-check', presentIn: 'pl', absentIn: 'en' },
+    ]);
+  });
+
+  it('reports an undefined leaf as a missing key', () => {
+    const content = withPolish({
+      steps: {
+        ...polishMessages.steps,
+        // @ts-expect-error the caption is deliberately undefined
+        'find-it': { title: 'Znajdź', caption: undefined },
+      },
+    });
+    expect(validate(content)).toEqual([
+      { code: 'missing-message-key', locale: 'pl', path: 'steps.find-it.caption' },
+      {
+        code: 'locale-key-mismatch',
+        path: 'steps.find-it.caption',
+        presentIn: 'en',
+        absentIn: 'pl',
+      },
+    ]);
+  });
+
+  it('does not double message issues when Step ids repeat', () => {
+    const content: LessonContent = {
+      ...withPolish({
+        steps: {
+          ...polishMessages.steps,
+          // @ts-expect-error the caption is deliberately absent
+          'find-it': { title: 'Znajdź' },
+        },
+      }),
+      lesson: {
+        ...baseLesson,
+        steps: [...baseLesson.steps, { id: 'find-it', kind: 'explain', events: [] }],
+      },
+    };
+    expect(validate(content)).toEqual([
+      { code: 'duplicate-step-id', step: 'find-it' },
+      { code: 'missing-message-key', locale: 'pl', path: 'steps.find-it.caption' },
+      {
+        code: 'locale-key-mismatch',
+        path: 'steps.find-it.caption',
+        presentIn: 'en',
+        absentIn: 'pl',
+      },
+    ]);
+  });
+});
