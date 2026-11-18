@@ -356,21 +356,25 @@ describe('validateLessonContent', () => {
   });
 
   it('reports two Checks with the same id', () => {
-    const content = withSteps([
-      {
-        ...stepAt(0),
-        check: { kind: 'order', id: 'arrange', structureId: 'numbers', correct: ['first'] },
-      },
-      stepAt(1),
-      stepAt(2),
-      stepAt(3),
+    const arrange: Step['check'] = {
+      kind: 'order',
+      id: 'arrange',
+      structureId: 'numbers',
+      correct: ['first'],
+    };
+    const content = withSteps([stepAt(0), stepAt(1), { ...stepAt(2), check: arrange }, stepAt(3)]);
+    expect(validate(content)).toEqual([
+      { code: 'duplicate-check-id', check: 'arrange' },
+      { code: 'extra-message-key', locale: 'en', path: 'checks.find-second.prompt' },
+      { code: 'extra-message-key', locale: 'en', path: 'checks.find-second.explanation' },
+      { code: 'extra-message-key', locale: 'pl', path: 'checks.find-second.prompt' },
+      { code: 'extra-message-key', locale: 'pl', path: 'checks.find-second.explanation' },
     ]);
-    expect(validate(content)).toEqual([{ code: 'duplicate-check-id', check: 'arrange' }]);
   });
 });
 
 describe('validateLessonContent: Check targets', () => {
-  it('accepts a Predict target created by the Check own Step', () => {
+  it('reports a Predict target created by the Check own Step', () => {
     const content = withSteps([
       {
         ...stepAt(0),
@@ -383,6 +387,29 @@ describe('validateLessonContent: Check targets', () => {
       stepAt(1),
       { id: 'find-it', kind: 'explain', events: [] },
       stepAt(3),
+    ]);
+    expect(validate(content)).toEqual([
+      {
+        code: 'predict-target-missing',
+        step: 'the-problem',
+        check: 'find-second',
+        target: { structureId: 'numbers', elementId: 'second' },
+      },
+    ]);
+  });
+
+  it('accepts a Predict target that its own Step removes', () => {
+    const content = withSteps([
+      stepAt(0),
+      stepAt(1),
+      {
+        ...stepAt(2),
+        events: [{ type: 'remove-cell', target: { structureId: 'numbers', elementId: 'second' } }],
+      },
+      {
+        ...stepAt(3),
+        check: { kind: 'order', id: 'arrange', structureId: 'numbers', correct: ['first'] },
+      },
     ]);
     expect(validate(content)).toEqual([]);
   });

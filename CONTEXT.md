@@ -59,7 +59,7 @@ _Avoid_: Cursor, arrow, index marker
 ### Checks
 
 **Check**:
-A question embedded in a Step that the learner must answer before advancing.
+A question embedded in a Step, posed on the Scene before that Step's change and answered before the change plays.
 _Avoid_: Quiz, question, test
 
 **Predict Check**:

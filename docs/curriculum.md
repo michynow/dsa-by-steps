@@ -10,7 +10,7 @@ Status: `building` · `planned`
 | --- | ----------------------- | ---------------------------------------------------------------- | ---------------------- | --------------- | ------------------------------------------------------------- | -------- |
 | 1   | Big-O                   | Count work as input grows; drop constants and lower terms        | array                  | Choice, Predict | `countPairsWithSum(nums, target)`, naive first, then improved | O(n)     |
 | 2   | Arrays and two pointers | Contiguous memory, O(1) index; converge pointers on sorted input | array + pointers       | Predict, Order  | `twoSumSorted(nums, target)`                                  | O(n)     |
-| 3   | Linked lists            | Nodes and links; O(1) insert at a known node, O(n) access        | linked list + pointers | Predict, Order  | `reverseList(head)`                                           | O(n)     |
+| 3   | Linked lists            | Nodes and links; O(1) insert at a known node, O(n) access        | linked list + pointers | Predict, Choice | `reverseList(head)`                                           | O(n)     |
 | 4   | Stacks and queues       | LIFO vs FIFO; the operations define the structure                | stack, queue           | Order, Choice   | `isBalanced(brackets)`                                        | O(n)     |
 | 5   | Hash maps               | Hash to bucket, handle collisions, amortised O(1) lookup         | hash map (buckets)     | Predict, Choice | `firstDuplicate(nums)`                                        | O(n)     |
 
