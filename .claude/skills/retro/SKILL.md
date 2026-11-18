@@ -21,7 +21,7 @@ Input: a commit SHA or range (default `HEAD`) and the review findings. If no fin
    - **lint**: a lint or dependency rule could have flagged it
    - **test**: a test at some layer would have gone red
    - **process**: a workflow step was skipped
-   Done when every finding has a gap and a one-sentence reason.
+     Done when every finding has a gap and a one-sentence reason.
 
 3. **Prescribe.** For each gap, propose one change, preferring in order: types, lint, test, then docs. A doc change names the exact file and the replacement text. Before proposing new text, check whether an existing line already covers it and was ignored; if so, sharpen that line instead of adding a second. Done when every gap has a change, and no two changes say the same thing.
 

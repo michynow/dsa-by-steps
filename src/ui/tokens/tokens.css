@@ -1,0 +1,74 @@
+:root {
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-size-caption: 0.75rem;
+  --font-size-body: 0.9375rem;
+  --font-size-heading: 1.25rem;
+  --font-size-title: 1.75rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --radius-control: 6px;
+  --radius-card: 10px;
+  --border-width: 2px;
+  --shadow-offset: 3px;
+  --motion-fast: 120ms;
+  --motion-base: 220ms;
+  --color-paper: #f4efe4;
+  --color-paper-dot: #d9d2c3;
+  --color-surface: #fffdf8;
+  --color-ink: #2c2c2a;
+  --color-ink-muted: #5f5e5a;
+  --color-line: #2c2c2a;
+  --color-accent: #d85a30;
+  --color-accent-ink: #4a1b0c;
+  --color-highlight: #fac775;
+  --color-highlight-ink: #412402;
+  --color-success: #97c459;
+  --color-success-ink: #173404;
+  --color-danger: #e24b4a;
+  --color-danger-ink: #501313;
+  --color-focus: #378add;
+  --shadow-hard: var(--shadow-offset) var(--shadow-offset) 0 var(--color-line);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-paper: #1e1d1b;
+    --color-paper-dot: #34322e;
+    --color-surface: #2a2926;
+    --color-ink: #f1efe8;
+    --color-ink-muted: #b4b2a9;
+    --color-line: #0b0b0a;
+    --color-accent: #f0997b;
+    --color-accent-ink: #2b0f06;
+    --color-highlight: #ef9f27;
+    --color-highlight-ink: #241401;
+    --color-success: #97c459;
+    --color-success-ink: #0f2402;
+    --color-danger: #f09595;
+    --color-danger-ink: #300b0b;
+    --color-focus: #85b7eb;
+  }
+}
+
+:root[data-theme='dark'] {
+  --color-paper: #1e1d1b;
+  --color-paper-dot: #34322e;
+  --color-surface: #2a2926;
+  --color-ink: #f1efe8;
+  --color-ink-muted: #b4b2a9;
+  --color-line: #0b0b0a;
+  --color-accent: #f0997b;
+  --color-accent-ink: #2b0f06;
+  --color-highlight: #ef9f27;
+  --color-highlight-ink: #241401;
+  --color-success: #97c459;
+  --color-success-ink: #0f2402;
+  --color-danger: #f09595;
+  --color-danger-ink: #300b0b;
+  --color-focus: #85b7eb;
+}

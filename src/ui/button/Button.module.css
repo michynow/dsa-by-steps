@@ -1,0 +1,22 @@
+.button {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-caption);
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-hard);
+  padding: var(--space-1) var(--space-3);
+  cursor: pointer;
+  transition: transform var(--motion-fast) ease-out;
+}
+
+.button:active {
+  transform: translate(var(--shadow-offset), var(--shadow-offset));
+  box-shadow: none;
+}
+
+.button[aria-pressed='true'] {
+  color: var(--color-highlight-ink);
+  background: var(--color-highlight);
+}

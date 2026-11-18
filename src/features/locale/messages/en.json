@@ -1,0 +1,16 @@
+{
+  "course": {
+    "title": "DSA by steps",
+    "tagline": "Watch data structures and algorithms move one step at a time, then build them yourself in TypeScript."
+  },
+  "locale": {
+    "label": "Language",
+    "name": {
+      "en": "English",
+      "pl": "Polski"
+    }
+  },
+  "shell": {
+    "home": "Course home"
+  }
+}
