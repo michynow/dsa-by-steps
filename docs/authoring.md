@@ -1,0 +1,37 @@
+# Authoring a Lesson
+
+The procedure for adding or changing a Lesson under `src/content/`. Claude drafts, the user reviews; a Lesson merges only after review.
+
+## Shape
+
+```
+src/content/<module-slug>/<lesson-slug>/
+  lesson.ts      Lesson definition: Outcomes, Steps, Step Events, Checks
+  exercise.ts    Starter Code, Visible Tests, Hidden Tests, Complexity Test, Hints, Reference Solution
+  en.json        every Caption, Outcome, Check prompt, option and Hint, keyed by id
+  pl.json        the same keys, translated
+  index.ts       public surface consumed by the Course registry
+```
+
+Start from `src/content/_template/`. Slugs are kebab-case English and never change once published, because they appear in URLs and stored Progress.
+
+## Steps
+
+1. **Pin the Lesson.** Confirm its row in `docs/curriculum.md`: core idea, Structures, Check types, Exercise, expected complexity. Done when the row matches what you are about to build.
+2. **Write the Outcomes.** Three to five, each observable ("Reverse a linked list in place"). Done when every Outcome is exercised by at least one Check or the Exercise.
+3. **Script the Steps.** Eight to twelve Steps. Open with a Problem, build the idea one Step Event at a time, close by previewing the Exercise. Each Step introduces at most one new idea. Done when the Steps reduce to valid Scenes in the content tests.
+4. **Place the Checks.** At least one Check per two Steps after the first Problem, mixing the Check types listed for the Lesson. Every Check has exactly one correct answer, and every Choice Check distractor encodes a specific misconception. Done when each Check maps to an Outcome.
+5. **Write the Exercise.** Typed Starter Code; three Visible Tests ordered simple to tricky; Hidden Tests covering empty input, single element, duplicates, and boundaries; a Complexity Test when the expected complexity is below quadratic; two or three Hints, each narrower than the last and none containing code that solves it. Done when the Reference Solution passes every Test and the naive solution fails the Complexity Test.
+6. **Write English.** All prose in `en.json`. Captions are two to four short sentences, present tense, second person. Terms appear in English.
+7. **Translate to Polish.** Every key in `pl.json`. Terms stay English; the first use of each Term in the Course gives its Polish equivalent in parentheses. Done when the content tests report no missing or extra keys.
+8. **Verify.** Run the content tests, unit tests and the Lesson in the browser end to end in both Locales and both themes. Done when every Check and the Exercise have been completed by hand at least once.
+
+## Review checklist
+
+The user reviews against this list:
+
+- Every Step Event is technically correct for the Structure it acts on.
+- The Steps teach the idea without needing the Deep Dive.
+- No Check can be answered by elimination of absurd options.
+- The Reference Solution is idiomatic TypeScript a Learner should aspire to.
+- The Polish reads naturally, not as a literal translation.

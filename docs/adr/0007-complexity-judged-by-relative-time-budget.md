@@ -1,0 +1,12 @@
+# Complexity is judged by a Time Budget relative to the Reference Solution
+
+Each Exercise that has an expected complexity includes a Complexity Test: a large input that must finish within a Time Budget set as a fixed multiple (5 to 10 times) of the Reference Solution's measured time on the same machine. A failure reports the solution as correct but too slow, with the expected complexity.
+
+## Considered Options
+
+- **Correctness only**: lets quadratic solutions pass, which defeats half the point of the Course.
+- **Operation counting via instrumented Structures**: deterministic, but proxies distort performance and native array methods bypass them. Kept as a per-Exercise option if timing proves too noisy for a specific Lesson.
+
+## Consequences
+
+- The Reference Solution is timed in the same Worker before the Learner's code, so the budget adapts to the Learner's machine instead of a hard-coded threshold.
