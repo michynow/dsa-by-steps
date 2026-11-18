@@ -30,7 +30,7 @@
     },
     "traversal": {
       "title": "Walking the whole list",
-      "caption": "You keep following next links. current goes from B to C and then to D, whose next is null, so you stop. Visiting the nodes one after another like this is called traversal."
+      "caption": "You keep following next links. current goes from B to C and then to D, whose next is null, so you stop and put the pointer away. Visiting the nodes one after another like this is called traversal."
     },
     "insert-at-head": {
       "title": "Insert at the head",
@@ -58,6 +58,15 @@
     }
   },
   "checks": {
+    "what-a-node-holds": {
+      "prompt": "Besides its value, what does each node of a linked list hold?",
+      "options": {
+        "next-link": "A link to the next node, because the list continues from it",
+        "index": "Its index, because the list finds a node by its position",
+        "previous-link": "A link to the previous node, because the list is read from the end"
+      },
+      "explanation": "Each node holds a link to the next node, called next, and the list continues by following it. Nodes have no index, because a list finds a node by walking the links, not by position. A link back is not needed to read the list forward, so the simplest node has only next."
+    },
     "which-node-becomes-head": {
       "prompt": "The list has no head yet. Select the node the head should refer to.",
       "explanation": "The head is A, because no link leads into A, so only the head can lead you there. If you pointed the head at C, you would lose A and B. If you pointed it at D, the last node, you could reach nothing else, since its next is null."
@@ -69,22 +78,22 @@
     "cost-of-insert-at-head": {
       "prompt": "A list holds n nodes. How does the work of inserting a node at the head grow as n grows?",
       "options": {
-        "constant": "It stays the same: O(1)",
-        "shift-everything": "It grows with n, because every node moves one place: O(n)",
-        "walk-to-the-end": "It grows with n, because you walk to the end first: O(n)",
-        "update-every-link": "It grows with n, because every node's link must change: O(n)"
+        "constant": "O(1), because only the new node and the head change",
+        "shift-everything": "O(n), because every node moves one place",
+        "walk-to-the-end": "O(n), because you walk to the end first",
+        "update-every-link": "O(n), because every node's link has to be updated"
       },
       "explanation": "It is O(1): one new node, one link and one head change, whatever the length. Nodes never shift, because a node's place comes from links, not from its position in memory. You never walk to the end, because the head is already in hand. Only the new node and the head change, and every other link stays as it is."
     },
     "first-link-to-change": {
       "prompt": "You insert a new node X after A. Which link do you set first?",
       "options": {
-        "new-to-next": "The new node's next, to the node after A",
-        "prev-to-new": "A's next, to the new node",
-        "new-to-prev": "The new node's next, back to A",
-        "either-order": "Either order works, because both links get set anyway"
+        "new-to-next": "The new node's next, set to B, because the new node must know what follows it",
+        "prev-to-new": "A's next, set to the new node, because A must know what follows it",
+        "new-to-prev": "The new node's next, set to A, because the new node must know where it came from",
+        "either-order": "Either one first, because both links are set in the end"
       },
-      "explanation": "You set the new node's next to B first. If you link A to the new node first, nothing points to B any more, and B, C and D are lost. A link points forward, so linking the new node back to A creates a loop and still loses B. The order matters because A's old next is the only reference to the rest of the list."
+      "explanation": "You set the new node's next to B first. If you link A to the new node first, nothing points to B any more, and B, C and D are lost. If you set the new node's next back to A, you then link A to the new node, so A leads to X and X leads back to A. The list loops, and B onward can no longer be reached. The order matters because A's old next is the only reference to the rest of the list."
     },
     "prev-next-after-deletion": {
       "prompt": "prev is on A, and X will be removed by relinking. Which node will prev's next point to afterwards?",
@@ -93,18 +102,18 @@
     "cost-of-reaching-index-k": {
       "prompt": "What does it cost to reach the node at index k of a linked list, counting from the head?",
       "options": {
-        "k-moves": "k moves from the head, O(n) in the worst case",
-        "one-move": "One move, O(1), like an array index",
-        "whole-list": "n moves, because you always walk the whole list",
-        "halving": "About log k moves, because you can skip nodes"
+        "k-moves": "k moves, because you follow k links from the head: O(n) at worst",
+        "one-move": "1 move, because the list knows where each node is: O(1)",
+        "whole-list": "n moves, because you must walk the whole list every time: O(n)",
+        "halving": "About log k moves, because you can skip nodes along the way"
       },
       "explanation": "You follow k links from the head, so the cost grows with k and is O(n) in the worst case. A list cannot jump the way an array does, because nodes are not stored side by side. You stop at index k rather than at the end, and a link only leads to the next node, so there is nothing to skip."
     },
     "cheaper-on-a-list": {
       "prompt": "Which operation is cheaper on a linked list than on an array?",
       "options": {
-        "insert-at-front": "Inserting a new item at the front",
-        "read-by-index": "Reading the item at index k",
+        "insert-at-front": "Inserting a new item at the front, because no item has to move",
+        "read-by-index": "Reading the item at index k, because the links lead straight to it",
         "visit-every-element": "Visiting every item once, because links lead from one to the next"
       },
       "explanation": "Inserting at the front is cheaper: O(1) on a list, while the array shifts every cell, O(n). Reading by index favours the array, with O(1) against a walk of k moves. Visiting every item costs O(n) on both, because each item is visited once either way."
@@ -113,7 +122,7 @@
   "terms": {
     "linked-list": {
       "term": "linked list",
-      "gloss": "A chain of nodes where each node links to the next."
+      "gloss": "A chain of nodes where each node links to the next one and the last links to nothing."
     },
     "node": {
       "term": "node",

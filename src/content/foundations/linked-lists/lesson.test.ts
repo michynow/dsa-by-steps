@@ -109,7 +109,7 @@ describe('linked lists Lesson', () => {
       {
         structures: ['list'],
         list: { head: 'node-a', order: [...abcd], nodes: [...abcd] },
-        pointers: ['current:node-d'],
+        pointers: [],
       },
       {
         structures: ['list'],
@@ -133,7 +133,7 @@ describe('linked lists Lesson', () => {
       {
         structures: ['list'],
         list: { head: 'node-z', order: [...zabcd], nodes: [...withZ] },
-        pointers: ['current:node-c'],
+        pointers: [],
       },
       {
         structures: ['list', 'cells'],
@@ -154,6 +154,7 @@ describe('linked lists Lesson', () => {
         step.check === undefined ? [] : [[step.id, step.check.id, step.check.kind]],
       ),
     ).toEqual([
+      ['a-node', 'what-a-node-holds', 'choice'],
       ['the-head', 'which-node-becomes-head', 'predict'],
       ['traversal', 'where-current-moves', 'predict'],
       ['insert-at-head', 'cost-of-insert-at-head', 'choice'],
@@ -181,13 +182,61 @@ describe('linked lists Lesson', () => {
     ).toEqual([true, true, true]);
   });
 
-  it('shows the state each Predict Check starts from', () => {
-    expect(summarise(sceneBefore('the-head')).list?.head).toBeNull();
-    expect(sceneBefore('traversal').pointers).toEqual([
-      { id: 'current', label: 'current', target: { structureId: 'list', elementId: 'node-b' } },
+  it('poses each Check on a Scene with exactly these Pointers and Highlights', () => {
+    const checked = lesson.steps.filter((step) => step.check !== undefined);
+    expect(
+      checked.map((step) => {
+        const before = sceneBefore(step.id);
+        return {
+          step: step.id,
+          pointers: before.pointers.map(
+            (pointer) => `${pointer.id}:${pointer.target?.elementId ?? 'null'}`,
+          ),
+          highlights: before.highlights.map(
+            (highlight) =>
+              `${highlight.target.structureId}/${highlight.target.elementId}:${highlight.tone}`,
+          ),
+        };
+      }),
+    ).toEqual([
+      {
+        step: 'a-node',
+        pointers: [],
+        highlights: [
+          'tasks/cell-z:focus',
+          'tasks/cell-a:error',
+          'tasks/cell-b:error',
+          'tasks/cell-c:error',
+          'tasks/cell-d:error',
+        ],
+      },
+      { step: 'the-head', pointers: [], highlights: [] },
+      { step: 'traversal', pointers: ['current:node-b'], highlights: ['list/node-b:focus'] },
+      { step: 'insert-at-head', pointers: [], highlights: [] },
+      { step: 'insert-after', pointers: [], highlights: ['list/node-z:focus'] },
+      { step: 'delete-after', pointers: ['prev:node-a'], highlights: ['list/node-x:focus'] },
+      { step: 'access-by-index', pointers: ['prev:node-a'], highlights: ['list/node-a:done'] },
+      { step: 'arrays-vs-lists', pointers: [], highlights: [] },
     ]);
-    expect(sceneBefore('delete-after').pointers).toEqual([
-      { id: 'prev', label: 'prev', target: { structureId: 'list', elementId: 'node-a' } },
+  });
+
+  it('never marks a Predict answer with a Pointer or Highlight before its Step', () => {
+    const marked = lesson.steps.flatMap((step) => {
+      if (step.check?.kind !== 'predict') return [];
+      const answer = step.check.correct;
+      const before = sceneBefore(step.id);
+      return [
+        {
+          step: step.id,
+          pointed: before.pointers.some((p) => p.target?.elementId === answer.elementId),
+          highlighted: before.highlights.some((h) => h.target.elementId === answer.elementId),
+        },
+      ];
+    });
+    expect(marked).toEqual([
+      { step: 'the-head', pointed: false, highlighted: false },
+      { step: 'traversal', pointed: false, highlighted: false },
+      { step: 'delete-after', pointed: false, highlighted: false },
     ]);
   });
 

@@ -66,6 +66,12 @@ export const linkedListsLesson: Lesson = {
         },
         { type: 'highlight', highlight: { target: node('node-a'), tone: 'focus' } },
       ],
+      check: {
+        kind: 'choice',
+        id: 'what-a-node-holds',
+        options: ['next-link', 'index', 'previous-link'],
+        correct: 'next-link',
+      },
     },
     {
       id: 'linking-nodes',
@@ -78,7 +84,6 @@ export const linkedListsLesson: Lesson = {
         { type: 'link', structureId: 'list', from: 'node-a', to: 'node-b' },
         { type: 'link', structureId: 'list', from: 'node-b', to: 'node-c' },
         { type: 'link', structureId: 'list', from: 'node-c', to: 'node-d' },
-        { type: 'highlight', highlight: { target: node('node-d'), tone: 'focus' } },
       ],
     },
     {
@@ -106,12 +111,9 @@ export const linkedListsLesson: Lesson = {
       kind: 'explain',
       events: [
         { type: 'clear-highlights' },
-        { type: 'highlight', highlight: { target: node('node-a'), tone: 'done' } },
-        { type: 'highlight', highlight: { target: node('node-b'), tone: 'done' } },
         { type: 'move-pointer', pointerId: 'current', target: node('node-c') },
-        { type: 'highlight', highlight: { target: node('node-c'), tone: 'done' } },
         { type: 'move-pointer', pointerId: 'current', target: node('node-d') },
-        { type: 'highlight', highlight: { target: node('node-d'), tone: 'focus' } },
+        { type: 'drop-pointer', pointerId: 'current' },
       ],
       check: { kind: 'predict', id: 'where-current-moves', correct: node('node-c') },
     },
@@ -119,8 +121,6 @@ export const linkedListsLesson: Lesson = {
       id: 'insert-at-head',
       kind: 'explain',
       events: [
-        { type: 'drop-pointer', pointerId: 'current' },
-        { type: 'clear-highlights' },
         { type: 'add-node', structureId: 'list', node: { id: 'node-z', value: 'Z', next: null } },
         { type: 'link', structureId: 'list', from: 'node-z', to: 'node-a' },
         { type: 'set-head', structureId: 'list', head: 'node-z' },
@@ -172,10 +172,7 @@ export const linkedListsLesson: Lesson = {
         { type: 'move-pointer', pointerId: 'current', target: node('node-a') },
         { type: 'move-pointer', pointerId: 'current', target: node('node-b') },
         { type: 'move-pointer', pointerId: 'current', target: node('node-c') },
-        { type: 'highlight', highlight: { target: node('node-z'), tone: 'done' } },
-        { type: 'highlight', highlight: { target: node('node-a'), tone: 'done' } },
-        { type: 'highlight', highlight: { target: node('node-b'), tone: 'done' } },
-        { type: 'highlight', highlight: { target: node('node-c'), tone: 'focus' } },
+        { type: 'drop-pointer', pointerId: 'current' },
       ],
       check: {
         kind: 'choice',
@@ -188,8 +185,6 @@ export const linkedListsLesson: Lesson = {
       id: 'arrays-vs-lists',
       kind: 'explain',
       events: [
-        { type: 'drop-pointer', pointerId: 'current' },
-        { type: 'clear-highlights' },
         {
           type: 'create',
           structure: {
