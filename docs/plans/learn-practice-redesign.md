@@ -16,3 +16,13 @@ Decided with the user on 2026-11-18. Builds on `factory/lesson-page`; nothing me
 ## Standing brief rules
 
 Adversarial cases listed; red evidence is an assertion failure; reviewers do mutation review; UI packages run `pnpm test:e2e:stress` before merge; each package owns the shared tests it invalidates.
+
+## Wave 2 addition
+
+- **WP-17 Step playback.** A Step's Step Events play one at a time (about 450 ms apart) instead of all at once: the domain folds intermediate Scenes per event (`applyStepEvents` prefix by prefix), the Stage steps through them, links draw in, pointers glide, removed nodes fade, changed values flip. Replay and pause controls on the Stage (keys R and Space, as in the reference course). Under prefers-reduced-motion the Step jumps to its final Scene. Owns `src/renderer/**` (motion) and a playback hook in `src/features/lesson-player/`.
+
+## Ownership adjustments for wave 1
+
+- The Stage frame and "Your turn" banner shown while a Check is unsettled belong to WP-13 (the player already knows `settled`); WP-15 owns only the Check card.
+- WP-15 owns the new design tokens in `src/ui/tokens/tokens.css` for both the Check card and the Term Chip, so WP-14 consumes them later without touching tokens.
+- WP-12 owns the minimal `story`, `uses` and `whenNot` additions to `src/content/foundations/linked-lists/{en,pl}.json` needed to keep the gate green until WP-16 rewrites the Lesson.
