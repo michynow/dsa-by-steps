@@ -48,9 +48,9 @@ Each folder exposes a deliberate public surface through `index.ts`. Deep imports
 - **Deep modules.** Small interfaces hiding substantial behaviour. A module earns its existence by what it hides; a pass-through wrapper gets inlined.
 - **Pure core, thin shell.** Scene reduction, Check judging, Progress transitions and Time Budget arithmetic are pure functions in `domain` and `runner`, tested without React or a browser. Components translate events into domain calls and render results.
 - **Discriminated unions everywhere a kind varies.** Step Events, Checks, Structures, Worker messages and Test outcomes are tagged unions handled with exhaustive `switch` statements ending in a `never` assertion. Adding a variant must fail compilation at every site that has to handle it.
-- **Parse at the boundary.** Data crossing a trust boundary (stored Progress, imported Progress files, Worker messages, Learner code output) is validated with a `zod` schema into a domain type once, at the edge. Inside the boundary, types are trusted.
+- **Parse at the boundary.** Data crossing a trust boundary (stored Progress, imported Progress files, Worker messages, Learner code output) is validated with a `zod` schema into a domain type once, at the edge. Inside the boundary, types are trusted. Boundary tests cover every rejection path and assert its exact issue text, including present-but-undefined fields and values just outside each range.
 - **Ports and adapters for anything replaceable.** Progress persistence is a `ProgressRepository` interface with a browser-storage adapter; the Test runner is an `ExerciseRunner` interface with a Worker adapter. Features depend on the interface, and the composition root picks the adapter.
-- **Errors are values in the domain.** Expected failures (a Test fails, a Time Budget is exceeded, an import file is malformed) are returned as typed results. `throw` is reserved for programmer errors.
+- **Errors are values in the domain.** Expected failures (a Test fails, a Time Budget is exceeded, an import file is malformed) are returned as typed results. `throw` is reserved for programmer errors. Each error variant carries the identifiers needed to explain it without the original input (which Structure, Module, Lesson, index, namespace).
 - **Immutability by default.** `readonly` types, no mutation of props, state or domain values.
 
 ## Code style
@@ -81,11 +81,13 @@ Keyboard-complete: every Step, Check (including Order Checks) and Exercise actio
 
 ## Testing
 
-- **Vitest** for `domain`, `runner`, `renderer` and `content`. Domain and runner logic is built test-first.
+- **Vitest** for `domain`, `runner`, `renderer` and `content`.
 - **React Testing Library** for feature components, queried by role and accessible name.
 - **Playwright** for end-to-end flows: complete a Lesson, answer each Check type, Pass an Exercise, switch Locale, export and import Progress.
 - **Content tests** run every Lesson's Reference Solution against all its Tests, assert every Locale defines every message key, and assert every Step's Step Events reduce to a valid Scene.
 - A behaviour change without a test that fails before it and passes after is unfinished.
+- Assert whole values: `toEqual` on the full Result, Scene or error, never only `.ok`, a length or an occurrence count. Type tests prove types with annotations and `expectTypeOf`, not casts.
+- Test builders shared by several test files live in `src/test/`. Only `*.test.ts(x)` files may import them; production source never contains test helpers.
 
 ## Workflow
 

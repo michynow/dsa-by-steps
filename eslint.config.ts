@@ -14,7 +14,7 @@ const layers = ['app', 'feature', 'renderer', 'runner', 'domain', 'content', 'ui
 const publicSurface = { fileInternalPath: ['index.ts', 'index.tsx'] };
 
 export default defineConfig(
-  { ignores: ['dist', 'coverage', 'playwright-report', 'test-results'] },
+  { ignores: ['dist', 'coverage', 'playwright-report', 'test-results', '.claude/worktrees'] },
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
@@ -68,6 +68,7 @@ export default defineConfig(
         { type: 'ui', pattern: 'src/ui' },
         { type: 'test-support', pattern: 'src/test' },
       ],
+      'boundaries/files': [{ pattern: 'src/**/*.test.{ts,tsx}', category: 'test' }],
     },
     rules: {
       'boundaries/no-unknown-files': 'error',
@@ -77,6 +78,14 @@ export default defineConfig(
           default: 'disallow',
           policies: [
             { allow: { dependency: { relationship: { to: 'internal' } } } },
+            {
+              from: { file: { categories: 'test' } },
+              allow: { to: { element: { type: 'test-support' } } },
+            },
+            {
+              from: { element: { type: 'test-support' } },
+              allow: { to: { element: { type: 'domain', ...publicSurface } } },
+            },
             {
               from: { element: { type: 'renderer' } },
               allow: { to: { element: { types: ['domain', 'ui'], ...publicSurface } } },
