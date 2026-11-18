@@ -245,8 +245,11 @@ function checkIssues(step: Step, check: Check, scene: Scene | undefined): readon
 }
 
 function allCheckIssues(content: LessonContent, scenes: readonly Scene[]): readonly ContentIssue[] {
-  return content.lesson.steps.flatMap((step, index) =>
-    step.check === undefined ? [] : checkIssues(step, step.check, scenes[index]),
+  const { initialScene, steps } = content.lesson;
+  return steps.flatMap((step, index) =>
+    step.check === undefined
+      ? []
+      : checkIssues(step, step.check, index === 0 ? initialScene : scenes[index - 1]),
   );
 }
 
