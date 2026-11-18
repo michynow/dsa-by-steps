@@ -1,0 +1,118 @@
+{
+  "title": "Listy powiązane",
+  "outcomes": {
+    "explain-nodes-and-links": "Wyjaśnisz, jak węzły i połączenia tworzą linked list",
+    "traverse-from-head": "Przejdziesz po linked list od head za pomocą pointera",
+    "insert-in-constant-time": "Wstawisz węzeł na początek lub za znanym węzłem w czasie O(1)",
+    "delete-by-relinking": "Usuniesz węzeł, przepinając połączenia wokół niego",
+    "compare-with-arrays": "Porównasz koszty linked list i tablic"
+  },
+  "steps": {
+    "the-problem": {
+      "title": "Dodawanie na początek jest drogie",
+      "caption": "Twoja lista zadań to tablica i nowe zadanie Z musi trafić na początek. Każde istniejące zadanie musi przesunąć się o jedną komórkę w prawo. Przy tysiącach zadań jedno wstawienie przesuwa tysiące komórek."
+    },
+    "a-node": {
+      "title": "Node trzyma wartość i next",
+      "caption": "Linked list (lista powiązana) trzyma każdy element w osobnym node (węźle). Node ma dwie rzeczy: wartość i połączenie o nazwie next. Tutaj jedyny node trzyma A, a jego next nie wskazuje jeszcze na nic."
+    },
+    "linking-nodes": {
+      "title": "Węzły połączone linkami",
+      "caption": "Dodajesz B i C, a potem łączysz A z B oraz B z C. Head (początek listy) mówi, od którego node lista się zaczyna. Next ostatniego node to null, czyli lista kończy się właśnie tam."
+    },
+    "traversal": {
+      "title": "Spacer po liście",
+      "caption": "Pointer (wskaźnik) o nazwie current zaczyna w head. Żeby ruszyć dalej, idziesz za linkiem next tego node. Taki marsz od node do node nazywa się traversal (przejście po liście)."
+    },
+    "insert-at-head": {
+      "title": "Wstawianie na początek",
+      "caption": "Tworzysz node Z i łączysz go ze starym head, czyli A. Potem robisz z Z nowy head. Żaden inny node nie jest ruszany, choćby lista była bardzo długa."
+    },
+    "insert-after": {
+      "title": "Wstawianie za węzłem",
+      "caption": "Pointer prev wskazuje node, za którym wstawiasz, tutaj jest to A. Najpierw łączysz nowy node X z next węzła prev, czyli z B. Dopiero potem łączysz prev z X i lista zostaje w całości."
+    },
+    "delete-after": {
+      "title": "Usuwanie przez przepięcie",
+      "caption": "Żeby usunąć X, łączysz prev z node znajdującym się za X, czyli z B. Nic już nie wskazuje na X, więc możesz go usunąć. Reszta listy w ogóle się nie przesuwa."
+    },
+    "access-by-index": {
+      "title": "Dojście do indeksu to marsz",
+      "caption": "Lista nie ma indeksu, do którego można skoczyć. Żeby dotrzeć do indeksu 3, zaczynasz w head i trzy razy idziesz za next. Dojście do indeksu k kosztuje k ruchów."
+    },
+    "arrays-vs-lists": {
+      "title": "Tablice kontra linked lists",
+      "caption": "Tablica odczytuje dowolny indeks jednym skokiem, ale wstawienie na początek przesuwa każdą komórkę. Linked list wstawia na początek jednym krokiem, ale dojście do node wymaga marszu. Wybierz strukturę, która pasuje do operacji, którą wykonujesz najczęściej."
+    },
+    "reverse-preview": {
+      "title": "Dalej: odwracanie listy",
+      "caption": "W Ćwiczeniu odwrócisz listę w miejscu za pomocą trzech pointerów: prev, current i next. Przed pierwszym ruchem prev to null, current stoi w head, a next jest o jeden node dalej. Będziesz przekierowywać link każdego node po kolei."
+    }
+  },
+  "checks": {
+    "which-node-is-last": {
+      "prompt": "Zaznacz ostatni node listy.",
+      "explanation": "Ostatni jest C, bo jego next to null. Next każdego innego node wskazuje na jakiś node."
+    },
+    "where-current-moves": {
+      "prompt": "current jest w B. Zaznacz node, do którego przejdzie teraz.",
+      "explanation": "current idzie za linkiem next węzła B, który prowadzi do C. Nie przeskakuje węzłów ani nie cofa się, bo linki wskazują tylko do przodu."
+    },
+    "cost-of-insert-at-head": {
+      "prompt": "Ile pracy kosztuje wstawienie na początek listy, gdy lista rośnie?",
+      "options": {
+        "constant": "O(1): stała liczba zmian połączeń",
+        "shift-everything": "O(n): każdy węzeł musi przesunąć się o jedno miejsce",
+        "walk-to-the-end": "O(n): trzeba najpierw dojść do końca",
+        "halving": "O(log n): lista jest za każdym razem dzielona na pół"
+      },
+      "explanation": "To O(1): jeden nowy node, jedno połączenie i jedna zmiana head, niezależnie od długości. Węzły się nie przesuwają, bo o ich miejscu decydują linki, a nie pozycja w pamięci. Nie idziesz też na koniec, bo head już masz w ręku. Nic nie jest dzielone na pół, bo nic nie jest przeszukiwane."
+    },
+    "first-link-to-change": {
+      "prompt": "Wstawiasz node za prev. Które połączenie ustawiasz najpierw?",
+      "options": {
+        "new-to-next": "Next nowego node, na obecny next węzła prev",
+        "prev-to-new": "Next węzła prev, na nowy node",
+        "either-order": "Kolejność jest dowolna, oba połączenia i tak zostaną ustawione",
+        "head-to-new": "Head, na nowy node"
+      },
+      "explanation": "Najpierw ustawiasz next nowego node. Jeśli najpierw połączysz prev z nowym node, nic nie wskazuje już na B, więc B i C przepadają. Kolejność ma znaczenie, bo dawny next węzła prev to jedyne odwołanie do reszty listy. Head dotyczy wstawiania na początek, a nie za węzłem."
+    },
+    "prev-next-after-deletion": {
+      "prompt": "X został usunięty. Zaznacz node, na który wskazuje teraz next węzła prev.",
+      "explanation": "Next węzła prev wskazuje na B, czyli node, który był za X. To przepięcie usuwa X, więc prev nie wskazuje na X ani nie kończy listy."
+    },
+    "cost-of-reaching-index-k": {
+      "prompt": "Ile kosztuje dojście do node o indeksie k w linked list?",
+      "options": {
+        "k-moves": "k ruchów od head, w najgorszym razie O(n)",
+        "one-move": "Jeden ruch, O(1), jak indeks tablicy",
+        "whole-list": "n ruchów, bo zawsze idziesz przez całą listę",
+        "halving": "Około log k ruchów, bo można pomijać węzły"
+      },
+      "explanation": "Idziesz za k linkami od head, więc koszt rośnie wraz z k i w najgorszym razie wynosi O(n). Lista nie potrafi skakać jak tablica, bo węzły nie leżą obok siebie. Zatrzymujesz się na indeksie k, a nie na końcu, a link prowadzi tylko do następnego node, więc nie ma czego pomijać."
+    }
+  },
+  "terms": {
+    "linked-list": {
+      "term": "linked list",
+      "gloss": "lista powiązana: łańcuch węzłów, w którym każdy węzeł wskazuje na następny."
+    },
+    "node": {
+      "term": "node",
+      "gloss": "węzeł: jeden element linked list, czyli wartość i połączenie z następnym węzłem."
+    },
+    "head": {
+      "term": "head",
+      "gloss": "początek listy: pierwszy węzeł linked list, od którego zaczyna się każde przejście."
+    },
+    "pointer": {
+      "term": "pointer",
+      "gloss": "wskaźnik: podpisany znacznik, który wskazuje jeden węzeł, na przykład current albo prev."
+    },
+    "traversal": {
+      "term": "traversal",
+      "gloss": "przejście po liście: odwiedzanie węzłów jeden po drugim przez ich połączenia."
+    }
+  }
+}
