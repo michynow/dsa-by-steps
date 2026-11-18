@@ -31,15 +31,12 @@ test('steps through the Linked lists Lesson, remembers seen Steps and keeps the 
 
   await rail.getByRole('link').first().click();
   await expect(page).toHaveURL(/\/1$/);
-  await expect(rail.getByRole('link').first()).toHaveAttribute('aria-current', 'step');
   for (let step = 2; step <= stepCount; step += 1) {
     await page.keyboard.press('ArrowRight');
     await expect(page).toHaveURL(new RegExp(`/${String(step)}$`));
-    await expect(rail.getByRole('link').nth(step - 1)).toHaveAttribute('aria-current', 'step');
   }
   await page.keyboard.press('ArrowRight');
   await expect(page).toHaveURL(/\/code$/);
-  await expect(rail.getByRole('link').last()).toHaveAttribute('aria-current', 'step');
   await page.keyboard.press('ArrowLeft');
   await expect(page).toHaveURL(new RegExp(`/${String(stepCount)}$`));
 

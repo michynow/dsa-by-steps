@@ -307,6 +307,26 @@ describe('LessonPage navigation', () => {
     expect(router.state.location.pathname).toBe('/en/basics/stacks/1');
   });
 
+  it('reads the current Step for two arrow keys fired before React re-renders', () => {
+    const { router } = renderAt('/en/basics/stacks/3');
+    const press = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+    act(() => {
+      press();
+      press();
+    });
+    expect(router.state.location.pathname).toBe('/en/basics/queues/1');
+  });
+
+  it('does not skip a checked Step when two arrow keys arrive before the re-render', () => {
+    const { router } = renderAt('/en/basics/stacks/1');
+    const press = () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+    act(() => {
+      press();
+      press();
+    });
+    expect(router.state.location.pathname).toBe('/en/basics/stacks/2');
+  });
+
   it('moves with the arrow keys while a button has focus', async () => {
     const user = userEvent.setup();
     const { router } = renderAt('/en/basics/stacks/1');
