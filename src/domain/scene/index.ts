@@ -18,3 +18,4 @@ export type {
   StructureId,
   StructureKind,
 } from './types';
+export { applyStepEvent, applyStepEvents, scenesOf } from './reduce';
