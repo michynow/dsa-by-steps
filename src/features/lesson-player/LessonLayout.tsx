@@ -1,9 +1,8 @@
 import type { ReactElement } from 'react';
 import type { LessonContent } from '@/content';
-import { lessonKey, stepsSeenIn } from '@/domain';
+import { lessonKey } from '@/domain';
 import type { Course, Locale } from '@/domain';
 import { useMessages } from '@/features/locale';
-import { useProgress } from '@/features/progress';
 import { CaptionStrip } from './CaptionStrip';
 import { ExercisePlaceholder } from './ExercisePlaceholder';
 import styles from './LessonLayout.module.css';
@@ -11,8 +10,9 @@ import { lessonPlayerMessages } from './messages';
 import { LessonPanels } from './LessonPanels';
 import { displayedScene } from './scene-choice';
 import { Stage } from './Stage';
-import type { StepCheckBinding } from './step-check';
+import type { UseStepCheck } from './step-check';
 import { StepRail } from './StepRail';
+import { useBoundCheck } from './use-bound-check';
 import { useDocumentTitle } from './use-document-title';
 import { useLessonScenes } from './use-lesson-scenes';
 import { useMarkStepSeen } from './use-mark-step-seen';
@@ -23,7 +23,7 @@ export interface LessonLayoutProps {
   readonly content: LessonContent;
   readonly locale: Locale;
   readonly step: number;
-  readonly binding: StepCheckBinding;
+  readonly useStepCheck: UseStepCheck;
 }
 
 export function LessonLayout({
@@ -31,16 +31,16 @@ export function LessonLayout({
   content,
   locale,
   step,
-  binding,
+  useStepCheck,
 }: LessonLayoutProps): ReactElement {
   const messages = useMessages(lessonPlayerMessages);
   const lessonMessages = content.messages[locale];
   const { lesson } = content;
   const key = lessonKey(content.module, lesson.slug);
+  const binding = useBoundCheck(useStepCheck, content, locale, step);
   const current = lesson.steps[step];
   const gated = current?.check !== undefined && !binding.settled;
-  const scenes = useLessonScenes(lesson);
-  const seen = useProgress((progress) => stepsSeenIn(progress, key));
+  const scenes = useLessonScenes(lesson, key);
   const navigation = useStepNavigation({
     course,
     locale,
@@ -60,7 +60,6 @@ export function LessonLayout({
           messages={messages}
           locale={locale}
           current={step}
-          seen={seen}
         />
         <div className={styles.main}>
           <Stage

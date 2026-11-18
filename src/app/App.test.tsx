@@ -112,7 +112,7 @@ describe('App', () => {
       const bar = await screen.findByRole('group', { name: 'Module progress' });
       expect(within(bar).getByText('Basics')).toBeVisible();
       expect(within(bar).getByText('Lesson 2 of 2')).toBeVisible();
-      expect(segments()).toEqual(['Stacksnot passed', 'Queuesnot passed']);
+      expect(segments()).toEqual(['Stacks, not passed', 'Queues, not passed']);
     });
 
     it('fills the segments of passed Lessons', async () => {
@@ -121,7 +121,7 @@ describe('App', () => {
       act(() => {
         router.progress.getState().actions.recordSubmit('basics/queues', 'pass');
       });
-      expect(segments()).toEqual(['Stacksnot passed', 'Queuespassed']);
+      expect(segments()).toEqual(['Stacks, not passed', 'Queues, passed']);
     });
 
     it('is absent from the Course home', async () => {
@@ -135,5 +135,29 @@ describe('App', () => {
     const router = renderAt('/en/basics/nope/1', testModules);
     await screen.findByRole('heading', { level: 1 });
     expect(router.state.location.pathname).toBe('/en');
+  });
+
+  it('shows an error message inside the Shell when Lesson content is broken', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const [basics] = testModules;
+    const stacks = basics?.lessons[0];
+    if (!basics || !stacks) throw new Error('fixture');
+    const broken = [
+      {
+        ...basics,
+        lessons: [
+          {
+            ...stacks,
+            messages: { ...stacks.messages, en: { ...stacks.messages.en, checks: {} } },
+          },
+        ],
+      },
+    ];
+    renderAt('/en/basics/stacks/2', broken);
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'This Lesson cannot be shown.Its content is broken. Please report it.',
+    );
+    expect(screen.getByRole('link', { name: 'Course home' })).toBeVisible();
+    vi.restoreAllMocks();
   });
 });

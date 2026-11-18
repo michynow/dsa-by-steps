@@ -2,7 +2,9 @@ import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { createMemoryRouter, RouterProvider } from 'react-router';
+import { createMemoryRouter, RouterProvider, useRouteError } from 'react-router';
+import type { ReactElement } from 'react';
+import type { ModuleContent } from '@/content';
 import { createI18n } from '@/features/locale';
 import {
   createBrowserProgressRepository,
@@ -13,24 +15,33 @@ import {
 import type { ProgressRepository } from '@/features/progress';
 import { createFakeStorage } from '@/test/storage-fakes';
 import { testModules } from '@/test/lesson-fixtures';
-import { LessonPage, LessonRedirect, noStepCheck } from './index';
+import { LessonError, LessonPage, LessonRedirect, noStepCheck } from './index';
 import type { StepCheckBinding, UseStepCheck } from './index';
 
 interface Options {
   readonly useStepCheck?: UseStepCheck;
   readonly repository?: ProgressRepository;
   readonly locale?: 'en' | 'pl';
+  readonly modules?: readonly ModuleContent[];
+  readonly errorElement?: ReactElement;
 }
 
 function renderAt(path: string, options: Options = {}) {
-  const { useStepCheck = noStepCheck, repository, locale = 'en' } = options;
+  const {
+    useStepCheck = noStepCheck,
+    repository,
+    locale = 'en',
+    modules = testModules,
+    errorElement = <LessonError />,
+  } = options;
   const router = createMemoryRouter(
     [
       { path: ':locale', element: <p>course home</p> },
-      { path: ':locale/:module/:lesson', element: <LessonRedirect modules={testModules} /> },
+      { path: ':locale/:module/:lesson', element: <LessonRedirect modules={modules} /> },
       {
         path: ':locale/:module/:lesson/:step',
-        element: <LessonPage modules={testModules} useStepCheck={useStepCheck} />,
+        element: <LessonPage modules={modules} useStepCheck={useStepCheck} />,
+        errorElement,
       },
     ],
     { initialEntries: [path] },
@@ -113,7 +124,9 @@ describe('LessonPage', () => {
     renderAt('/en/basics/stacks/1');
     expect(screen.getByRole('heading', { level: 2, name: 'Why stacks' })).toBeVisible();
     expect(screen.getByText('Why stacks caption')).toBeVisible();
-    expect(screen.getAllByText('Problem')).toHaveLength(2);
+    expect(screen.getByRole('region', { name: 'Why stacks' })).toHaveTextContent(
+      'ProblemWhy stacksWhy stacks captionPreviousNext',
+    );
   });
 
   it('shows scenesOf(lesson)[i] for Step i', () => {
@@ -221,6 +234,39 @@ describe('LessonPage', () => {
       '3 Pop one not seen yet',
       'Exercise not seen yet',
     ]);
+  });
+
+  it('marks a Step seen exactly once across re-renders', async () => {
+    const { store, i18n } = renderAt('/en/basics/stacks/1');
+    const spy = vi.spyOn(store.getState().actions, 'markStepSeen');
+    act(() => {
+      store.getState().actions.recordSubmit('basics/queues', 'pass');
+    });
+    await act(async () => {
+      await i18n.changeLanguage('pl');
+    });
+    expect(spy.mock.calls).toEqual([]);
+    expect(store.getState().progress.stepsSeen).toEqual({ 'basics/stacks': ['why'] });
+  });
+
+  it('shows the Exercise as seen once it has a Pass', () => {
+    const { store } = renderAt('/en/basics/stacks/1');
+    expect(railNames().at(-1)).toBe('Exercise not seen yet');
+    act(() => {
+      store.getState().actions.recordSubmit('basics/stacks', 'pass');
+    });
+    expect(railNames().at(-1)).toBe('Exercise seen');
+  });
+
+  it('keeps focus on Next and the same Stage when moving into a checked Step', async () => {
+    const user = userEvent.setup();
+    renderAt('/en/basics/stacks/1', { useStepCheck: fakeCheck(true) });
+    const stage = screen.getByRole('figure');
+    screen.getByRole('button', { name: 'Next' }).focus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('heading', { level: 2, name: 'Push one' })).toBeVisible();
+    expect(screen.getByRole('figure')).toBe(stage);
+    expect(screen.getByRole('button', { name: 'Next' })).toHaveFocus();
   });
 });
 
@@ -380,5 +426,64 @@ describe('LessonPage checks', () => {
     expect(sceneLines()).toEqual(['Stack: i1 (top), i0']);
     expect(screen.getByText('Why stacks caption')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Next' })).toHaveAttribute('aria-disabled', 'false');
+  });
+});
+
+describe('LessonPage broken content', () => {
+  const [basics] = testModules;
+  const stacks = basics?.lessons[0];
+  const captured: unknown[] = [];
+
+  function CaptureError() {
+    captured.push(useRouteError());
+    return <LessonError />;
+  }
+
+  const brokenModules = (lesson: Partial<ModuleContent['lessons'][number]>): ModuleContent[] => {
+    if (!stacks) throw new Error('fixture');
+    return [{ ...testModules[0], lessons: [{ ...stacks, ...lesson }] } as ModuleContent];
+  };
+
+  beforeEach(() => {
+    captured.length = 0;
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('shows an error message when the current Locale lacks the Check messages', () => {
+    if (!stacks) throw new Error('fixture');
+    const messages = { ...stacks.messages, en: { ...stacks.messages.en, checks: {} } };
+    renderAt('/en/basics/stacks/2', {
+      modules: brokenModules({ messages }),
+      errorElement: <CaptureError />,
+    });
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'This Lesson cannot be shown.Its content is broken. Please report it.',
+    );
+    expect([...new Set(captured.map(String))]).toEqual([
+      'Error: Missing en messages for Check "c-push" in Lesson "basics/stacks"',
+    ]);
+  });
+
+  it('shows an error message when the Lesson does not reduce to Scenes', () => {
+    if (!stacks) throw new Error('fixture');
+    const steps = [
+      {
+        id: 'why',
+        kind: 'problem' as const,
+        events: [{ type: 'pop' as const, structureId: 'zzz' }],
+      },
+    ];
+    renderAt('/en/basics/stacks/1', {
+      modules: brokenModules({ lesson: { ...stacks.lesson, steps } }),
+      errorElement: <CaptureError />,
+    });
+    expect(screen.getByRole('alert')).toBeVisible();
+    expect([...new Set(captured.map(String))]).toEqual([
+      'Error: Lesson "basics/stacks" does not reduce to Scenes: unknown-structure',
+    ]);
   });
 });

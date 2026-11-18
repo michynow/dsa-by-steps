@@ -1,3 +1,4 @@
+export { LessonError } from './LessonError';
 export { LessonPage } from './LessonPage';
 export { LessonRedirect } from './LessonRedirect';
 export { ModuleProgressBar } from './ModuleProgressBar';

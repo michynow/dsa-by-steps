@@ -1,5 +1,9 @@
 {
   "document": "{lesson} · {course}",
+  "error": {
+    "title": "Nie można pokazać tej lekcji.",
+    "body": "Jej treść jest uszkodzona. Zgłoś ten problem."
+  },
   "stage": {
     "figure": "Scena",
     "select": "Wybierz",
@@ -48,6 +52,8 @@
     "soon": "Ćwiczenie pojawi się wkrótce."
   },
   "progress": {
+    "segment": "{lesson}, {status}",
+
     "label": "Postęp w module",
     "position": "Lekcja {number} z {count}",
     "passed": "zaliczona",

@@ -1,5 +1,9 @@
 {
   "document": "{lesson} · {course}",
+  "error": {
+    "title": "This Lesson cannot be shown.",
+    "body": "Its content is broken. Please report it."
+  },
   "stage": {
     "figure": "Scene",
     "select": "Select",
@@ -48,6 +52,8 @@
     "soon": "The Exercise arrives soon."
   },
   "progress": {
+    "segment": "{lesson}, {status}",
+
     "label": "Module progress",
     "position": "Lesson {number} of {count}",
     "passed": "passed",

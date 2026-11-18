@@ -1,7 +1,7 @@
 import type { RouteObject } from 'react-router';
 import type { ModuleContent } from '@/content';
 import { LocaleRoute, RootRedirect } from '@/features/locale';
-import { LessonPage, LessonRedirect } from '@/features/lesson-player';
+import { LessonError, LessonPage, LessonRedirect } from '@/features/lesson-player';
 import type { UseStepCheck } from '@/features/lesson-player';
 import { CourseHome } from './CourseHome';
 import { Shell } from './Shell';
@@ -21,11 +21,16 @@ export function createRoutes({ modules, useStepCheck }: RouteDependencies): Rout
         {
           element: <Shell modules={modules} />,
           children: [
-            { index: true, element: <CourseHome modules={modules} /> },
-            { path: ':module/:lesson', element: <LessonRedirect modules={modules} /> },
             {
-              path: ':module/:lesson/:step',
-              element: <LessonPage modules={modules} useStepCheck={useStepCheck} />,
+              errorElement: <LessonError />,
+              children: [
+                { index: true, element: <CourseHome modules={modules} /> },
+                { path: ':module/:lesson', element: <LessonRedirect modules={modules} /> },
+                {
+                  path: ':module/:lesson/:step',
+                  element: <LessonPage modules={modules} useStepCheck={useStepCheck} />,
+                },
+              ],
             },
           ],
         },

@@ -1,6 +1,8 @@
 import type { ReactElement } from 'react';
 import type { LessonContent, LessonMessages } from '@/content';
+import { exerciseProgressOf, lessonKey, stepsSeenIn } from '@/domain';
 import type { Locale } from '@/domain';
+import { useProgress } from '@/features/progress';
 import type { LessonPlayerMessages } from './messages';
 import styles from './StepRail.module.css';
 import { StepRailEntry } from './StepRailEntry';
@@ -13,7 +15,6 @@ export interface StepRailProps {
   readonly messages: LessonPlayerMessages;
   readonly locale: Locale;
   readonly current: number;
-  readonly seen: readonly string[];
 }
 
 function statusOf(index: number, current: number, seen: boolean): RailStatus {
@@ -27,10 +28,12 @@ export function StepRail({
   messages,
   locale,
   current,
-  seen,
 }: StepRailProps): ReactElement {
   const { lesson } = content;
-  const exerciseStatus = current === lesson.steps.length ? 'current' : 'unseen';
+  const key = lessonKey(content.module, lesson.slug);
+  const seen = useProgress((progress) => stepsSeenIn(progress, key));
+  const exercisePassed = useProgress((progress) => exerciseProgressOf(progress, key).passed);
+  const exerciseStatus = statusOf(lesson.steps.length, current, exercisePassed);
   const base = `/${locale}/${content.module}/${lesson.slug}`;
   return (
     <nav aria-label={messages.rail.label} className={styles.rail}>

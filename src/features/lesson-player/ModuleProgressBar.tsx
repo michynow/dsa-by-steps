@@ -45,9 +45,12 @@ export function ModuleProgressBar({
             data-passed={passed[index] === true}
             data-current={index === position}
           >
-            <span className={styles.hidden}>{entry.messages[locale].title}</span>
             <span className={styles.hidden}>
-              {passed[index] === true ? messages.progress.passed : messages.progress.notPassed}
+              {formatMessage(messages.progress.segment, {
+                lesson: entry.messages[locale].title,
+                status:
+                  passed[index] === true ? messages.progress.passed : messages.progress.notPassed,
+              })}
             </span>
           </li>
         ))}
