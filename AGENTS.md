@@ -50,7 +50,7 @@ Each folder exposes a deliberate public surface through `index.ts`. Deep imports
 - **Discriminated unions everywhere a kind varies.** Step Events, Checks, Structures, Worker messages and Test outcomes are tagged unions handled with exhaustive `switch` statements ending in a `never` assertion. Adding a variant must fail compilation at every site that has to handle it.
 - **Parse at the boundary.** Data crossing a trust boundary (stored Progress, imported Progress files, Worker messages, Learner code output) is validated with a `zod` schema into a domain type once, at the edge. Inside the boundary, types are trusted.
 - **Ports and adapters for anything replaceable.** Progress persistence is a `ProgressRepository` interface with a browser-storage adapter; the Test runner is an `ExerciseRunner` interface with a Worker adapter. Features depend on the interface, and the composition root picks the adapter.
-- **Errors are values in the domain.** Expected failures (a Test fails, a Time Budget is exceeded, an import file is malformed) are returned as typed results. `throw` is reserved for programmer errors.
+- **Errors are values in the domain.** Expected failures (a Test fails, a Time Budget is exceeded, an import file is malformed) are returned as typed results. `throw` is reserved for programmer errors. Each error variant carries the identifiers needed to explain it without the original input (which Structure, Module, Lesson, index, namespace).
 - **Immutability by default.** `readonly` types, no mutation of props, state or domain values.
 
 ## Code style
