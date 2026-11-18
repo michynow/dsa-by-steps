@@ -7,13 +7,13 @@ import {
   listOf,
   mapOf,
   node,
-  queueOf,
   ref,
   sceneOf,
   stackOf,
   unwrap,
-} from './fixtures';
+} from '@/test/scene-fixtures';
 import { applyStepEvent, emptyScene } from './index';
+import type { Structure } from './index';
 
 describe('create', () => {
   it('adds the Structure to the Scene', () => {
@@ -122,44 +122,56 @@ describe('remove', () => {
 });
 
 describe('set-value', () => {
-  const scene = sceneOf([
-    arrayOf('a', 'c0'),
-    stackOf('s', 'i0'),
-    queueOf('q', 'i1'),
-    listOf('l', 'n0', node('n0')),
-    mapOf('m', [entry('e0', 'k')]),
-  ]);
+  const scene = sceneOf([arrayOf('a', 'c0')]);
+  const cells = (ids: readonly string[], changed: string) =>
+    ids.map((id, i) => cell(id, id === changed ? 42 : i));
+  const cases: readonly (readonly [string, Structure, Structure, string])[] = [
+    [
+      'array cell',
+      { kind: 'array', id: 'x', cells: cells(['p', 'q', 'r'], '') },
+      { kind: 'array', id: 'x', cells: cells(['p', 'q', 'r'], 'q') },
+      'q',
+    ],
+    [
+      'stack item',
+      { kind: 'stack', id: 'x', items: cells(['p', 'q', 'r'], '') },
+      { kind: 'stack', id: 'x', items: cells(['p', 'q', 'r'], 'q') },
+      'q',
+    ],
+    [
+      'queue item',
+      { kind: 'queue', id: 'x', items: cells(['p', 'q', 'r'], '') },
+      { kind: 'queue', id: 'x', items: cells(['p', 'q', 'r'], 'q') },
+      'q',
+    ],
+    [
+      'list node',
+      listOf('x', 'p', node('p', 'q', 0), node('q', 'r', 1), node('r', null, 2)),
+      listOf('x', 'p', node('p', 'q', 0), node('q', 'r', 42), node('r', null, 2)),
+      'q',
+    ],
+    [
+      'hash-map entry',
+      mapOf('x', [entry('p', 'k0', 0)], [entry('q', 'k1', 1), entry('r', 'k2', 2)]),
+      mapOf('x', [entry('p', 'k0', 0)], [entry('q', 'k1', 1), entry('r', 'k2', 42)]),
+      'r',
+    ],
+  ];
 
-  it.each([
-    ['array cell', 'a', 'c0'],
-    ['stack item', 's', 'i0'],
-    ['queue item', 'q', 'i1'],
-    ['list node', 'l', 'n0'],
-    ['hash-map entry', 'm', 'e0'],
-  ])('sets the value of a %s', (_name, structureId, elementId) => {
-    const next = unwrap(
-      applyStepEvent(scene, {
-        type: 'set-value',
-        target: ref(structureId, elementId),
-        value: 42,
-      }),
-    );
-    expect(JSON.stringify(next).match(/"value":42/g)).toHaveLength(1);
-  });
-
-  it('keeps the other elements untouched', () => {
-    const two = sceneOf([{ kind: 'array', id: 'a', cells: [cell('c0', 1), cell('c1', 2)] }]);
-    const next = unwrap(
-      applyStepEvent(two, {
-        type: 'set-value',
-        target: ref('a', 'c1'),
-        value: 9,
-      }),
-    );
-    expect(next.structures).toEqual([
-      { kind: 'array', id: 'a', cells: [cell('c0', 1), cell('c1', 9)] },
-    ]);
-  });
+  it.each(cases)(
+    'sets only the targeted %s and leaves every other element unchanged',
+    (_name, before, after, targetId) => {
+      const bystander = arrayOf('other', 'o0', 'o1');
+      const next = unwrap(
+        applyStepEvent(sceneOf([bystander, before]), {
+          type: 'set-value',
+          target: ref('x', targetId),
+          value: 42,
+        }),
+      );
+      expect(next.structures).toEqual([bystander, after]);
+    },
+  );
 
   it('reports unknown-structure', () => {
     const error = errorOf(

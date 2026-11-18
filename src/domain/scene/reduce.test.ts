@@ -15,7 +15,7 @@ import {
   sceneOf,
   stackOf,
   unwrap,
-} from './fixtures';
+} from '@/test/scene-fixtures';
 import { applyStepEvent, applyStepEvents, scenesOf } from './index';
 import type { StepEvent } from './index';
 

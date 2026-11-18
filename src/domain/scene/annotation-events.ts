@@ -1,11 +1,7 @@
 import { err, ok } from '../result';
-import { requireTarget } from './scene-access';
+import { requireTarget, sameRef } from './scene-access';
 import type { EventOf, Reduction } from './scene-access';
-import type { Pointer, PointerId, Scene, StepEvent } from './types';
-
-function unknownPointer(event: StepEvent, pointerId: PointerId): Reduction {
-  return err({ code: 'unknown-pointer', event, pointerId });
-}
+import type { Pointer, Scene } from './types';
 
 export function applyPoint(scene: Scene, event: EventOf<'point'>): Reduction {
   const { pointer } = event;
@@ -24,7 +20,7 @@ export function applyPoint(scene: Scene, event: EventOf<'point'>): Reduction {
 
 export function applyMovePointer(scene: Scene, event: EventOf<'move-pointer'>): Reduction {
   if (!scene.pointers.some((pointer) => pointer.id === event.pointerId)) {
-    return unknownPointer(event, event.pointerId);
+    return err({ code: 'unknown-pointer', event, pointerId: event.pointerId });
   }
   const target = requireTarget(scene, event, event.target);
   if (!target.ok) return target;
@@ -35,7 +31,7 @@ export function applyMovePointer(scene: Scene, event: EventOf<'move-pointer'>): 
 
 export function applyDropPointer(scene: Scene, event: EventOf<'drop-pointer'>): Reduction {
   if (!scene.pointers.some((pointer) => pointer.id === event.pointerId)) {
-    return unknownPointer(event, event.pointerId);
+    return err({ code: 'unknown-pointer', event, pointerId: event.pointerId });
   }
   return ok({
     ...scene,
@@ -43,20 +39,11 @@ export function applyDropPointer(scene: Scene, event: EventOf<'drop-pointer'>): 
   });
 }
 
-function sameTarget(
-  a: { readonly structureId: string; readonly elementId: string },
-  b: { readonly structureId: string; readonly elementId: string },
-): boolean {
-  return a.structureId === b.structureId && a.elementId === b.elementId;
-}
-
 export function applyHighlight(scene: Scene, event: EventOf<'highlight'>): Reduction {
   const { highlight } = event;
   const target = requireTarget(scene, event, highlight.target);
   if (!target.ok) return target;
-  const others = scene.highlights.filter(
-    (existing) => !sameTarget(existing.target, highlight.target),
-  );
+  const others = scene.highlights.filter((existing) => !sameRef(existing.target, highlight.target));
   return ok({ ...scene, highlights: [...others, highlight] });
 }
 

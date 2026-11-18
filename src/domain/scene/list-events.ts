@@ -1,6 +1,5 @@
-import { err, ok } from '../result';
-import type { Result } from '../result';
-import { hasCycle } from './list-cycle';
+import { ok } from '../result';
+import { requireAcyclic } from './list-cycle';
 import {
   dropElementReferences,
   expectKind,
@@ -11,7 +10,7 @@ import {
   requireNewElement,
 } from './scene-access';
 import type { EventOf, Reduction } from './scene-access';
-import type { ElementId, Scene, SceneError, Structure } from './types';
+import type { ElementId, Scene, Structure } from './types';
 
 type LinkedList = Extract<Structure, { kind: 'linked-list' }>;
 
@@ -53,10 +52,6 @@ export function applyRemoveNode(scene: Scene, event: EventOf<'remove-node'>): Re
       elementId,
     ),
   );
-}
-
-function requireAcyclic(list: LinkedList, event: EventOf<'link'>): Result<null, SceneError> {
-  return hasCycle(list) ? err({ code: 'cycle', event, structureId: list.id }) : ok(null);
 }
 
 export function applyLink(scene: Scene, event: EventOf<'link'>): Reduction {

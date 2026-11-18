@@ -1,4 +1,5 @@
-import type { Result } from '../result';
+import { elementIdsOf } from '@/domain';
+import type { Result } from '@/domain';
 import type {
   Cell,
   ElementRef,
@@ -9,7 +10,7 @@ import type {
   Scene,
   SceneError,
   Structure,
-} from './types';
+} from '@/domain';
 
 export function deepFreeze<T>(value: T): T {
   if (typeof value === 'object' && value !== null && !Object.isFrozen(value)) {
@@ -88,18 +89,7 @@ export function errorOf(result: Result<unknown, SceneError>): SceneError {
   return result.error;
 }
 
-export function elementIds(scene: Scene, structureId: string): string[] {
+export function elementIds(scene: Scene, structureId: string): readonly string[] {
   const structure = scene.structures.find((s) => s.id === structureId);
-  if (structure === undefined) return [];
-  switch (structure.kind) {
-    case 'array':
-      return structure.cells.map((c) => c.id);
-    case 'stack':
-    case 'queue':
-      return structure.items.map((c) => c.id);
-    case 'linked-list':
-      return structure.nodes.map((n) => n.id);
-    case 'hash-map':
-      return structure.buckets.flatMap((b) => b.map((e) => e.id));
-  }
+  return structure === undefined ? [] : elementIdsOf(structure);
 }

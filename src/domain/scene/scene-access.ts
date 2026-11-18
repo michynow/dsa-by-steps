@@ -133,13 +133,14 @@ export function dropReferences(scene: Scene, refersTo: (ref: ElementRef) => bool
   };
 }
 
+export function sameRef(a: ElementRef, b: ElementRef): boolean {
+  return a.structureId === b.structureId && a.elementId === b.elementId;
+}
+
 export function dropElementReferences(
   scene: Scene,
   structureId: StructureId,
   elementId: ElementId,
 ): Scene {
-  return dropReferences(
-    scene,
-    (ref) => ref.structureId === structureId && ref.elementId === elementId,
-  );
+  return dropReferences(scene, (ref) => sameRef(ref, { structureId, elementId }));
 }

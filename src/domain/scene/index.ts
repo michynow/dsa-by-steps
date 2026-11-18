@@ -19,3 +19,4 @@ export type {
   StructureKind,
 } from './types';
 export { applyStepEvent, applyStepEvents, scenesOf } from './reduce';
+export { elementIdsOf } from './scene-access';

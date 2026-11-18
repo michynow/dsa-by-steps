@@ -9,7 +9,7 @@ import {
   sceneOf,
   stackOf,
   unwrap,
-} from './fixtures';
+} from '@/test/scene-fixtures';
 import { applyStepEvent } from './index';
 
 const scene = sceneOf(

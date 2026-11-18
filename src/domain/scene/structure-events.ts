@@ -1,6 +1,6 @@
 import { err, ok } from '../result';
 import type { Result } from '../result';
-import { hasCycle } from './list-cycle';
+import { requireAcyclic } from './list-cycle';
 import {
   dropReferences,
   elementIdsOf,
@@ -9,6 +9,7 @@ import {
   isLinkedList,
   replaceStructure,
   requireElement,
+  unknownElement,
 } from './scene-access';
 import type { EventOf, Reduction } from './scene-access';
 import type { ElementId, Primitive, Scene, SceneError, StepEvent, Structure } from './types';
@@ -23,14 +24,9 @@ function validateListLinks(list: LinkedList, event: StepEvent): Result<null, Sce
   const references = [list.head, ...list.nodes.map((node) => node.next)];
   const missing = references.find((id) => id !== null && !hasElement(list, id));
   if (missing !== undefined && missing !== null) {
-    return err({
-      code: 'unknown-element',
-      event,
-      structureId: list.id,
-      elementId: missing,
-    });
+    return unknownElement(event, list.id, missing);
   }
-  return hasCycle(list) ? err({ code: 'cycle', event, structureId: list.id }) : ok(null);
+  return requireAcyclic(list, event);
 }
 
 function validateStructure(structure: Structure, event: StepEvent): Result<null, SceneError> {

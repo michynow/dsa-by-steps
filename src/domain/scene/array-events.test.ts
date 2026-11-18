@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { arrayOf, cell, elementIds, errorOf, ref, sceneOf, stackOf, unwrap } from './fixtures';
+import {
+  arrayOf,
+  cell,
+  elementIds,
+  errorOf,
+  ref,
+  sceneOf,
+  stackOf,
+  unwrap,
+} from '@/test/scene-fixtures';
 import { applyStepEvent } from './index';
 
 const scene = sceneOf(

@@ -12,8 +12,9 @@ import {
 import { applyInsertCell, applyRemoveCell, applySwap } from './array-events';
 import { applyAddNode, applyLink, applyRemoveNode, applySetHead } from './list-events';
 import { applyPutEntry, applyRemoveEntry } from './map-events';
+import { isQueue, isStack } from './scene-access';
 import type { EventOf, Reduction } from './scene-access';
-import { applyDequeue, applyEnqueue, applyPop, applyPush } from './sequence-events';
+import { appendItem, takeItem } from './sequence-events';
 import { applyCreate, applyRemove, applySetValue } from './structure-events';
 import type { Scene, SceneError, StepEvent, StepEventType } from './types';
 
@@ -98,13 +99,13 @@ function applyListEvent(scene: Scene, event: ListEvent): Reduction {
 function applySequenceEvent(scene: Scene, event: SequenceEvent): Reduction {
   switch (event.type) {
     case 'push':
-      return applyPush(scene, event);
+      return appendItem(scene, event, isStack);
     case 'pop':
-      return applyPop(scene, event);
+      return takeItem(scene, event, isStack, 'last');
     case 'enqueue':
-      return applyEnqueue(scene, event);
+      return appendItem(scene, event, isQueue);
     case 'dequeue':
-      return applyDequeue(scene, event);
+      return takeItem(scene, event, isQueue, 'first');
     default:
       return assertNever(event);
   }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { arrayOf, errorOf, listOf, node, ref, sceneOf, unwrap } from './fixtures';
+import { arrayOf, errorOf, listOf, node, ref, sceneOf, unwrap } from '@/test/scene-fixtures';
 import { applyStepEvent } from './index';
 import type { Scene } from './index';
 

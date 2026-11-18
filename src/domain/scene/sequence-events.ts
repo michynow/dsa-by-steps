@@ -2,23 +2,20 @@ import { err, ok } from '../result';
 import {
   dropElementReferences,
   expectKind,
-  isQueue,
-  isStack,
   replaceStructure,
   requireNewElement,
 } from './scene-access';
 import type { EventOf, KindGuard, Reduction } from './scene-access';
-import type { Cell, Scene, StepEvent, Structure, StructureId } from './types';
+import type { Scene, Structure } from './types';
 
 type Sequence = Extract<Structure, { kind: 'stack' | 'queue' }>;
 
-function append<S extends Sequence>(
+export function appendItem<S extends Sequence>(
   scene: Scene,
-  event: StepEvent,
-  structureId: StructureId,
-  cell: Cell,
+  event: EventOf<'push' | 'enqueue'>,
   guard: KindGuard<S>,
 ): Reduction {
+  const { cell, structureId } = event;
   const sequence = expectKind(scene, event, structureId, guard);
   if (!sequence.ok) return sequence;
   const fresh = requireNewElement(sequence.value, event, cell.id);
@@ -31,13 +28,13 @@ function append<S extends Sequence>(
   );
 }
 
-function takeFrom<S extends Sequence>(
+export function takeItem<S extends Sequence>(
   scene: Scene,
-  event: StepEvent,
-  structureId: StructureId,
+  event: EventOf<'pop' | 'dequeue'>,
   guard: KindGuard<S>,
   position: 'first' | 'last',
 ): Reduction {
+  const { structureId } = event;
   const sequence = expectKind(scene, event, structureId, guard);
   if (!sequence.ok) return sequence;
   const { items } = sequence.value;
@@ -53,20 +50,4 @@ function takeFrom<S extends Sequence>(
       taken.id,
     ),
   );
-}
-
-export function applyPush(scene: Scene, event: EventOf<'push'>): Reduction {
-  return append(scene, event, event.structureId, event.cell, isStack);
-}
-
-export function applyPop(scene: Scene, event: EventOf<'pop'>): Reduction {
-  return takeFrom(scene, event, event.structureId, isStack, 'last');
-}
-
-export function applyEnqueue(scene: Scene, event: EventOf<'enqueue'>): Reduction {
-  return append(scene, event, event.structureId, event.cell, isQueue);
-}
-
-export function applyDequeue(scene: Scene, event: EventOf<'dequeue'>): Reduction {
-  return takeFrom(scene, event, event.structureId, isQueue, 'first');
 }
