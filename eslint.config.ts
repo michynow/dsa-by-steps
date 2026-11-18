@@ -68,6 +68,7 @@ export default defineConfig(
         { type: 'ui', pattern: 'src/ui' },
         { type: 'test-support', pattern: 'src/test' },
       ],
+      'boundaries/files': [{ pattern: 'src/**/*.test.{ts,tsx}', category: 'test' }],
     },
     rules: {
       'boundaries/no-unknown-files': 'error',
@@ -77,6 +78,10 @@ export default defineConfig(
           default: 'disallow',
           policies: [
             { allow: { dependency: { relationship: { to: 'internal' } } } },
+            {
+              from: { file: { categories: 'test' } },
+              allow: { to: { element: { type: 'test-support' } } },
+            },
             {
               from: { element: { type: 'renderer' } },
               allow: { to: { element: { types: ['domain', 'ui'], ...publicSurface } } },
