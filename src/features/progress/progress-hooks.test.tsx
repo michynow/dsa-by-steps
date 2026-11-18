@@ -2,7 +2,11 @@ import { act, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { emptyProgress, lessonKey, markStepSeen, stepsSeenIn } from '@/domain';
 import type { ReactElement } from 'react';
-import { createMemoryProgressRepository } from './progress-repository';
+import { createFakeStorage } from '@/test/storage-fakes';
+import {
+  createBrowserProgressRepository,
+  createMemoryProgressRepository,
+} from './progress-repository';
 import { createProgressStore } from './progress-store';
 import { ProgressProvider } from './ProgressProvider';
 import { useProgress, useProgressActions, useProgressLoad } from './progress-hooks';
@@ -90,17 +94,80 @@ describe('progress hooks', () => {
     spy.mockRestore();
   });
 
-  it('shares one Progress value across consumers', () => {
+  it('does not loop or over-render when the selector returns a new array', () => {
     const store = setup();
-    store.getState().actions.replace(markStepSeen(emptyProgress, lesson, 'a'));
-    function Version(): ReactElement {
-      return <p>{useProgress((progress) => stepsSeenIn(progress, lesson).join(','))}</p>;
+    const present = lessonKey('arrays', 'present');
+    const absent = lessonKey('arrays', 'absent');
+    store.getState().actions.markStepSeen(present, 'a');
+    let renders = 0;
+    function Steps(): ReactElement {
+      renders += 1;
+      const missing = useProgress((progress) => stepsSeenIn(progress, absent));
+      const found = useProgress((progress) => stepsSeenIn(progress, present));
+      return <p>{`${String(missing.length)}:${found.join(',')}`}</p>;
     }
     render(
       <ProgressProvider store={store}>
-        <Version />
+        <Steps />
       </ProgressProvider>,
     );
-    expect(screen.getByText('a')).toBeInTheDocument();
+    expect(renders).toBe(1);
+    act(() => {
+      store.getState().actions.saveExerciseCode(lesson, 'x');
+    });
+    expect(renders).toBe(1);
+    act(() => {
+      store.getState().actions.markStepSeen(present, 'b');
+    });
+    expect(renders).toBe(2);
+    expect(screen.getByText('0:a,b')).toBeInTheDocument();
+  });
+
+  it('useProgressLoad reports restored Progress', () => {
+    const progress = markStepSeen(emptyProgress, lesson, 'a');
+    const store = createProgressStore(createMemoryProgressRepository(progress));
+    function Load(): ReactElement {
+      return <p>{JSON.stringify(useProgressLoad())}</p>;
+    }
+    render(
+      <ProgressProvider store={store}>
+        <Load />
+      </ProgressProvider>,
+    );
+    expect(screen.getByText(JSON.stringify({ kind: 'restored', progress }))).toBeInTheDocument();
+  });
+
+  it('useProgressLoad reports a recovered load', () => {
+    const storage = createFakeStorage({ 'dsa-by-steps.progress': '{nope' });
+    const store = createProgressStore(createBrowserProgressRepository(storage));
+    function Load(): ReactElement {
+      return <p>{JSON.stringify(useProgressLoad())}</p>;
+    }
+    render(
+      <ProgressProvider store={store}>
+        <Load />
+      </ProgressProvider>,
+    );
+    const error = { code: 'malformed', issues: ['not valid JSON'] };
+    expect(screen.getByText(JSON.stringify({ kind: 'recovered', error }))).toBeInTheDocument();
+  });
+
+  it('updates every consumer when Progress changes', () => {
+    const store = setup();
+    function Version(props: { readonly label: string }): ReactElement {
+      const seen = useProgress((progress) => stepsSeenIn(progress, lesson).join(','));
+      return <p>{`${props.label}=${seen}`}</p>;
+    }
+    render(
+      <ProgressProvider store={store}>
+        <Version label="one" />
+        <Version label="two" />
+      </ProgressProvider>,
+    );
+    act(() => {
+      store.getState().actions.markStepSeen(lesson, 'a');
+    });
+    expect(screen.getByText('one=a')).toBeInTheDocument();
+    expect(screen.getByText('two=a')).toBeInTheDocument();
   });
 });

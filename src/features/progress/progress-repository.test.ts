@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { emptyProgress, lessonKey, markStepSeen, serializeProgress } from '@/domain';
 import { createFakeStorage } from '@/test/storage-fakes';
 import {
@@ -8,6 +8,21 @@ import {
 
 const mainKey = 'dsa-by-steps.progress';
 const backupKey = 'dsa-by-steps.progress.backup';
+const now = '2026-11-18T12:00:00.000Z';
+
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date(now));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+function backupOf(...texts: readonly string[]): string {
+  return JSON.stringify(texts.map((text) => ({ at: now, text })));
+}
+
 const seen = markStepSeen(emptyProgress, lessonKey('arrays', 'binary-search'), 'intro');
 
 describe('createBrowserProgressRepository load', () => {
@@ -41,7 +56,7 @@ describe('createBrowserProgressRepository load', () => {
   ])('recovers from %s and keeps the raw text as backup', (_name, raw, error) => {
     const storage = createFakeStorage({ [mainKey]: raw });
     expect(createBrowserProgressRepository(storage).load()).toEqual({ kind: 'recovered', error });
-    expect(Object.fromEntries(storage.entries)).toEqual({ [backupKey]: raw });
+    expect(Object.fromEntries(storage.entries)).toEqual({ [backupKey]: backupOf(raw) });
   });
 
   it('is fresh when storage throws on getItem', () => {
@@ -89,19 +104,51 @@ describe('createBrowserProgressRepository save', () => {
     repository.save(emptyProgress);
     expect(Object.fromEntries(storage.entries)).toEqual({
       [mainKey]: serializeProgress(emptyProgress),
-      [backupKey]: '{nope',
+      [backupKey]: backupOf('{nope'),
     });
   });
 
-  it('two repositories sharing one storage do not corrupt the backup', () => {
-    const storage = createFakeStorage({ [mainKey]: '{nope' });
-    const first = createBrowserProgressRepository(storage);
-    const second = createBrowserProgressRepository(storage);
-    first.load();
-    expect(second.load()).toEqual({ kind: 'fresh' });
-    first.save(seen);
-    expect(second.load()).toEqual({ kind: 'restored', progress: seen });
-    expect(storage.entries.get(backupKey)).toBe('{nope');
+  it('keeps both corrupt texts when a second recovery meets an existing backup', () => {
+    const storage = createFakeStorage({ [mainKey]: '{bad2', [backupKey]: backupOf('{bad1') });
+    createBrowserProgressRepository(storage).load();
+    expect(Object.fromEntries(storage.entries)).toEqual({
+      [backupKey]: backupOf('{bad1', '{bad2'),
+    });
+  });
+
+  it('wraps an unreadable existing backup as an entry instead of discarding it', () => {
+    const storage = createFakeStorage({ [mainKey]: '{bad2', [backupKey]: 'garbage' });
+    createBrowserProgressRepository(storage).load();
+    expect(Object.fromEntries(storage.entries)).toEqual({
+      [backupKey]: backupOf('garbage', '{bad2'),
+    });
+  });
+
+  it('keeps only the 5 most recent backups', () => {
+    const old = backupOf('1', '2', '3', '4', '5');
+    const storage = createFakeStorage({ [mainKey]: '6', [backupKey]: old });
+    createBrowserProgressRepository(storage).load();
+    expect(Object.fromEntries(storage.entries)).toEqual({
+      [backupKey]: backupOf('2', '3', '4', '5', '6'),
+    });
+  });
+
+  it('leaves the main key untouched and refuses to save when the backup cannot be written', () => {
+    const storage = createFakeStorage({ [mainKey]: '{bad' });
+    const failing = {
+      ...storage,
+      setItem: (key: string, value: string) => {
+        if (key === backupKey) throw new Error('quota');
+        storage.setItem(key, value);
+      },
+    };
+    const repository = createBrowserProgressRepository(failing);
+    expect(repository.load()).toEqual({
+      kind: 'recovered',
+      error: { code: 'malformed', issues: ['not valid JSON'] },
+    });
+    repository.save(seen);
+    expect(Object.fromEntries(storage.entries)).toEqual({ [mainKey]: '{bad' });
   });
 });
 

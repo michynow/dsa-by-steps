@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { parseProgressJson, serializeProgress } from '@/domain';
 import type { Progress, ProgressError } from '@/domain';
 
@@ -14,25 +15,49 @@ export interface ProgressRepository {
   save(progress: Progress): void;
 }
 
-function moveToBackup(storage: Storage, raw: string): void {
+const maxBackups = 5;
+
+const backupEntriesSchema = z.array(z.object({ at: z.string(), text: z.string() }));
+
+interface BackupEntry {
+  readonly at: string;
+  readonly text: string;
+}
+
+function existingBackups(storage: Storage, at: string): readonly BackupEntry[] {
+  const raw = storage.getItem(backupKey);
+  if (raw === null) return [];
   try {
-    storage.setItem(backupKey, raw);
-    storage.removeItem(storageKey);
+    const parsed = backupEntriesSchema.safeParse(JSON.parse(raw));
+    if (parsed.success) return parsed.data;
   } catch {
-    return;
+    return [{ at, text: raw }];
+  }
+  return [{ at, text: raw }];
+}
+
+function appendBackup(storage: Storage, text: string): boolean {
+  try {
+    const at = new Date().toISOString();
+    const entries = [...existingBackups(storage, at), { at, text }].slice(-maxBackups);
+    storage.setItem(backupKey, JSON.stringify(entries));
+    storage.removeItem(storageKey);
+    return true;
+  } catch {
+    return false;
   }
 }
 
-function loadFrom(storage: Storage): ProgressLoad {
-  const raw = storage.getItem(storageKey);
-  if (raw === null) return { kind: 'fresh' };
-  const parsed = parseProgressJson(raw);
-  if (parsed.ok) return { kind: 'restored', progress: parsed.value };
-  moveToBackup(storage, raw);
-  return { kind: 'recovered', error: parsed.error };
-}
-
 export function createBrowserProgressRepository(storage: Storage | undefined): ProgressRepository {
+  let writable = true;
+  const loadFrom = (target: Storage): ProgressLoad => {
+    const raw = target.getItem(storageKey);
+    if (raw === null) return { kind: 'fresh' };
+    const parsed = parseProgressJson(raw);
+    if (parsed.ok) return { kind: 'restored', progress: parsed.value };
+    writable = appendBackup(target, raw);
+    return { kind: 'recovered', error: parsed.error };
+  };
   return {
     load() {
       if (storage === undefined) return { kind: 'fresh' };
@@ -43,6 +68,7 @@ export function createBrowserProgressRepository(storage: Storage | undefined): P
       }
     },
     save(progress) {
+      if (!writable) return;
       try {
         storage?.setItem(storageKey, serializeProgress(progress));
       } catch {
