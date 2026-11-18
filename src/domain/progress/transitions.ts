@@ -54,9 +54,10 @@ export function saveExerciseCode(progress: Progress, lesson: LessonKey, code: st
 }
 
 export function takeHint(progress: Progress, lesson: LessonKey, hintCount: number): Progress {
+  if (exerciseProgressOf(progress, lesson).hintsTaken >= hintCount) return progress;
   return updateExercise(progress, lesson, (current) => ({
     ...current,
-    hintsTaken: Math.min(current.hintsTaken + 1, Math.max(hintCount, current.hintsTaken)),
+    hintsTaken: current.hintsTaken + 1,
   }));
 }
 

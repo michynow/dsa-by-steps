@@ -45,16 +45,31 @@ describe('parseProgress', () => {
   });
   it('rejects a bad lesson key pattern with the path', () => {
     const issues = issuesOf({ ...emptyProgress, stepsSeen: { 'Arrays/x': [] } });
-    expect(issues[0]).toContain('Arrays/x');
+    expect(issues).toEqual(['stepsSeen.Arrays/x: invalid lesson key']);
   });
   it('rejects a bad check key pattern', () => {
     expect(
-      issuesOf({ ...emptyProgress, checks: { 'a/b': { misses: 0, status: 'open' } } }).length,
-    ).toBe(1);
+      issuesOf({ ...emptyProgress, checks: { 'a/b': { misses: 0, status: 'open' } } }),
+    ).toEqual(['checks.a/b: invalid check key']);
   });
   it('rejects a bad exercise key pattern', () => {
     const exercise = { code: '', hintsTaken: 0, rejections: 0, passed: false };
-    expect(issuesOf({ ...emptyProgress, exercises: { 'a/b/c': exercise } }).length).toBe(1);
+    expect(issuesOf({ ...emptyProgress, exercises: { 'a/b/c': exercise } })).toEqual([
+      'exercises.a/b/c: invalid lesson key',
+    ]);
+  });
+  it('rejects a step id that is not kebab-case', () => {
+    expect(issuesOf({ ...emptyProgress, stepsSeen: { 'a/b': ['Bad Id'] } })).toEqual([
+      'stepsSeen.a/b.0: invalid step id',
+    ]);
+  });
+  it('rejects duplicate step ids in a lesson', () => {
+    expect(issuesOf({ ...emptyProgress, stepsSeen: { 'a/b': ['s1', 's1'] } })).toEqual([
+      'stepsSeen.a/b: duplicate step ids',
+    ]);
+  });
+  it('treats an undefined version as missing', () => {
+    expect(issuesOf({ ...emptyProgress, version: undefined }).length).toBeGreaterThan(0);
   });
   it.each([-1, 1.5])('rejects misses %s', (misses) => {
     const checks = { 'a/b/c': { misses, status: 'open' } };
@@ -91,6 +106,15 @@ describe('parseProgress migration chain', () => {
   it('validates migrated output', () => {
     const result = parseProgressWith(chain, { version: 0, seen: 5 });
     expect(result.ok).toBe(false);
+  });
+  it('reports a version above current as unsupported even when the chain has an entry', () => {
+    const calls: unknown[] = [];
+    const future = { 2: (older: Readonly<Record<string, unknown>>) => (calls.push(older), older) };
+    expect(parseProgressWith(future, { ...emptyProgress, version: 2 })).toEqual({
+      ok: false,
+      error: { code: 'unsupported-version', version: 2 },
+    });
+    expect(calls).toEqual([]);
   });
   it('reports versions missing from the chain as unsupported-version', () => {
     expect(parseProgressWith(chain, { version: -1 })).toEqual({

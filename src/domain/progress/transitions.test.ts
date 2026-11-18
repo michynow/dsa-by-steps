@@ -86,6 +86,28 @@ describe('setCheckState', () => {
   });
 });
 
+describe('setCheckState replacing', () => {
+  it('replaces an existing state', () => {
+    const key = checkKey(lesson, 'mid');
+    const first = setCheckState(emptyProgress, key, { misses: 1, status: 'open' });
+    const next = setCheckState(first, key, { misses: 1, status: 'passed' });
+    expect(checkStateOf(next, key)).toEqual({ misses: 1, status: 'passed' });
+    expect(checkStateOf(first, key)).toEqual({ misses: 1, status: 'open' });
+  });
+});
+
+describe('exerciseProgressOf present', () => {
+  it('returns the stored exercise progress', () => {
+    const progress = recordSubmit(saveExerciseCode(emptyProgress, lesson, 'c'), lesson, 'pass');
+    expect(exerciseProgressOf(progress, lesson)).toEqual({
+      code: 'c',
+      hintsTaken: 0,
+      rejections: 0,
+      passed: true,
+    });
+  });
+});
+
 describe('saveExerciseCode', () => {
   it('stores code and keeps other exercise fields', () => {
     const withHint = takeHint(emptyProgress, lesson, 3);
@@ -113,7 +135,10 @@ describe('takeHint', () => {
     expect(exerciseProgressOf(progress, lesson).hintsTaken).toBe(2);
   });
   it('takes nothing when there are no Hints', () => {
-    expect(exerciseProgressOf(takeHint(emptyProgress, lesson, 0), lesson).hintsTaken).toBe(0);
+    expect(takeHint(emptyProgress, lesson, 0)).toBe(emptyProgress);
+  });
+  it('leaves Progress unchanged for a negative hintCount', () => {
+    expect(takeHint(emptyProgress, lesson, -1)).toBe(emptyProgress);
   });
 });
 
