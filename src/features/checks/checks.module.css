@@ -1,0 +1,44 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  font-size: var(--font-size-body);
+  color: var(--color-ink);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.mark {
+  font-size: var(--font-size-caption);
+  color: var(--color-success-ink);
+  background: var(--color-success);
+  border-radius: var(--radius-control);
+  padding: 0 var(--space-2);
+}
+
+.controls {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.explanation {
+  margin: 0;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius-card);
+}
+
+.explanation:focus-visible {
+  outline: var(--border-width) solid var(--color-focus);
+}
