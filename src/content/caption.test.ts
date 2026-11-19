@@ -43,6 +43,12 @@ describe('parseCaption', () => {
     ]);
   });
 
+  it('keeps an underscore id and an uppercase id as text', () => {
+    expect(parseCaption('a [[Bad_Id]] b [[Head]]')).toEqual([
+      { kind: 'text', text: 'a [[Bad_Id]] b [[Head]]' },
+    ]);
+  });
+
   it('returns no segments for an empty string', () => {
     expect(parseCaption('')).toEqual([]);
   });

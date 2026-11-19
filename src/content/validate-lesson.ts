@@ -10,7 +10,7 @@ import type {
   StepId,
   Structure,
 } from '@/domain';
-import { stepTerms } from './caption';
+import { hasMarker, malformedMarkers, stepTerms } from './caption';
 import type { LessonContent, TermId } from './types';
 
 export type IdKind =
@@ -76,6 +76,13 @@ export type ContentIssue =
       readonly term: TermId;
       readonly presentIn: Locale;
       readonly absentIn: Locale;
+    }
+  | { readonly code: 'marker-outside-caption'; readonly locale: Locale; readonly path: string }
+  | {
+      readonly code: 'malformed-marker';
+      readonly locale: Locale;
+      readonly path: string;
+      readonly text: string;
     }
   | { readonly code: 'unused-term'; readonly term: TermId }
   | { readonly code: 'invalid-id'; readonly kind: IdKind; readonly id: string }
@@ -415,6 +422,32 @@ function mismatchedTermIssues(content: LessonContent): readonly ContentIssue[] {
   );
 }
 
+function leafStrings(value: unknown, prefix: string): readonly (readonly [string, string])[] {
+  if (typeof value === 'string') return [[prefix, value]];
+  if (typeof value !== 'object' || value === null) return [];
+  return Object.entries(value).flatMap(([key, child]) =>
+    leafStrings(child, prefix === '' ? key : `${prefix}.${key}`),
+  );
+}
+
+const captionPath = /^steps\.[^.]+\.(?:caption|keyIdea)$/;
+
+function markerPlacementIssues(content: LessonContent): readonly ContentIssue[] {
+  return contentLocales.flatMap((locale) =>
+    leafStrings(content.messages[locale], '').flatMap(([path, text]): readonly ContentIssue[] => {
+      if (captionPath.test(path)) {
+        return malformedMarkers(text).map((marker): ContentIssue => ({
+          code: 'malformed-marker',
+          locale,
+          path,
+          text: marker,
+        }));
+      }
+      return hasMarker(text) ? [{ code: 'marker-outside-caption', locale, path }] : [];
+    }),
+  );
+}
+
 function unusedTermIssues(content: LessonContent): readonly ContentIssue[] {
   const marked = new Set(
     contentLocales.flatMap((locale) =>
@@ -435,6 +468,7 @@ export function validateLessonContent(
     ...duplicateIssues(content),
     ...allCheckIssues(content, scenes),
     ...messageIssues(content),
+    ...markerPlacementIssues(content),
     ...unknownTermIssues(content),
     ...mismatchedTermIssues(content),
     ...unusedTermIssues(content),

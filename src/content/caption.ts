@@ -7,20 +7,23 @@ export type CaptionSegment =
 
 const termMarker = /\[\[([a-z0-9]+(?:-[a-z0-9]+)*)\]\]/;
 
-function appendSegment(
-  segments: readonly CaptionSegment[],
-  piece: string,
-  index: number,
-): readonly CaptionSegment[] {
-  if (index % 2 === 1) return [...segments, { kind: 'term', term: piece }];
-  if (piece === '') return segments;
-  const last = segments[segments.length - 1];
-  if (last?.kind !== 'text') return [...segments, { kind: 'text', text: piece }];
-  return [...segments.slice(0, -1), { kind: 'text', text: last.text + piece }];
+function segmentOf(piece: string, index: number): readonly CaptionSegment[] {
+  if (index % 2 === 1) return [{ kind: 'term', term: piece }];
+  return piece === '' ? [] : [{ kind: 'text', text: piece }];
 }
 
 export function parseCaption(text: string): readonly CaptionSegment[] {
-  return text.split(termMarker).reduce(appendSegment, []);
+  return text.split(termMarker).flatMap(segmentOf);
+}
+
+const anyMarker = /\[\[.*?\]\]/g;
+
+export function hasMarker(text: string): boolean {
+  return text.search(anyMarker) !== -1;
+}
+
+export function malformedMarkers(text: string): readonly string[] {
+  return (text.match(anyMarker) ?? []).filter((marker) => !termMarker.test(marker));
 }
 
 export function termsMarkedIn(text: string | undefined): readonly TermId[] {

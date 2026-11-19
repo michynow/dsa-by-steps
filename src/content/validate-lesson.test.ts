@@ -768,6 +768,71 @@ describe('validateLessonContent: message keys', () => {
       ]);
     });
 
+    it('does not report a Term marked only in a Key Idea as unused', () => {
+      const keyIdea = { caption: 'Choose.', keyIdea: 'Use [[stack]].' };
+      const withBoth = (locale: 'en' | 'pl'): LessonContent =>
+        withStepText(locale, 'pick-one', keyIdea, ['array', 'stack']);
+      const en = withBoth('en');
+      const both: LessonContent = {
+        ...en,
+        messages: {
+          en: en.messages.en,
+          pl: withBoth('pl').messages.pl,
+        },
+      };
+      expect(validate(both)).toEqual([
+        { code: 'missing-message-key', locale: 'en', path: 'terms.stack.term' },
+        { code: 'missing-message-key', locale: 'en', path: 'terms.stack.gloss' },
+        { code: 'missing-message-key', locale: 'pl', path: 'terms.stack.term' },
+        { code: 'missing-message-key', locale: 'pl', path: 'terms.stack.gloss' },
+      ]);
+    });
+
+    it('reports a marker outside a Caption or Key Idea', () => {
+      const en = { ...englishMessages, whenNot: 'Not [[array]].' };
+      const content: LessonContent = {
+        ...baseContent,
+        messages: {
+          en: {
+            ...en,
+            outcomes: { 'read-an-array': 'Read [[array]]' },
+            steps: {
+              ...en.steps,
+              'pick-one': { title: 'Pick [[array]]', caption: 'Choose.' },
+            },
+          },
+          pl: polishMessages,
+        },
+      };
+      expect(validate(content)).toEqual([
+        { code: 'marker-outside-caption', locale: 'en', path: 'whenNot' },
+        { code: 'marker-outside-caption', locale: 'en', path: 'outcomes.read-an-array' },
+        { code: 'marker-outside-caption', locale: 'en', path: 'steps.pick-one.title' },
+      ]);
+    });
+
+    it('reports malformed markers in a Caption and a Key Idea', () => {
+      const content = withStepText('en', 'pick-one', {
+        caption: 'See [[Array]] now.',
+        keyIdea: 'And [[linked_list]].',
+      });
+      const issues = validate(content).filter((issue) => issue.code === 'malformed-marker');
+      expect(issues).toEqual([
+        {
+          code: 'malformed-marker',
+          locale: 'en',
+          path: 'steps.pick-one.caption',
+          text: '[[Array]]',
+        },
+        {
+          code: 'malformed-marker',
+          locale: 'en',
+          path: 'steps.pick-one.keyIdea',
+          text: '[[linked_list]]',
+        },
+      ]);
+    });
+
     it('accepts a Term marked in the same Step in both Locales', () => {
       expect(validate(baseContent)).toEqual([]);
     });
