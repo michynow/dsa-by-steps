@@ -93,6 +93,7 @@ Keyboard-complete: every Step, Check (including Order Checks) and Exercise actio
 ## Workflow
 
 - Package manager: `pnpm`. Discover scripts in `package.json`; `pnpm check` is the full local gate.
+- End-to-end runs build and serve their own preview and never reuse a running server. Parallel worktrees set a unique `E2E_PORT` (e.g. `E2E_PORT=4290 pnpm test:e2e`).
 - CSS Module typings (`*.module.d.css.ts`) are generated and gitignored. `pnpm typecheck` regenerates them; run it after adding or renaming a class.
 - TypeScript stays on the newest version `typescript-eslint` supports, which may lag the latest release.
 - Before declaring work done, run typecheck, lint, unit tests and content tests, and report their actual output.
