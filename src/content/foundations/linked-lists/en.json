@@ -160,5 +160,14 @@
       "term": "traversal",
       "gloss": "Visiting the nodes one after another by following their links."
     }
+  },
+  "exercise": {
+    "title": "Play the queue backwards",
+    "task": "A listener taps Play backwards, and the app must play the queue from the last song to the first. Write reverseList, which takes the [[head]] of the [[linked-list]] and returns the new head after reversing it in place. Relink the existing [[node]] objects instead of building a new list, and handle an empty queue too.",
+    "hints": [
+      "You need to remember the node before the current one, because a node has no link back to it.",
+      "At each step, save next before you change any link, or you lose the rest of the queue.",
+      "Walk with prev set to null and current set to head. Flip current.next to prev, then move both forward. When current is null, prev is the new head."
+    ]
   }
 }
