@@ -1,16 +1,36 @@
 {
   "title": "Lekcja szablonowa",
+  "story": {
+    "title": "Półka z liczbami",
+    "summary": "Odczytujesz liczby z rzędu, po indeksie."
+  },
+  "uses": [
+    {
+      "title": "Arkusze",
+      "body": "Komórki wierszy czyta się po pozycji."
+    },
+    {
+      "title": "Piksele obrazu",
+      "body": "Obraz to siatka czytana po współrzędnych."
+    },
+    {
+      "title": "Plansze gier",
+      "body": "Pola wyszukuje się po indeksie."
+    }
+  ],
+  "whenNot": "Pomiń to, gdy rząd często rośnie lub maleje.",
   "outcomes": {
     "read-an-array": "Odczytasz element tablicy po jego indeksie"
   },
   "steps": {
     "the-problem": {
       "title": "Szukanie jednej liczby",
-      "caption": "Masz rząd liczb i potrzebujesz drugiej z nich. Przeglądanie od początku wydaje się wolne."
+      "caption": "Masz rząd liczb, czyli [[array]], i potrzebujesz drugiej z nich. Przeglądanie od początku wydaje się wolne."
     },
     "how-it-works": {
       "title": "Skok prosto do celu",
-      "caption": "Tablica trzyma komórki obok siebie, więc indeks mówi dokładnie, gdzie szukać."
+      "caption": "Tablica trzyma komórki obok siebie, więc indeks mówi dokładnie, gdzie szukać.",
+      "keyIdea": "Indeks mówi dokładnie, gdzie szukać."
     }
   },
   "checks": {

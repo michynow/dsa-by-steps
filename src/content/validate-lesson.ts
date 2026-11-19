@@ -10,7 +10,8 @@ import type {
   StepId,
   Structure,
 } from '@/domain';
-import type { LessonContent } from './types';
+import { stepTerms } from './caption';
+import type { LessonContent, TermId } from './types';
 
 export type IdKind =
   | 'module'
@@ -63,6 +64,20 @@ export type ContentIssue =
       readonly structure: string;
       readonly element: string;
     }
+  | {
+      readonly code: 'unknown-term';
+      readonly locale: Locale;
+      readonly step: StepId;
+      readonly term: TermId;
+    }
+  | {
+      readonly code: 'term-locale-mismatch';
+      readonly step: StepId;
+      readonly term: TermId;
+      readonly presentIn: Locale;
+      readonly absentIn: Locale;
+    }
+  | { readonly code: 'unused-term'; readonly term: TermId }
   | { readonly code: 'invalid-id'; readonly kind: IdKind; readonly id: string }
   | { readonly code: 'duplicate-step-id'; readonly step: StepId }
   | { readonly code: 'duplicate-check-id'; readonly check: CheckId };
@@ -266,14 +281,34 @@ function checkKeys(check: Check): readonly ExpectedKey[] {
   ];
 }
 
+function useKeys(content: LessonContent): readonly ExpectedKey[] {
+  const count = Math.max(...contentLocales.map((locale) => content.messages[locale].uses.length));
+  return Array.from({ length: count }, (_, index): readonly ExpectedKey[] => [
+    { path: `uses.${String(index)}.title` },
+    { path: `uses.${String(index)}.body` },
+  ]).flat();
+}
+
+function keyIdeaKeys(content: LessonContent, step: Step): readonly ExpectedKey[] {
+  const present = contentLocales.some(
+    (locale) => content.messages[locale].steps[step.id]?.keyIdea !== undefined,
+  );
+  return present ? [{ path: `steps.${step.id}.keyIdea` }] : [];
+}
+
 function expectedKeys(content: LessonContent): readonly ExpectedKey[] {
   const { lesson } = content;
   return [
     { path: 'title' },
+    { path: 'story.title' },
+    { path: 'story.summary' },
+    { path: 'whenNot' },
+    ...useKeys(content),
     ...lesson.outcomes.map((id): ExpectedKey => ({ path: `outcomes.${id}` })),
     ...lesson.steps.flatMap((step): readonly ExpectedKey[] => [
       { path: `steps.${step.id}.title` },
       { path: `steps.${step.id}.caption` },
+      ...keyIdeaKeys(content, step),
       ...(step.check === undefined ? [] : checkKeys(step.check)),
     ]),
     ...content.terms.flatMap((id): readonly ExpectedKey[] => [
@@ -349,6 +384,48 @@ function messageIssues(content: LessonContent): readonly ContentIssue[] {
   ];
 }
 
+function unknownTermIssues(content: LessonContent): readonly ContentIssue[] {
+  return contentLocales.flatMap((locale) =>
+    content.lesson.steps.flatMap((step) =>
+      [...new Set(stepTerms(content.messages[locale], step.id))]
+        .filter((term) => !content.terms.includes(term))
+        .map((term): ContentIssue => ({ code: 'unknown-term', locale, step: step.id, term })),
+    ),
+  );
+}
+
+function mismatchedTermIssues(content: LessonContent): readonly ContentIssue[] {
+  return content.lesson.steps.flatMap((step) =>
+    contentLocales.flatMap((presentIn) =>
+      contentLocales
+        .filter((absentIn) => absentIn !== presentIn)
+        .flatMap((absentIn) => {
+          const absent = stepTerms(content.messages[absentIn], step.id);
+          return [...new Set(stepTerms(content.messages[presentIn], step.id))]
+            .filter((term) => !absent.includes(term))
+            .map((term): ContentIssue => ({
+              code: 'term-locale-mismatch',
+              step: step.id,
+              term,
+              presentIn,
+              absentIn,
+            }));
+        }),
+    ),
+  );
+}
+
+function unusedTermIssues(content: LessonContent): readonly ContentIssue[] {
+  const marked = new Set(
+    contentLocales.flatMap((locale) =>
+      content.lesson.steps.flatMap((step) => stepTerms(content.messages[locale], step.id)),
+    ),
+  );
+  return content.terms
+    .filter((term) => !marked.has(term))
+    .map((term): ContentIssue => ({ code: 'unused-term', term }));
+}
+
 export function validateLessonContent(
   content: LessonContent,
   scenes: readonly Scene[],
@@ -358,5 +435,8 @@ export function validateLessonContent(
     ...duplicateIssues(content),
     ...allCheckIssues(content, scenes),
     ...messageIssues(content),
+    ...unknownTermIssues(content),
+    ...mismatchedTermIssues(content),
+    ...unusedTermIssues(content),
   ];
 }

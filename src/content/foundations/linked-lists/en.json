@@ -1,5 +1,24 @@
 {
   "title": "Linked lists",
+  "story": {
+    "title": "A task list that grows at the front",
+    "summary": "You keep a task list where new tasks keep landing at the front."
+  },
+  "uses": [
+    {
+      "title": "Music play queues",
+      "body": "Songs are added and removed without moving the rest."
+    },
+    {
+      "title": "Browser history",
+      "body": "Pages link to the one visited before."
+    },
+    {
+      "title": "Undo stacks",
+      "body": "Each change links back to the previous one."
+    }
+  ],
+  "whenNot": "Skip it when you mostly read items by index.",
   "outcomes": {
     "explain-nodes-and-links": "Explain how nodes and links make up a linked list",
     "traverse-from-head": "Traverse a linked list from its head with a pointer",
@@ -14,23 +33,23 @@
     },
     "a-node": {
       "title": "A node holds a value and a next",
-      "caption": "You store each item in its own node. A node holds two things: a value and a link called next. Here the single node holds A, and its next points nowhere yet."
+      "caption": "You store each item in its own node. A [[node]] holds two things: a value and a link called next. Here the single node holds A, and its next points nowhere yet."
     },
     "linking-nodes": {
       "title": "Nodes joined by links",
-      "caption": "You add B, C and D, then link each node to the one after it. Following the links takes you from A to D. The last node's next is null, which marks the end of the list."
+      "caption": "You add B, C and D, then link each node to the one after it. Following the links takes you from A to D. The last node's next is null, which marks the end of the [[linked-list]]."
     },
     "the-head": {
       "title": "The head is where the list starts",
-      "caption": "The list needs one more thing: the head, a reference to its first node. You set the head to A, the one node that no other node links to. From the head, the links reach every other node."
+      "caption": "The list needs one more thing: the [[head]], a reference to its first node. You set the head to A, the one node that no other node links to. From the head, the links reach every other node."
     },
     "current-pointer": {
       "title": "A pointer marks a node",
-      "caption": "A pointer is a labelled marker that refers to one node. You place current on the head, A, and follow A's next link. Now current sits on B."
+      "caption": "A [[pointer]] is a labelled marker that refers to one node. You place current on the head, A, and follow A's next link. Now current sits on B."
     },
     "traversal": {
       "title": "Walking the whole list",
-      "caption": "You keep following next links. current goes from B to C and then to D, whose next is null, so you stop and put the pointer away. Visiting the nodes one after another like this is called traversal."
+      "caption": "You keep following next links. current goes from B to C and then to D, whose next is null, so you stop and put the pointer away. Visiting the nodes one after another like this is called [[traversal]]."
     },
     "insert-at-head": {
       "title": "Insert at the head",

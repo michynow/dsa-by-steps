@@ -58,9 +58,16 @@ const baseLesson: Lesson = {
 
 const englishMessages: LessonMessages = {
   title: 'Sample',
+  story: { title: 'Story', summary: 'Summary.' },
+  uses: [
+    { title: 'One', body: 'First.' },
+    { title: 'Two', body: 'Second.' },
+    { title: 'Three', body: 'Third.' },
+  ],
+  whenNot: 'Not always.',
   outcomes: { 'read-an-array': 'Read an array' },
   steps: {
-    'the-problem': { title: 'The problem', caption: 'Numbers pile up.' },
+    'the-problem': { title: 'The problem', caption: 'Numbers pile up in an [[array]].' },
     'pick-one': { title: 'Pick one', caption: 'Choose.' },
     'find-it': { title: 'Find it', caption: 'Click it.' },
     'arrange-it': { title: 'Arrange it', caption: 'Order it.' },
@@ -79,9 +86,16 @@ const englishMessages: LessonMessages = {
 
 const polishMessages: LessonMessages = {
   title: 'Przykład',
+  story: { title: 'Historia', summary: 'Streszczenie.' },
+  uses: [
+    { title: 'Jeden', body: 'Pierwszy.' },
+    { title: 'Dwa', body: 'Drugi.' },
+    { title: 'Trzy', body: 'Trzeci.' },
+  ],
+  whenNot: 'Nie zawsze.',
   outcomes: { 'read-an-array': 'Odczytaj tablicę' },
   steps: {
-    'the-problem': { title: 'Problem', caption: 'Liczby się piętrzą.' },
+    'the-problem': { title: 'Problem', caption: 'Liczby piętrzą się w [[array]].' },
     'pick-one': { title: 'Wybierz', caption: 'Wybierz.' },
     'find-it': { title: 'Znajdź', caption: 'Kliknij.' },
     'arrange-it': { title: 'Ułóż', caption: 'Uporządkuj.' },
@@ -322,6 +336,9 @@ describe('validateLessonContent', () => {
     };
     const messages: LessonMessages = {
       title: 't',
+      story: englishMessages.story,
+      uses: englishMessages.uses,
+      whenNot: 'w',
       outcomes: { read_array: 'o' },
       steps: { Step_One: { title: 't', caption: 'c' } },
       checks: { Check_One: { prompt: 'p', options: { Opt_A: 'a' }, explanation: 'e' } },
@@ -344,6 +361,7 @@ describe('validateLessonContent', () => {
       { code: 'invalid-id', kind: 'structure', id: 'My_Array' },
       { code: 'invalid-id', kind: 'element', id: 'Cell' },
       { code: 'invalid-id', kind: 'pointer', id: 'Ptr' },
+      { code: 'unused-term', term: 'Bad_Term' },
     ]);
   });
 
@@ -658,5 +676,100 @@ describe('validateLessonContent: message keys', () => {
         absentIn: 'pl',
       },
     ]);
+  });
+
+  describe('Terms', () => {
+    function withStepText(
+      locale: 'en' | 'pl',
+      step: string,
+      text: { readonly caption: string; readonly keyIdea?: string },
+      terms: readonly string[] = ['array'],
+    ): LessonContent {
+      const base = locale === 'en' ? englishMessages : polishMessages;
+      const messages = {
+        en: englishMessages,
+        pl: polishMessages,
+        [locale]: {
+          ...base,
+          steps: { ...base.steps, [step]: { title: 't', ...text } },
+        },
+      };
+      return { ...baseContent, terms, messages };
+    }
+
+    it('reports a marked Term missing from the Lesson Terms', () => {
+      const content = withStepText('en', 'pick-one', { caption: 'A [[stack]] here.' });
+      expect(validate(content)).toEqual([
+        { code: 'unknown-term', locale: 'en', step: 'pick-one', term: 'stack' },
+        {
+          code: 'term-locale-mismatch',
+          step: 'pick-one',
+          term: 'stack',
+          presentIn: 'en',
+          absentIn: 'pl',
+        },
+      ]);
+    });
+
+    it('reports a Term marked in English only', () => {
+      const content = withStepText('en', 'pick-one', { caption: 'See the [[array]].' });
+      expect(validate(content)).toEqual([
+        {
+          code: 'term-locale-mismatch',
+          step: 'pick-one',
+          term: 'array',
+          presentIn: 'en',
+          absentIn: 'pl',
+        },
+      ]);
+    });
+
+    it('reports a Term marked in Polish only', () => {
+      const content = withStepText('pl', 'pick-one', { caption: 'Zobacz [[array]].' });
+      expect(validate(content)).toEqual([
+        {
+          code: 'term-locale-mismatch',
+          step: 'pick-one',
+          term: 'array',
+          presentIn: 'pl',
+          absentIn: 'en',
+        },
+      ]);
+    });
+
+    it('counts a Key Idea as marking a Term in both Locales', () => {
+      const en = withStepText('en', 'pick-one', { caption: 'Choose.', keyIdea: 'Use [[array]].' });
+      expect(validate(en)).toEqual([
+        { code: 'missing-message-key', locale: 'pl', path: 'steps.pick-one.keyIdea' },
+        {
+          code: 'locale-key-mismatch',
+          path: 'steps.pick-one.keyIdea',
+          presentIn: 'en',
+          absentIn: 'pl',
+        },
+        {
+          code: 'term-locale-mismatch',
+          step: 'pick-one',
+          term: 'array',
+          presentIn: 'en',
+          absentIn: 'pl',
+        },
+      ]);
+    });
+
+    it('reports a Lesson Term never marked in any Caption', () => {
+      const content: LessonContent = { ...baseContent, terms: ['array', 'pointer'] };
+      expect(validate(content)).toEqual([
+        { code: 'missing-message-key', locale: 'en', path: 'terms.pointer.term' },
+        { code: 'missing-message-key', locale: 'en', path: 'terms.pointer.gloss' },
+        { code: 'missing-message-key', locale: 'pl', path: 'terms.pointer.term' },
+        { code: 'missing-message-key', locale: 'pl', path: 'terms.pointer.gloss' },
+        { code: 'unused-term', term: 'pointer' },
+      ]);
+    });
+
+    it('accepts a Term marked in the same Step in both Locales', () => {
+      expect(validate(baseContent)).toEqual([]);
+    });
   });
 });

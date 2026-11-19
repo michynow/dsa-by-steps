@@ -1,5 +1,24 @@
 {
   "title": "Listy powiązane",
+  "story": {
+    "title": "Lista zadań rosnąca od przodu",
+    "summary": "Prowadzisz listę zadań, w której nowe zadania ciągle trafiają na początek."
+  },
+  "uses": [
+    {
+      "title": "Kolejki odtwarzania",
+      "body": "Utwory dodaje się i usuwa bez przesuwania reszty."
+    },
+    {
+      "title": "Historia przeglądarki",
+      "body": "Każda strona wskazuje poprzednio odwiedzoną."
+    },
+    {
+      "title": "Stosy cofania",
+      "body": "Każda zmiana wskazuje poprzednią."
+    }
+  ],
+  "whenNot": "Pomiń to, gdy głównie czytasz elementy po indeksie.",
   "outcomes": {
     "explain-nodes-and-links": "Wyjaśnisz, jak node (węzły) i połączenia tworzą linked list (listę powiązaną)",
     "traverse-from-head": "Wykonasz traversal (przejście po liście) od head (początku listy) za pomocą pointera (wskaźnika)",
@@ -14,23 +33,23 @@
     },
     "a-node": {
       "title": "Node trzyma wartość i next",
-      "caption": "Każdy element trzymasz w osobnym node. Node ma dwie rzeczy: wartość i połączenie o nazwie next. Tutaj jedyny node trzyma A, a jego next nie wskazuje jeszcze na nic."
+      "caption": "Każdy element trzymasz w osobnym node. [[node]] ma dwie rzeczy: wartość i połączenie o nazwie next. Tutaj jedyny node trzyma A, a jego next nie wskazuje jeszcze na nic."
     },
     "linking-nodes": {
       "title": "Węzły złączone ze sobą",
-      "caption": "Dodajesz B, C i D, a potem łączysz każdy node z następnym. Idąc za połączeniami, dojdziesz od A do D. Next ostatniego node to null, co oznacza koniec listy."
+      "caption": "Dodajesz B, C i D, a potem łączysz każdy node z następnym. Idąc za połączeniami, dojdziesz od A do D. Next ostatniego node to null, co oznacza koniec listy ([[linked-list]])."
     },
     "the-head": {
       "title": "Head to początek listy",
-      "caption": "Lista potrzebuje jeszcze jednej rzeczy: head, czyli odwołania do pierwszego node. Ustawiasz head na A, bo żaden node nie prowadzi do A i tylko head może Cię tam zaprowadzić. Od head połączenia docierają do wszystkich pozostałych node."
+      "caption": "Lista potrzebuje jeszcze jednej rzeczy: [[head]], czyli odwołania do pierwszego node. Ustawiasz head na A, bo żaden node nie prowadzi do A i tylko head może Cię tam zaprowadzić. Od head połączenia docierają do wszystkich pozostałych node."
     },
     "current-pointer": {
       "title": "Pointer wskazuje node",
-      "caption": "Pointer to znacznik z nazwą, który wskazuje jeden node. Ustawiasz current na head, czyli na A, i idziesz za połączeniem next węzła A. Teraz current stoi na B."
+      "caption": "[[pointer]] to znacznik z nazwą, który wskazuje jeden node. Ustawiasz current na head, czyli na A, i idziesz za połączeniem next węzła A. Teraz current stoi na B."
     },
     "traversal": {
       "title": "Przejście po całej liście",
-      "caption": "Idziesz dalej za połączeniami next. current przechodzi z B do C, a potem do D, którego next to null, więc się zatrzymujesz i odkładasz pointer. Odwiedzanie node jeden po drugim w ten sposób to traversal."
+      "caption": "Idziesz dalej za połączeniami next. current przechodzi z B do C, a potem do D, którego next to null, więc się zatrzymujesz i odkładasz pointer. Odwiedzanie node jeden po drugim w ten sposób to [[traversal]]."
     },
     "insert-at-head": {
       "title": "Wstawianie na początek",
