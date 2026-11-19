@@ -1,141 +1,142 @@
 {
   "title": "Listy powiązane",
   "story": {
-    "title": "Lista zadań rosnąca od przodu",
-    "summary": "Prowadzisz listę zadań, w której nowe zadania ciągle trafiają na początek."
+    "title": "Kolejka odtwarzania w aplikacji muzycznej",
+    "summary": "Budujesz kolejkę odtwarzania aplikacji muzycznej. Słuchacze dodają utwory jako następne, usuwają je i przeskakują między nimi, a kolejka musi działać szybko, nawet gdy ma tysiące utworów."
   },
   "uses": [
     {
-      "title": "Kolejki odtwarzania",
-      "body": "Utwory dodaje się i usuwa bez przesuwania reszty."
+      "title": "Łańcuchy kolizji w hash map",
+      "body": "Gdy dwa klucze trafiają do tego samego koszyka, koszyk trzyma je jako krótką linked list. Spotkasz to w Lekcji o hash mapach."
     },
     {
-      "title": "Historia przeglądarki",
-      "body": "Każda strona wskazuje poprzednio odwiedzoną."
+      "title": "Cache LRU przed bazą danych",
+      "body": "Hash map znajduje wpis, a podwójnie powiązana lista porządkuje wpisy według ostatniego użycia, więc użycie wpisu przepina kilka node."
     },
     {
-      "title": "Stosy cofania",
-      "body": "Każda zmiana wskazuje poprzednią."
+      "title": "Listy procesów i timerów w jądrze",
+      "body": "Jądro systemu wplata rekordy procesów i timerów w linked listy przez same rekordy, więc dodanie lub usunięcie rekordu przepina tylko jego sąsiadów."
+    },
+    {
+      "title": "Listy wolnych bloków w alokatorze pamięci",
+      "body": "Alokator łączy wolne bloki w listę, więc wydanie lub przyjęcie bloku zmienia tylko kilka połączeń."
     }
   ],
-  "whenNot": "Pomiń to, gdy głównie czytasz elementy po indeksie.",
+  "whenNot": "Tablice zwykle wygrywają przy odczycie po indeksie i przy przechodzeniu po wszystkich elementach. Ich elementy leżą w pamięci obok siebie, więc cache procesora wczytuje wiele naraz, a dostęp po indeksie to O(1). Wybierz linked list, gdy często wstawiasz lub usuwasz coś w środku, przy node, który już trzymasz, oraz przy node przed nim przy usuwaniu.",
   "outcomes": {
     "explain-nodes-and-links": "Wyjaśnisz, jak node (węzły) i połączenia tworzą linked list (listę powiązaną)",
     "traverse-from-head": "Wykonasz traversal (przejście po liście) od head (początku listy) za pomocą pointera (wskaźnika)",
-    "insert-in-constant-time": "Wstawisz węzeł na początek lub za znanym węzłem w czasie O(1)",
-    "delete-by-relinking": "Usuniesz węzeł, przepinając połączenia wokół niego",
+    "insert-in-constant-time": "Wstawisz node za znanym node w czasie O(1)",
+    "delete-by-relinking": "Usuniesz node, przepinając połączenia wokół niego",
     "compare-with-arrays": "Porównasz koszty linked list i tablic"
   },
   "steps": {
     "the-problem": {
-      "title": "Dodawanie na początek jest drogie",
-      "caption": "Twoja lista zadań to tablica i nowe zadanie Z musi trafić na początek. Każde istniejące zadanie przesuwa się o jedną komórkę w prawo, żeby zrobić miejsce. Przy tysiącach zadań jedno wstawienie przesuwa tysiące komórek."
+      "title": "Play next zwalnia wraz ze wzrostem kolejki",
+      "caption": "Twoja kolejka to tablica, a słuchacz dotyka Play next przy utworze Glow. Glow trafia zaraz za Intro, więc każdy utwór za nim, tu Echo, Drift i Pulse, jest kopiowany o jedną komórkę w prawo. Ta praca rośnie razem z kolejką, a płaci za nią serwis, który robi to bez przerwy na długich kolejkach współdzielonych lub radiowych. Chcesz, żeby koszt Play next nie zależał od długości kolejki.",
+      "keyIdea": "Wstawienie w środek tablicy przesuwa każdy element za nim."
     },
     "a-node": {
-      "title": "Node trzyma wartość i next",
-      "caption": "Każdy element trzymasz w osobnym node. [[node]] ma dwie rzeczy: wartość i połączenie o nazwie next. Tutaj jedyny node trzyma A, a jego next nie wskazuje jeszcze na nic."
+      "title": "Utwór staje się node",
+      "caption": "Każdy utwór trzymasz w osobnym pudełku. [[node]] ma dwie rzeczy: wartość i połączenie o nazwie next. Tutaj node trzyma Intro, a jego next nie wskazuje jeszcze na nic.",
+      "keyIdea": "Utwory mogą leżeć w pamięci gdziekolwiek; porządek nadają im tylko połączenia."
     },
-    "linking-nodes": {
-      "title": "Węzły złączone ze sobą",
-      "caption": "Dodajesz B, C i D, a potem łączysz każdy node z następnym. Idąc za połączeniami, dojdziesz od A do D. Next ostatniego node to null, co oznacza koniec listy ([[linked-list]])."
+    "linking-songs": {
+      "title": "Utwory złączone w kolejkę",
+      "caption": "Dodajesz Echo, Drift i Pulse, a potem łączysz każdy node z następnym. Idąc za połączeniami, dojdziesz od Intro do Pulse. Next ostatniego node to null, co oznacza koniec listy ([[linked-list]])."
     },
     "the-head": {
-      "title": "Head to początek listy",
-      "caption": "Lista potrzebuje jeszcze jednej rzeczy: [[head]], czyli odwołania do pierwszego node. Ustawiasz head na A, bo żaden node nie prowadzi do A i tylko head może Cię tam zaprowadzić. Od head połączenia docierają do wszystkich pozostałych node."
+      "title": "Head zaczyna kolejkę",
+      "caption": "Kolejka potrzebuje jeszcze jednej rzeczy: [[head]], czyli odwołania do pierwszego node. Ustawiasz head na Intro, bo żaden node nie prowadzi do Intro. Od head połączenia docierają do wszystkich pozostałych utworów."
     },
-    "current-pointer": {
-      "title": "Pointer wskazuje node",
-      "caption": "[[pointer]] to znacznik z nazwą, który wskazuje jeden node. Ustawiasz current na head, czyli na A, i idziesz za połączeniem next węzła A. Teraz current stoi na B."
+    "now-playing-pointer": {
+      "title": "Pointer wskazuje utwór, który gra",
+      "caption": "[[pointer]] to znacznik z nazwą, który wskazuje jeden node. Ustawiasz now-playing na Intro, czyli na utworze, który gra w tej chwili. Gdy utwór się kończy, znacznik idzie za połączeniem next."
     },
     "traversal": {
-      "title": "Przejście po całej liście",
-      "caption": "Idziesz dalej za połączeniami next. current przechodzi z B do C, a potem do D, którego next to null, więc się zatrzymujesz i odkładasz pointer. Odwiedzanie node jeden po drugim w ten sposób to [[traversal]]."
+      "title": "Przejście po kolejce",
+      "caption": "Żeby wypełnić listę Up next, przechodzisz po kolejce. Kursor startuje na Intro i idzie za next do Echo, Drift i Pulse. W Pulse next to null, więc przejście się kończy. Odwiedzanie node jeden po drugim w ten sposób to [[traversal]]."
     },
-    "insert-at-head": {
-      "title": "Wstawianie na początek",
-      "caption": "Tworzysz node Z i łączysz jego next z A, czyli ze starym head. Potem robisz z Z nowy head. Żaden inny node nie jest ruszany, więc koszt nie zależy od długości listy."
+    "play-next": {
+      "title": "Play next wpina nowy utwór",
+      "caption": "Tworzysz node Glow i łączysz jego next z Echo, czyli z utworem po tym, który gra. Dopiero potem łączysz next w Intro z Glow. Zmieniają się dwa połączenia i żaden utwór się nie przesuwa, więc koszt nie zależy od długości kolejki.",
+      "keyIdea": "Najpierw połącz nowy node z następnym, potem poprzedni node z nowym."
     },
-    "insert-after": {
-      "title": "Wstawianie za węzłem",
-      "caption": "Pointer prev wskazuje A, czyli node, za którym wstawiasz. Najpierw łączysz nowy node X z B, czyli z next węzła prev. Dopiero potem łączysz prev z X i żaden node się nie gubi."
-    },
-    "delete-after": {
+    "remove-from-queue": {
       "title": "Usuwanie przez przepięcie",
-      "caption": "Żeby usunąć X, łączysz prev, czyli A, z B, node znajdującym się za X. Nic już nie wskazuje na X, więc możesz go usunąć. Next węzła prev wskazuje teraz na B, a reszta listy w ogóle się nie przesuwa."
+      "caption": "Słuchacz usuwa Echo. Ustawiasz prev na Glow, czyli na utworze przed nim, i łączysz next w Glow z Drift. Nic już nie wskazuje na Echo, więc możesz je usunąć. Pozostałe utwory w ogóle się nie przesuwają.",
+      "keyIdea": "Żeby usunąć node, przepnij poprzedni node tak, by go ominął."
     },
-    "access-by-index": {
-      "title": "Dojście do indeksu wymaga przejścia",
-      "caption": "Lista nie ma indeksu, do którego można skoczyć. Żeby dotrzeć do indeksu 3, czyli do C, zaczynasz od head i trzy razy idziesz za next. Dojście do indeksu k kosztuje k ruchów."
+    "jump-to-song": {
+      "title": "Skok do utworu wymaga przejścia",
+      "caption": "Linked list nie ma indeksu, do którego można skoczyć. Żeby dotrzeć do indeksu 3, czyli do Pulse, kursor startuje od head, czyli indeksu 0, i trzy razy idzie za next. Utwór 500 leży pod indeksem 499, więc dojście do indeksu k kosztuje k ruchów.",
+      "keyIdea": "Linked list nie ma indeksu: dojście do pozycji k oznacza przejście k połączeń."
     },
     "arrays-vs-lists": {
-      "title": "Tablice kontra linked lists",
-      "caption": "Porównujesz komórkę tablicy o indeksie 3 z node C na liście. Tablica dociera do niej jednym skokiem, a lista potrzebuje trzech ruchów. W zamian lista wstawia na początek jednym krokiem, a tablica przesuwa każdą komórkę."
+      "title": "Tablica i linked list obok siebie",
+      "caption": "Tablica dociera do Pulse jednym skokiem po indeksie, a lista musi pójść za trzema połączeniami. Lista dodaje utwór jako następny, zmieniając dwa połączenia, a tablica przesuwa każdy utwór za nim. Pokazanie Up next odwiedza każdy utwór raz w obu strukturach.",
+      "keyIdea": "Wybieraj strukturę pod operację, którą powtarzasz najczęściej."
     },
     "reverse-preview": {
-      "title": "Dalej: odwracanie listy",
-      "caption": "W ćwiczeniu odwracasz listę w miejscu za pomocą trzech pointerów: prev, current i next. Przed pierwszym ruchem prev to null, current stoi na head, a next jest o jeden node dalej. Przekierowujesz połączenie każdego node po kolei."
+      "title": "Dalej: kolejka odtwarzana od tyłu",
+      "caption": "W Practice odtwarzasz kolejkę w odwrotnej kolejności, od ostatniego utworu, odwracając listę w miejscu. Używasz trzech pointerów: prev, current i next. Przed pierwszym ruchem prev to null, current stoi na head, a next jest o jeden node dalej. Przekierowujesz połączenie każdego node po kolei."
+    },
+    "where-you-meet-it": {
+      "title": "Gdzie się z nią spotkasz",
+      "caption": "Tu spotkasz linked listy poza tą aplikacją. Każda z nich trzyma elementy po kolei i zmienia je w miejscu, które już ma pod ręką. Notatka pod nimi mówi, kiedy lepsza jest tablica."
     }
   },
   "checks": {
-    "what-a-node-holds": {
-      "prompt": "Co oprócz wartości trzyma każdy node linked list?",
+    "what-a-node-links-to": {
+      "prompt": "Intro to pojedynczy node, a po nim pojawi się nowy utwór, Echo. Co musi trzymać Intro oprócz nazwy utworu?",
       "options": {
-        "next-link": "Połączenie z następnym node, bo od niego lista toczy się dalej",
-        "index": "Swój indeks, bo lista znajduje node po pozycji",
-        "previous-link": "Połączenie z poprzednim node, bo listę czyta się od końca"
+        "next-link": "Połączenie z następnym node, bo kolejka toczy się dalej, idąc za nim",
+        "copy-of-next": "Kopię nazwy następnego utworu, bo nazwa mówi, jaki utwór jest dalej",
+        "position-number": "Swój numer pozycji, bo kolejka znajduje każdy utwór po pozycji",
+        "nothing-extra": "Nic więcej, bo node leżą obok siebie jak komórki tablicy"
       },
-      "explanation": "Każdy node trzyma połączenie z następnym node, czyli next, i lista toczy się dalej, idąc za nim. Node nie ma indeksu, bo lista znajduje node, idąc za połączeniami, a nie po pozycji. Do czytania listy od początku nie trzeba połączenia wstecz, więc najprostszy node ma tylko next."
+      "explanation": "Intro trzyma połączenie z następnym node, czyli next, i kolejka toczy się dalej, idąc za nim. Kopia nazwy Echo nie mówi, gdzie Echo jest, a dwa utwory mogą mieć tę samą nazwę. Node nie ma numeru pozycji, bo lista znajduje node, idąc za połączeniami. Node nie leżą w pamięci obok siebie, więc bez połączenia nic nie łączy Intro z Echo."
     },
-    "which-node-becomes-head": {
-      "prompt": "Lista nie ma jeszcze head. Zaznacz node, na który head powinien wskazywać.",
-      "explanation": "Head wskazuje na A, bo żadne połączenie nie prowadzi do A, więc tylko head może Cię tam zaprowadzić. Gdyby head wskazywał na C, zgubiłbyś A i B. Gdyby wskazywał na D, czyli ostatni node, nie dotarłbyś do niczego więcej, bo jego next to null."
+    "which-song-is-head": {
+      "prompt": "Kolejka nie ma jeszcze head. Zaznacz utwór, na który head powinien wskazywać.",
+      "explanation": "Head wskazuje na Intro, bo żadne połączenie nie prowadzi do Intro, więc tylko head może Cię tam zaprowadzić. Gdyby head wskazywał na Drift, zgubiłbyś Intro i Echo. Gdyby wskazywał na Pulse, czyli ostatni node, nie dotarłbyś do niczego więcej, bo jego next to null."
     },
-    "where-current-moves": {
-      "prompt": "current stoi na B. Na który node przejdzie po kolejnym kroku za połączeniem?",
-      "explanation": "current przejdzie na C. Połączenia wskazują tylko do przodu, więc current nigdy nie wraca do A. Nie przeskakuje też żadnego node, bo next węzła B prowadzi prosto do C."
+    "where-the-walk-lands": {
+      "prompt": "Kursor startuje na utworze, który wskazuje now-playing, i idzie za next po jednym połączeniu naraz. Na którym utworze stoi po dwóch ruchach?",
+      "explanation": "Kursor stoi na Drift: pierwszy ruch prowadzi do Echo, a drugi do Drift. Nie zatrzymuje się na Echo, bo ruch liczy się dopiero wtedy, gdy pójdziesz za połączeniem. Nie dochodzi też do Pulse, bo to wymaga trzeciego ruchu. Połączenia wskazują tylko do przodu, więc kursor nigdy nie wraca."
     },
-    "cost-of-insert-at-head": {
-      "prompt": "Lista ma n węzłów. Jak rośnie praca potrzebna do wstawienia node na początek, gdy n rośnie?",
+    "first-link-for-play-next": {
+      "prompt": "Nowy utwór, Glow, ma zaraz trafić za Intro, który właśnie gra. Które połączenie ustawiasz najpierw?",
       "options": {
-        "constant": "O(1), bo zmieniają się tylko nowy node i head",
-        "shift-everything": "O(n), bo każdy węzeł przesuwa się o jedno miejsce",
-        "walk-to-the-end": "O(n), bo najpierw idziesz na koniec",
-        "update-every-link": "O(n), bo trzeba zmienić połączenie każdego węzła"
-      },
-      "explanation": "To O(1): jeden nowy node, jedno połączenie i jedna zmiana head, niezależnie od długości. Węzły się nie przesuwają, bo o ich miejscu decydują połączenia, a nie pozycja w pamięci. Nie idziesz na koniec, bo head już masz w ręku. Zmieniają się tylko nowy node i head, a każde inne połączenie zostaje bez zmian."
-    },
-    "first-link-to-change": {
-      "prompt": "Wstawiasz nowy node X za A. Które połączenie ustawiasz najpierw?",
-      "options": {
-        "new-to-next": "Next nowego node, na B, bo nowy node musi wiedzieć, co jest za nim",
-        "prev-to-new": "Next węzła A, na nowy node, bo A musi wiedzieć, co jest za nim",
-        "new-to-prev": "Next nowego node, na A, bo nowy node musi wiedzieć, skąd przyszedł",
+        "new-to-next": "Next w Glow, na Echo, bo Glow musi prowadzić do utworu, który jest za nim, zanim cokolwiek wskaże na Glow",
+        "current-to-new": "Next w Intro, na Glow, bo grany utwór musi prowadzić do Glow",
+        "new-to-current": "Next w Glow, na Intro, bo next w Glow ma wskazywać utwór przed nim",
         "either-order": "Któreś z nich, bo oba połączenia i tak zostaną ustawione"
       },
-      "explanation": "Najpierw ustawiasz next nowego node na B. Jeśli najpierw połączysz A z nowym node, nic nie wskazuje już na B, więc B, C i D przepadają. Jeśli ustawisz next nowego node z powrotem na A, a potem połączysz A z nowym node, to A prowadzi do X, a X z powrotem do A. Lista zapętla się i do B i dalszych node nie da się już dojść. Kolejność ma znaczenie, bo dawny next węzła A to jedyne odwołanie do reszty listy."
+      "explanation": "Najpierw ustawiasz next w Glow na Echo, bo next w Glow musi prowadzić do utworu, który jest za nim. Jeśli wskażesz nim Intro, to Intro prowadzi do Glow, a Glow z powrotem do Intro, więc kolejka zapętla się, a Echo, Drift i Pulse stają się nieosiągalne. Jeśli najpierw połączysz Intro z Glow, nic nie wskazuje już na Echo i przepada. Kolejność ma znaczenie, bo dawny next w Intro to jedyne odwołanie do reszty kolejki."
     },
-    "prev-next-after-deletion": {
-      "prompt": "prev stoi na A, a X zostanie usunięty przez przepięcie. Na który node będzie potem wskazywał next węzła prev?",
-      "explanation": "Next węzła prev będzie wskazywał na B. Przed usunięciem A prowadzi do X, a X do B, więc łączysz A prosto z B i X wypada z listy. Next węzła prev nie wskazuje na X ani nie staje się null, bo lista ciągnie się dalej za X."
+    "song-before-the-removed": {
+      "prompt": "Słuchacz usuwa Echo z kolejki. Zaznacz utwór, którego połączenie next musi się zmienić.",
+      "explanation": "Musi zmienić się next w Glow, bo to Glow wskazuje na Echo. Next w Intro już wskazuje na Glow i zostaje bez zmian. Next w Drift wskazuje na Pulse, więc też zostaje. Łączysz Glow prosto z Drift i Echo wypada z kolejki."
     },
     "cost-of-reaching-index-k": {
-      "prompt": "Ile kosztuje dojście od head do node o indeksie k w linked list?",
+      "prompt": "Słuchacz dotyka utworu o indeksie k, gdzie head ma indeks 0. Ile pracy wykonuje aplikacja, żeby do niego dojść od head?",
       "options": {
-        "k-moves": "k ruchów, bo idziesz za k połączeniami od head: w najgorszym razie O(n)",
-        "one-move": "1 ruch, bo lista wie, gdzie jest każdy node: O(1)",
-        "whole-list": "n ruchów, bo za każdym razem musisz przejść całą listę: O(n)",
-        "halving": "Około log k ruchów, bo po drodze można pomijać węzły"
+        "k-moves": "k ruchów, bo aplikacja idzie za k połączeniami od head: w najgorszym razie O(n)",
+        "one-move": "1 ruch, bo kolejka wie, gdzie jest każdy utwór: O(1)",
+        "whole-queue": "n ruchów, bo aplikacja zawsze przechodzi całą kolejkę: O(n)",
+        "halving": "Około log k ruchów, bo aplikacja może po drodze pomijać utwory"
       },
-      "explanation": "Idziesz za k połączeniami od head, więc koszt rośnie wraz z k i w najgorszym razie wynosi O(n). Lista nie potrafi skakać jak tablica, bo węzły nie leżą obok siebie. Zatrzymujesz się na indeksie k, a nie na końcu, a połączenie prowadzi tylko do następnego node, więc nie ma czego pomijać."
+      "explanation": "Aplikacja idzie za k połączeniami od head, więc koszt rośnie wraz z k i w najgorszym razie wynosi O(n). Lista nie potrafi skakać jak tablica, bo node nie leżą obok siebie. Przejście kończy się na indeksie k, a nie na końcu kolejki. Połączenie prowadzi tylko do następnego node, więc nie ma czego pomijać."
     },
     "cheaper-on-a-list": {
-      "prompt": "Która operacja jest tańsza na linked list niż na tablicy?",
+      "prompt": "Wyobraź sobie tę samą kolejkę zapisaną jako tablica. Które zadanie jest tańsze na linked list niż na tablicy?",
       "options": {
-        "insert-at-front": "Wstawienie nowego elementu na początek, bo żaden element nie musi się przesuwać",
-        "read-by-index": "Odczytanie elementu o indeksie k, bo połączenia prowadzą do niego prosto",
-        "visit-every-element": "Odwiedzenie każdego elementu raz, bo połączenia prowadzą od jednego do następnego"
+        "insert-after-current": "Dodanie utworu jako następnego, bo zmieniają się tylko dwa połączenia i żaden utwór się nie przesuwa",
+        "read-by-index": "Skok do utworu 500, bo połączenia prowadzą do niego prosto",
+        "show-every-song": "Pokazanie każdego utworu w Up next, bo każde połączenie prowadzi do następnego utworu"
       },
-      "explanation": "Taniej jest wstawić na początek: O(1) na liście, a tablica przesuwa każdą komórkę, czyli O(n). Odczyt po indeksie wygrywa tablica: O(1) wobec przejścia o k ruchów. Odwiedzenie wszystkich elementów kosztuje O(n) w obu strukturach, bo w każdej odwiedzasz każdy element raz."
+      "explanation": "Taniej jest dodać utwór jako następny: dwie zmiany połączeń na liście, czyli O(1), a tablica przesuwa każdy utwór za nim, czyli O(n). Skok do utworu 500 wygrywa tablica: O(1) wobec przejścia 499 połączeń. Pokazanie wszystkich utworów kosztuje O(n) w obu strukturach, bo w każdej odwiedzasz każdy utwór raz."
     }
   },
   "terms": {
@@ -153,7 +154,7 @@
     },
     "pointer": {
       "term": "pointer",
-      "gloss": "wskaźnik: znacznik z nazwą, który wskazuje jeden węzeł, na przykład current albo prev."
+      "gloss": "wskaźnik: znacznik z nazwą, który wskazuje jeden węzeł, na przykład now-playing albo prev."
     },
     "traversal": {
       "term": "traversal",
