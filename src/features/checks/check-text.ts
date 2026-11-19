@@ -12,6 +12,11 @@ export interface CheckText {
   readonly passed: string;
   readonly revealed: string;
   readonly correctOption: string;
+  readonly region: string;
+  readonly header: string;
+  readonly misses: string;
+  readonly doneCorrect: string;
+  readonly doneRevealed: string;
 }
 
 export const checkText: MessageBundle<CheckText> = { en, pl };
