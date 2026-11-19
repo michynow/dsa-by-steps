@@ -6,23 +6,23 @@
   },
   "uses": [
     {
-      "title": "Undo history in an editor",
-      "body": "Each edit links back to the one before it, so undo steps back along the chain."
-    },
-    {
-      "title": "Browser back and forward",
-      "body": "Each page links to the one before and the one after, so back and forward move one link."
+      "title": "Hash map collision chains",
+      "body": "When two keys land in the same bucket, the bucket keeps them as a short linked list. You meet this in the Hash maps Lesson."
     },
     {
       "title": "LRU cache in front of a database",
       "body": "A hash map finds an entry and a doubly linked list orders entries by recent use, so touching one relinks a few nodes."
     },
     {
-      "title": "The OS list of running processes",
-      "body": "Starting or ending a process relinks its neighbours and leaves the rest of the list alone."
+      "title": "Kernel lists of processes and timers",
+      "body": "The OS kernel threads its process and timer records into linked lists through the records themselves, so adding or removing one relinks only its neighbours."
+    },
+    {
+      "title": "Memory allocator free lists",
+      "body": "An allocator links its free blocks into a list, so handing out or taking back a block changes only a few links."
     }
   ],
-  "whenNot": "Arrays usually win for indexed reads and for visiting every item. Their items sit side by side in memory, so the CPU cache loads many at once and index lookup is O(1). Choose a linked list when you often insert or remove in the middle at a position you already hold.",
+  "whenNot": "Arrays usually win for indexed reads and for visiting every item. Their items sit side by side in memory, so the CPU cache loads many at once and index lookup is O(1). Choose a linked list when you often insert or remove in the middle at a node you already hold, plus the node before it for removals.",
   "outcomes": {
     "explain-nodes-and-links": "Explain how nodes and links make up a linked list",
     "traverse-from-head": "Traverse a linked list from its head with a pointer",
@@ -32,14 +32,14 @@
   },
   "steps": {
     "the-problem": {
-      "title": "Play next freezes the app",
-      "caption": "Your play queue is an array, and a listener taps Play next on Glow. Glow goes right after Intro, so Echo, Drift and Pulse each shift one cell to the right. On a 10,000-song queue the app freezes on that tap.",
+      "title": "Play next gets slower as the queue grows",
+      "caption": "Your play queue is an array, and a listener taps Play next on Glow. Glow goes right after Intro, so every song behind it, Echo, Drift and Pulse here, is copied one cell to the right. The work grows with the queue, and a service doing this constantly on long shared or radio queues pays for it. You want the cost of Play next not to depend on the queue's length.",
       "keyIdea": "Inserting in the middle of an array shifts every item behind it."
     },
     "a-node": {
       "title": "A song becomes a node",
       "caption": "You store each song in its own box. A [[node]] holds two things: a value and a link called next. Here the node holds Intro, and its next points nowhere yet.",
-      "keyIdea": "A node is a value plus a link to the next node."
+      "keyIdea": "Songs can live anywhere in memory; only the links give them an order."
     },
     "linking-songs": {
       "title": "Songs joined into a queue",
@@ -69,7 +69,7 @@
     },
     "jump-to-song": {
       "title": "Jumping to a song takes a walk",
-      "caption": "A queue has no index to jump to. To reach index 3, which holds Pulse, the cursor starts at the head and follows next three times. Song 500 is 499 links from the head, so reaching index k takes k moves.",
+      "caption": "A linked list has no index to jump to. To reach index 3, which holds Pulse, the cursor starts at the head, index 0, and follows next three times. Song 500 sits at index 499, so reaching index k takes k moves.",
       "keyIdea": "A linked list has no index: reaching position k means walking k links."
     },
     "arrays-vs-lists": {
@@ -77,18 +77,18 @@
       "caption": "The array reaches Pulse in one jump by index, while the list walks three links. The list plays a song next by changing two links, while the array shifts every song behind it. Showing Up next visits every song once on both.",
       "keyIdea": "Pick the structure by the operation you repeat most."
     },
+    "reverse-preview": {
+      "title": "Next up: play the queue backwards",
+      "caption": "In Practice you play the queue in reverse order, last song first, by reversing the list in place. You use three pointers: prev, current and next. Before the first move, prev is null, current sits on the head and next is one node ahead. You redirect each node's link, one node at a time."
+    },
     "where-you-meet-it": {
       "title": "Where you will meet it",
-      "caption": "Linked lists run inside the systems listed below, from your editor's undo to the operating system. Each keeps its items in order and changes them at a spot it already holds. The note under them says when an array is the better pick."
-    },
-    "reverse-preview": {
-      "title": "Next up: reverse the queue",
-      "caption": "In Practice you reverse a list in place with three pointers: prev, current and next. Before the first move, prev is null, current sits on the head and next is one node ahead. You redirect each node's link, one node at a time."
+      "caption": "Here is where you meet linked lists outside this app. Each keeps items in order and changes them at a spot it already holds. The note under them says when an array is the better pick."
     }
   },
   "checks": {
     "what-a-node-links-to": {
-      "prompt": "Intro is a single node. For Echo to come after it, what must Intro hold besides its song name?",
+      "prompt": "Intro is a single node, and a new song, Echo, will come after it. What must Intro hold besides its song name?",
       "options": {
         "next-link": "A link to the next node, because the queue continues by following it",
         "copy-of-next": "A copy of the next song's name, because the name tells you which song follows",
@@ -106,14 +106,14 @@
       "explanation": "The cursor is on Drift: the first move reaches Echo and the second reaches Drift. It does not stop on Echo, because a move counts only when you follow a link. It does not reach Pulse either, since that takes a third move. Links only point forward, so the cursor never goes back."
     },
     "first-link-for-play-next": {
-      "prompt": "A listener taps Play next on Glow while Intro is playing. Which link do you set first?",
+      "prompt": "A new song, Glow, is about to be added right after Intro, which is playing. Which link do you set first?",
       "options": {
-        "new-to-next": "Glow's next, set to Echo, because Glow must know what follows it before anything points at it",
+        "new-to-next": "Glow's next, set to Echo, because Glow must lead to the song that follows it before anything points at Glow",
         "current-to-new": "Intro's next, set to Glow, because the playing song must lead to Glow",
-        "new-to-current": "Glow's next, set to Intro, because Glow must know where it came from",
+        "new-to-current": "Glow's next, set to Intro, because Glow's next should point back at the song before it",
         "either-order": "Either one first, because both links are set in the end"
       },
-      "explanation": "You set Glow's next to Echo first. If you link Intro to Glow first, nothing points to Echo any more, and Echo, Drift and Pulse are lost. If you set Glow's next back to Intro, Intro leads to Glow and Glow leads back to Intro, so the queue loops and Echo can no longer be reached. The order matters because Intro's old next is the only reference to the rest of the queue."
+      "explanation": "You set Glow's next to Echo first, because Glow's next must lead to the song that follows it. If you point it at Intro instead, Intro then links to Glow and Glow links back to Intro, so the queue loops and Echo, Drift and Pulse become unreachable. If you link Intro to Glow first, nothing points to Echo any more and it is lost. The order matters because Intro's old next is the only reference to the rest of the queue."
     },
     "song-before-the-removed": {
       "prompt": "The listener removes Echo from the queue. Select the song whose next link must change.",
@@ -130,7 +130,7 @@
       "explanation": "The app follows k links from the head, so the cost grows with k and is O(n) in the worst case. A list cannot jump the way an array does, because nodes are not stored side by side. The walk stops at index k rather than at the end. A link only leads to the next node, so there is nothing to skip."
     },
     "cheaper-on-a-list": {
-      "prompt": "Which job is cheaper on the linked list than on the array?",
+      "prompt": "Imagine the same queue stored as an array. Which job is cheaper on the linked list than on the array?",
       "options": {
         "insert-after-current": "Playing a song next, because only two links change and no song moves",
         "read-by-index": "Jumping to song 500, because the links lead straight to it",

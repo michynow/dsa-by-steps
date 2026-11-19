@@ -71,7 +71,11 @@ function summarise(scene: Scene): Summary {
 
 function sceneBefore(stepId: string): Scene {
   const index = lesson.steps.findIndex((step) => step.id === stepId);
-  return index === 0 ? lesson.initialScene : (scenes[index - 1] ?? lesson.initialScene);
+  if (index === -1) throw new Error(`unknown step ${stepId}`);
+  if (index === 0) return lesson.initialScene;
+  const scene = scenes[index - 1];
+  if (scene === undefined) throw new Error(`no scene before ${stepId}`);
+  return scene;
 }
 
 const firstFour = ['Intro', 'Echo', 'Drift', 'Pulse'] as const;
@@ -97,8 +101,8 @@ describe('linked lists Lesson', () => {
       'remove-from-queue',
       'jump-to-song',
       'arrays-vs-lists',
-      'where-you-meet-it',
       'reverse-preview',
+      'where-you-meet-it',
     ]);
   });
 
@@ -190,7 +194,7 @@ describe('linked lists Lesson', () => {
         order: [...afterRemoval],
         nodes: [...afterRemovalNodes],
         cells: [],
-        pointers: [],
+        pointers: ['prev:null', 'current:intro', 'next:glow'],
       },
       {
         structures: ['queue'],
@@ -198,7 +202,7 @@ describe('linked lists Lesson', () => {
         order: [...afterRemoval],
         nodes: [...afterRemovalNodes],
         cells: [],
-        pointers: ['prev:null', 'current:intro', 'next:glow'],
+        pointers: [],
       },
     ]);
   });
@@ -221,17 +225,19 @@ describe('linked lists Lesson', () => {
 
   it('answers each Predict Check with a node drawn before its Step', () => {
     const answers = lesson.steps.flatMap((step) =>
-      step.check?.kind === 'predict' ? [[step.id, step.check.correct.elementId]] : [],
+      step.check?.kind === 'predict'
+        ? [{ step: step.id, element: step.check.correct.elementId }]
+        : [],
     );
     expect(answers).toEqual([
-      ['the-head', 'intro'],
-      ['traversal', 'drift'],
-      ['remove-from-queue', 'glow'],
+      { step: 'the-head', element: 'intro' },
+      { step: 'traversal', element: 'drift' },
+      { step: 'remove-from-queue', element: 'glow' },
     ]);
     expect(
-      answers.map(([stepId, elementId]) => {
-        const list = sceneBefore(stepId ?? '').structures.find((s) => s.id === 'queue');
-        return list?.kind === 'linked-list' && list.nodes.some((n) => n.id === elementId);
+      answers.map(({ step, element }) => {
+        const list = sceneBefore(step).structures.find((s) => s.id === 'queue');
+        return list?.kind === 'linked-list' && list.nodes.some((n) => n.id === element);
       }),
     ).toEqual([true, true, true]);
   });
@@ -275,8 +281,8 @@ describe('linked lists Lesson', () => {
     ]);
   });
 
-  it('ends with the prev, current and next Pointers', () => {
-    expect(scenes.at(-1)?.pointers).toEqual([
+  it('previews the reversal with the prev, current and next Pointers', () => {
+    expect(sceneBefore('where-you-meet-it').pointers).toEqual([
       { id: 'prev', label: 'prev', target: null },
       { id: 'current', label: 'current', target: { structureId: 'queue', elementId: 'intro' } },
       { id: 'next', label: 'next', target: { structureId: 'queue', elementId: 'glow' } },

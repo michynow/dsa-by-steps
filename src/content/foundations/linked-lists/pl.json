@@ -6,40 +6,40 @@
   },
   "uses": [
     {
-      "title": "Historia cofania w edytorze",
-      "body": "Każda zmiana wskazuje poprzednią, więc cofanie idzie wstecz po łańcuchu."
-    },
-    {
-      "title": "Wstecz i dalej w przeglądarce",
-      "body": "Każda strona wskazuje poprzednią i następną, więc wstecz i dalej to jedno przejście po połączeniu."
+      "title": "Łańcuchy kolizji w hash map",
+      "body": "Gdy dwa klucze trafiają do tego samego koszyka, koszyk trzyma je jako krótką linked list. Spotkasz to w Lekcji o hash mapach."
     },
     {
       "title": "Cache LRU przed bazą danych",
       "body": "Hash map znajduje wpis, a podwójnie powiązana lista porządkuje wpisy według ostatniego użycia, więc użycie wpisu przepina kilka node."
     },
     {
-      "title": "Lista procesów w systemie operacyjnym",
-      "body": "Uruchomienie lub zakończenie procesu przepina jego sąsiadów i nie rusza reszty listy."
+      "title": "Listy procesów i timerów w jądrze",
+      "body": "Jądro systemu wplata rekordy procesów i timerów w linked listy przez same rekordy, więc dodanie lub usunięcie rekordu przepina tylko jego sąsiadów."
+    },
+    {
+      "title": "Listy wolnych bloków w alokatorze pamięci",
+      "body": "Alokator łączy wolne bloki w listę, więc wydanie lub przyjęcie bloku zmienia tylko kilka połączeń."
     }
   ],
-  "whenNot": "Tablice zwykle wygrywają przy odczycie po indeksie i przy przechodzeniu po wszystkich elementach. Ich elementy leżą w pamięci obok siebie, więc cache procesora wczytuje wiele naraz, a dostęp po indeksie to O(1). Wybierz linked list, gdy często wstawiasz lub usuwasz coś w środku, w miejscu, które już trzymasz.",
+  "whenNot": "Tablice zwykle wygrywają przy odczycie po indeksie i przy przechodzeniu po wszystkich elementach. Ich elementy leżą w pamięci obok siebie, więc cache procesora wczytuje wiele naraz, a dostęp po indeksie to O(1). Wybierz linked list, gdy często wstawiasz lub usuwasz coś w środku, przy node, który już trzymasz, oraz przy node przed nim przy usuwaniu.",
   "outcomes": {
     "explain-nodes-and-links": "Wyjaśnisz, jak node (węzły) i połączenia tworzą linked list (listę powiązaną)",
     "traverse-from-head": "Wykonasz traversal (przejście po liście) od head (początku listy) za pomocą pointera (wskaźnika)",
-    "insert-in-constant-time": "Wstawisz węzeł za znanym węzłem w czasie O(1)",
-    "delete-by-relinking": "Usuniesz węzeł, przepinając połączenia wokół niego",
+    "insert-in-constant-time": "Wstawisz node za znanym node w czasie O(1)",
+    "delete-by-relinking": "Usuniesz node, przepinając połączenia wokół niego",
     "compare-with-arrays": "Porównasz koszty linked list i tablic"
   },
   "steps": {
     "the-problem": {
-      "title": "Play next zawiesza aplikację",
-      "caption": "Twoja kolejka to tablica, a słuchacz dotyka Play next przy utworze Glow. Glow trafia zaraz za Intro, więc Echo, Drift i Pulse przesuwają się o jedną komórkę w prawo. Przy kolejce z 10 000 utworów aplikacja zawiesza się po tym dotknięciu.",
+      "title": "Play next zwalnia wraz ze wzrostem kolejki",
+      "caption": "Twoja kolejka to tablica, a słuchacz dotyka Play next przy utworze Glow. Glow trafia zaraz za Intro, więc każdy utwór za nim, tu Echo, Drift i Pulse, jest kopiowany o jedną komórkę w prawo. Ta praca rośnie razem z kolejką, a płaci za nią serwis, który robi to bez przerwy na długich kolejkach współdzielonych lub radiowych. Chcesz, żeby koszt Play next nie zależał od długości kolejki.",
       "keyIdea": "Wstawienie w środek tablicy przesuwa każdy element za nim."
     },
     "a-node": {
       "title": "Utwór staje się node",
       "caption": "Każdy utwór trzymasz w osobnym pudełku. [[node]] ma dwie rzeczy: wartość i połączenie o nazwie next. Tutaj node trzyma Intro, a jego next nie wskazuje jeszcze na nic.",
-      "keyIdea": "Node to wartość i połączenie z następnym node."
+      "keyIdea": "Utwory mogą leżeć w pamięci gdziekolwiek; porządek nadają im tylko połączenia."
     },
     "linking-songs": {
       "title": "Utwory złączone w kolejkę",
@@ -50,45 +50,45 @@
       "caption": "Kolejka potrzebuje jeszcze jednej rzeczy: [[head]], czyli odwołania do pierwszego node. Ustawiasz head na Intro, bo żaden node nie prowadzi do Intro. Od head połączenia docierają do wszystkich pozostałych utworów."
     },
     "now-playing-pointer": {
-      "title": "Pointer wskazuje grany utwór",
+      "title": "Pointer wskazuje utwór, który gra",
       "caption": "[[pointer]] to znacznik z nazwą, który wskazuje jeden node. Ustawiasz now-playing na Intro, czyli na utworze, który gra w tej chwili. Gdy utwór się kończy, znacznik idzie za połączeniem next."
     },
     "traversal": {
       "title": "Przejście po kolejce",
-      "caption": "Żeby wypełnić listę Up next, przechodzisz po kolejce. Kursor startuje na Intro i idzie za next do Echo, Drift i Pulse. Next węzła Pulse to null, więc przejście się kończy. Odwiedzanie node jeden po drugim w ten sposób to [[traversal]]."
+      "caption": "Żeby wypełnić listę Up next, przechodzisz po kolejce. Kursor startuje na Intro i idzie za next do Echo, Drift i Pulse. W Pulse next to null, więc przejście się kończy. Odwiedzanie node jeden po drugim w ten sposób to [[traversal]]."
     },
     "play-next": {
       "title": "Play next wpina nowy utwór",
-      "caption": "Tworzysz node Glow i łączysz jego next z Echo, czyli z utworem po tym, który gra. Dopiero potem łączysz next węzła Intro z Glow. Zmieniają się dwa połączenia i żaden utwór się nie przesuwa, więc koszt nie zależy od długości kolejki.",
+      "caption": "Tworzysz node Glow i łączysz jego next z Echo, czyli z utworem po tym, który gra. Dopiero potem łączysz next w Intro z Glow. Zmieniają się dwa połączenia i żaden utwór się nie przesuwa, więc koszt nie zależy od długości kolejki.",
       "keyIdea": "Najpierw połącz nowy node z następnym, potem poprzedni node z nowym."
     },
     "remove-from-queue": {
       "title": "Usuwanie przez przepięcie",
-      "caption": "Słuchacz usuwa Echo. Ustawiasz prev na Glow, czyli na utworze przed nim, i łączysz next węzła Glow z Drift. Nic już nie wskazuje na Echo, więc możesz je usunąć. Pozostałe utwory w ogóle się nie przesuwają.",
+      "caption": "Słuchacz usuwa Echo. Ustawiasz prev na Glow, czyli na utworze przed nim, i łączysz next w Glow z Drift. Nic już nie wskazuje na Echo, więc możesz je usunąć. Pozostałe utwory w ogóle się nie przesuwają.",
       "keyIdea": "Żeby usunąć node, przepnij poprzedni node tak, by go ominął."
     },
     "jump-to-song": {
       "title": "Skok do utworu wymaga przejścia",
-      "caption": "Kolejka nie ma indeksu, do którego można skoczyć. Żeby dotrzeć do indeksu 3, czyli do Pulse, kursor startuje od head i trzy razy idzie za next. Utwór 500 leży 499 połączeń od head, więc dojście do indeksu k kosztuje k ruchów.",
+      "caption": "Linked list nie ma indeksu, do którego można skoczyć. Żeby dotrzeć do indeksu 3, czyli do Pulse, kursor startuje od head, czyli indeksu 0, i trzy razy idzie za next. Utwór 500 leży pod indeksem 499, więc dojście do indeksu k kosztuje k ruchów.",
       "keyIdea": "Linked list nie ma indeksu: dojście do pozycji k oznacza przejście k połączeń."
     },
     "arrays-vs-lists": {
       "title": "Tablica i linked list obok siebie",
-      "caption": "Tablica dociera do Pulse jednym skokiem po indeksie, a lista przechodzi trzy połączenia. Lista wstawia utwór jako następny, zmieniając dwa połączenia, a tablica przesuwa każdy utwór za nim. Pokazanie Up next odwiedza każdy utwór raz w obu strukturach.",
+      "caption": "Tablica dociera do Pulse jednym skokiem po indeksie, a lista musi pójść za trzema połączeniami. Lista dodaje utwór jako następny, zmieniając dwa połączenia, a tablica przesuwa każdy utwór za nim. Pokazanie Up next odwiedza każdy utwór raz w obu strukturach.",
       "keyIdea": "Wybieraj strukturę pod operację, którą powtarzasz najczęściej."
+    },
+    "reverse-preview": {
+      "title": "Dalej: kolejka odtwarzana od tyłu",
+      "caption": "W Practice odtwarzasz kolejkę w odwrotnej kolejności, od ostatniego utworu, odwracając listę w miejscu. Używasz trzech pointerów: prev, current i next. Przed pierwszym ruchem prev to null, current stoi na head, a next jest o jeden node dalej. Przekierowujesz połączenie każdego node po kolei."
     },
     "where-you-meet-it": {
       "title": "Gdzie się z nią spotkasz",
-      "caption": "Linked listy działają w systemach wymienionych niżej, od cofania w edytorze po system operacyjny. Każdy z nich trzyma elementy po kolei i zmienia je w miejscu, które już ma pod ręką. Notatka pod listą mówi, kiedy lepsza jest tablica."
-    },
-    "reverse-preview": {
-      "title": "Dalej: odwracanie kolejki",
-      "caption": "W Practice odwracasz listę w miejscu za pomocą trzech pointerów: prev, current i next. Przed pierwszym ruchem prev to null, current stoi na head, a next jest o jeden node dalej. Przekierowujesz połączenie każdego node po kolei."
+      "caption": "Tu spotkasz linked listy poza tą aplikacją. Każda z nich trzyma elementy po kolei i zmienia je w miejscu, które już ma pod ręką. Notatka pod nimi mówi, kiedy lepsza jest tablica."
     }
   },
   "checks": {
     "what-a-node-links-to": {
-      "prompt": "Intro to pojedynczy node. Żeby po nim mogło być Echo, co musi trzymać Intro oprócz nazwy utworu?",
+      "prompt": "Intro to pojedynczy node, a po nim pojawi się nowy utwór, Echo. Co musi trzymać Intro oprócz nazwy utworu?",
       "options": {
         "next-link": "Połączenie z następnym node, bo kolejka toczy się dalej, idąc za nim",
         "copy-of-next": "Kopię nazwy następnego utworu, bo nazwa mówi, jaki utwór jest dalej",
@@ -106,18 +106,18 @@
       "explanation": "Kursor stoi na Drift: pierwszy ruch prowadzi do Echo, a drugi do Drift. Nie zatrzymuje się na Echo, bo ruch liczy się dopiero wtedy, gdy pójdziesz za połączeniem. Nie dochodzi też do Pulse, bo to wymaga trzeciego ruchu. Połączenia wskazują tylko do przodu, więc kursor nigdy nie wraca."
     },
     "first-link-for-play-next": {
-      "prompt": "Słuchacz dotyka Play next przy utworze Glow, gdy gra Intro. Które połączenie ustawiasz najpierw?",
+      "prompt": "Nowy utwór, Glow, ma zaraz trafić za Intro, który właśnie gra. Które połączenie ustawiasz najpierw?",
       "options": {
-        "new-to-next": "Next węzła Glow, na Echo, bo Glow musi wiedzieć, co jest za nim, zanim cokolwiek na niego wskaże",
-        "current-to-new": "Next węzła Intro, na Glow, bo grany utwór musi prowadzić do Glow",
-        "new-to-current": "Next węzła Glow, na Intro, bo Glow musi wiedzieć, skąd przyszedł",
+        "new-to-next": "Next w Glow, na Echo, bo Glow musi prowadzić do utworu, który jest za nim, zanim cokolwiek wskaże na Glow",
+        "current-to-new": "Next w Intro, na Glow, bo grany utwór musi prowadzić do Glow",
+        "new-to-current": "Next w Glow, na Intro, bo next w Glow ma wskazywać utwór przed nim",
         "either-order": "Któreś z nich, bo oba połączenia i tak zostaną ustawione"
       },
-      "explanation": "Najpierw ustawiasz next węzła Glow na Echo. Jeśli najpierw połączysz Intro z Glow, nic nie wskazuje już na Echo, więc Echo, Drift i Pulse przepadają. Jeśli ustawisz next węzła Glow z powrotem na Intro, Intro prowadzi do Glow, a Glow z powrotem do Intro, więc kolejka zapętla się i do Echo nie da się już dojść. Kolejność ma znaczenie, bo dawny next węzła Intro to jedyne odwołanie do reszty kolejki."
+      "explanation": "Najpierw ustawiasz next w Glow na Echo, bo next w Glow musi prowadzić do utworu, który jest za nim. Jeśli wskażesz nim Intro, to Intro prowadzi do Glow, a Glow z powrotem do Intro, więc kolejka zapętla się, a Echo, Drift i Pulse stają się nieosiągalne. Jeśli najpierw połączysz Intro z Glow, nic nie wskazuje już na Echo i przepada. Kolejność ma znaczenie, bo dawny next w Intro to jedyne odwołanie do reszty kolejki."
     },
     "song-before-the-removed": {
       "prompt": "Słuchacz usuwa Echo z kolejki. Zaznacz utwór, którego połączenie next musi się zmienić.",
-      "explanation": "Musi zmienić się next węzła Glow, bo to Glow wskazuje na Echo. Next węzła Intro już wskazuje na Glow i zostaje bez zmian. Next węzła Drift wskazuje na Pulse, więc też zostaje. Łączysz Glow prosto z Drift i Echo wypada z kolejki."
+      "explanation": "Musi zmienić się next w Glow, bo to Glow wskazuje na Echo. Next w Intro już wskazuje na Glow i zostaje bez zmian. Next w Drift wskazuje na Pulse, więc też zostaje. Łączysz Glow prosto z Drift i Echo wypada z kolejki."
     },
     "cost-of-reaching-index-k": {
       "prompt": "Słuchacz dotyka utworu o indeksie k, gdzie head ma indeks 0. Ile pracy wykonuje aplikacja, żeby do niego dojść od head?",
@@ -130,7 +130,7 @@
       "explanation": "Aplikacja idzie za k połączeniami od head, więc koszt rośnie wraz z k i w najgorszym razie wynosi O(n). Lista nie potrafi skakać jak tablica, bo node nie leżą obok siebie. Przejście kończy się na indeksie k, a nie na końcu kolejki. Połączenie prowadzi tylko do następnego node, więc nie ma czego pomijać."
     },
     "cheaper-on-a-list": {
-      "prompt": "Które zadanie jest tańsze na linked list niż na tablicy?",
+      "prompt": "Wyobraź sobie tę samą kolejkę zapisaną jako tablica. Które zadanie jest tańsze na linked list niż na tablicy?",
       "options": {
         "insert-after-current": "Dodanie utworu jako następnego, bo zmieniają się tylko dwa połączenia i żaden utwór się nie przesuwa",
         "read-by-index": "Skok do utworu 500, bo połączenia prowadzą do niego prosto",

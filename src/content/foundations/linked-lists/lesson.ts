@@ -197,22 +197,26 @@ export const linkedListsLesson: Lesson = {
       },
     },
     {
-      id: 'where-you-meet-it',
+      id: 'reverse-preview',
       kind: 'explain',
       events: [
         { type: 'remove', structureId: 'queue-array' },
         { type: 'clear-highlights' },
         { type: 'drop-pointer', pointerId: 'now-playing' },
-      ],
-    },
-    {
-      id: 'reverse-preview',
-      kind: 'explain',
-      events: [
         { type: 'point', pointer: { id: 'prev', label: 'prev', target: null } },
         { type: 'point', pointer: { id: 'current', label: 'current', target: song('intro') } },
         { type: 'point', pointer: { id: 'next', label: 'next', target: song('glow') } },
         { type: 'highlight', highlight: { target: song('intro'), tone: 'focus' } },
+      ],
+    },
+    {
+      id: 'where-you-meet-it',
+      kind: 'explain',
+      events: [
+        { type: 'drop-pointer', pointerId: 'prev' },
+        { type: 'drop-pointer', pointerId: 'current' },
+        { type: 'drop-pointer', pointerId: 'next' },
+        { type: 'clear-highlights' },
       ],
     },
   ],
