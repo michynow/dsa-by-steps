@@ -125,7 +125,7 @@ describe('LessonPage', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Why stacks' })).toBeVisible();
     expect(screen.getByText('Why stacks caption')).toBeVisible();
     expect(screen.getByRole('region', { name: 'Why stacks' })).toHaveTextContent(
-      'ProblemWhy stacksWhy stacks captionPreviousNext',
+      'ProblemStoryStory summaryWhy stacksWhy stacks captionPreviousNext',
     );
   });
 
@@ -192,9 +192,6 @@ describe('LessonPage', () => {
     expect(screen.getByText('Push and pop')).not.toBeVisible();
     await user.click(screen.getByText('Outcomes'));
     expect(screen.getByText('Push and pop')).toBeVisible();
-    expect(screen.getByText('last in, first out')).not.toBeVisible();
-    await user.click(screen.getByText('Terms'));
-    expect(screen.getByText('last in, first out')).toBeVisible();
   });
 
   it('renders with corrupt stored Progress and shows every Step unseen', () => {

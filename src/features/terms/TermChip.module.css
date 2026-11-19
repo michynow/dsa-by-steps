@@ -1,0 +1,49 @@
+.root {
+  position: relative;
+  display: inline-block;
+}
+
+.chip {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: baseline;
+  padding: 0 var(--space-1);
+  font-family: var(--font-mono);
+  font-size: inherit;
+  color: var(--color-term-ink);
+  cursor: pointer;
+  background: var(--color-term-surface);
+  border: var(--border-width) solid var(--color-term-border);
+  border-radius: var(--radius-control);
+}
+
+.new {
+  padding: 0 var(--space-1);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  font-weight: 600;
+  color: var(--color-surface);
+  background: var(--color-term);
+  border-radius: var(--radius-control);
+}
+
+.popover {
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline-start: 0;
+  display: block;
+  width: max-content;
+  max-width: min(28rem, calc(100vw - 2 * var(--space-4)));
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  color: var(--color-term-ink);
+  background: var(--color-term-surface);
+  border: var(--border-width) solid var(--color-term-border);
+  border-radius: var(--radius-control);
+  box-shadow: var(--shadow-hard);
+}
+
+.name {
+  font-family: var(--font-mono);
+}
