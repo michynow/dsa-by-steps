@@ -1,141 +1,142 @@
 {
   "title": "Linked lists",
   "story": {
-    "title": "A task list that grows at the front",
-    "summary": "You keep a task list where new tasks keep landing at the front."
+    "title": "The play queue of a music app",
+    "summary": "You build the play queue of a music app. Listeners tap Play next, remove songs and jump around, and the queue has to stay fast when it holds thousands of songs."
   },
   "uses": [
     {
-      "title": "Music play queues",
-      "body": "Songs are added and removed without moving the rest."
+      "title": "Hash map collision chains",
+      "body": "When two keys land in the same bucket, the bucket keeps them as a short linked list. You meet this in the Hash maps Lesson."
     },
     {
-      "title": "Browser history",
-      "body": "Pages link to the one visited before."
+      "title": "LRU cache in front of a database",
+      "body": "A hash map finds an entry and a doubly linked list orders entries by recent use, so touching one relinks a few nodes."
     },
     {
-      "title": "Undo stacks",
-      "body": "Each change links back to the previous one."
+      "title": "Kernel lists of processes and timers",
+      "body": "The OS kernel threads its process and timer records into linked lists through the records themselves, so adding or removing one relinks only its neighbours."
+    },
+    {
+      "title": "Memory allocator free lists",
+      "body": "An allocator links its free blocks into a list, so handing out or taking back a block changes only a few links."
     }
   ],
-  "whenNot": "Skip it when you mostly read items by index.",
+  "whenNot": "Arrays usually win for indexed reads and for visiting every item. Their items sit side by side in memory, so the CPU cache loads many at once and index lookup is O(1). Choose a linked list when you often insert or remove in the middle at a node you already hold, plus the node before it for removals.",
   "outcomes": {
     "explain-nodes-and-links": "Explain how nodes and links make up a linked list",
     "traverse-from-head": "Traverse a linked list from its head with a pointer",
-    "insert-in-constant-time": "Insert a node at the head or after a known node in O(1)",
+    "insert-in-constant-time": "Insert a node after a known node in O(1)",
     "delete-by-relinking": "Delete a node by relinking around it",
     "compare-with-arrays": "Compare the costs of linked lists and arrays"
   },
   "steps": {
     "the-problem": {
-      "title": "Adding to the front is expensive",
-      "caption": "Your task list is an array and a new task Z must go first. Every task already there shifts one cell to the right to make room. With thousands of tasks, one insert moves thousands of cells."
+      "title": "Play next gets slower as the queue grows",
+      "caption": "Your play queue is an array, and a listener taps Play next on Glow. Glow goes right after Intro, so every song behind it, Echo, Drift and Pulse here, is copied one cell to the right. The work grows with the queue, and a service doing this constantly on long shared or radio queues pays for it. You want the cost of Play next not to depend on the queue's length.",
+      "keyIdea": "Inserting in the middle of an array shifts every item behind it."
     },
     "a-node": {
-      "title": "A node holds a value and a next",
-      "caption": "You store each item in its own node. A [[node]] holds two things: a value and a link called next. Here the single node holds A, and its next points nowhere yet."
+      "title": "A song becomes a node",
+      "caption": "You store each song in its own box. A [[node]] holds two things: a value and a link called next. Here the node holds Intro, and its next points nowhere yet.",
+      "keyIdea": "Songs can live anywhere in memory; only the links give them an order."
     },
-    "linking-nodes": {
-      "title": "Nodes joined by links",
-      "caption": "You add B, C and D, then link each node to the one after it. Following the links takes you from A to D. The last node's next is null, which marks the end of the [[linked-list]]."
+    "linking-songs": {
+      "title": "Songs joined into a queue",
+      "caption": "You add Echo, Drift and Pulse, then link each node to the one after it. Following the links takes you from Intro to Pulse. The last node's next is null, which marks the end of the [[linked-list]]."
     },
     "the-head": {
-      "title": "The head is where the list starts",
-      "caption": "The list needs one more thing: the [[head]], a reference to its first node. You set the head to A, the one node that no other node links to. From the head, the links reach every other node."
+      "title": "The head starts the queue",
+      "caption": "The queue needs one more thing: the [[head]], a reference to its first node. You set the head to Intro, the one node no other node links to. From the head, the links reach every other song."
     },
-    "current-pointer": {
-      "title": "A pointer marks a node",
-      "caption": "A [[pointer]] is a labelled marker that refers to one node. You place current on the head, A, and follow A's next link. Now current sits on B."
+    "now-playing-pointer": {
+      "title": "A pointer marks the playing song",
+      "caption": "A [[pointer]] is a labelled marker that refers to one node. You place now-playing on Intro, the song playing right now. When the song ends, the marker moves along its next link."
     },
     "traversal": {
-      "title": "Walking the whole list",
-      "caption": "You keep following next links. current goes from B to C and then to D, whose next is null, so you stop and put the pointer away. Visiting the nodes one after another like this is called [[traversal]]."
+      "title": "Walking the queue",
+      "caption": "To fill the Up next list, you walk the queue. A cursor starts on Intro and follows next to Echo, Drift and Pulse. Pulse's next is null, so the walk stops. Visiting the nodes one after another like this is [[traversal]]."
     },
-    "insert-at-head": {
-      "title": "Insert at the head",
-      "caption": "You create node Z and link its next to A, the old head. Then you make Z the new head. No other node is touched, so the cost does not depend on the length of the list."
+    "play-next": {
+      "title": "Play next links a new song in",
+      "caption": "You create the node Glow and link its next to Echo, the song after the one playing. Only then do you link Intro's next to Glow. Two links change and no song moves, so the cost does not depend on the length of the queue.",
+      "keyIdea": "Link the new node forward first, then link the old node to it."
     },
-    "insert-after": {
-      "title": "Insert after a node",
-      "caption": "The pointer prev marks A, the node you insert after. You link the new node X to B, prev's next, first. Then you link prev to X, so no node is lost."
+    "remove-from-queue": {
+      "title": "Remove by relinking",
+      "caption": "The listener removes Echo. You point prev at Glow, the song before it, and link Glow's next to Drift. Nothing points at Echo any more, so you remove it. The other songs never move.",
+      "keyIdea": "To remove a node, relink the node before it past it."
     },
-    "delete-after": {
-      "title": "Delete by relinking",
-      "caption": "To delete X, you link prev, which is A, to B, the node after X. Nothing points to X any more, so you remove it. prev's next now points to B, and the rest of the list never moves."
-    },
-    "access-by-index": {
-      "title": "Reaching an index takes a walk",
-      "caption": "A list has no index to jump to. To reach index 3, which holds C, you start at the head and follow next three times. Reaching index k takes k moves."
+    "jump-to-song": {
+      "title": "Jumping to a song takes a walk",
+      "caption": "A linked list has no index to jump to. To reach index 3, which holds Pulse, the cursor starts at the head, index 0, and follows next three times. Song 500 sits at index 499, so reaching index k takes k moves.",
+      "keyIdea": "A linked list has no index: reaching position k means walking k links."
     },
     "arrays-vs-lists": {
-      "title": "Arrays versus linked lists",
-      "caption": "You compare the array's slot at index 3 with the list's node C. The array reaches it in one jump, while the list needs three moves. In return, the list inserts at the front in one step, where the array shifts every cell."
+      "title": "Arrays and linked lists side by side",
+      "caption": "The array reaches Pulse in one jump by index, while the list walks three links. The list plays a song next by changing two links, while the array shifts every song behind it. Showing Up next visits every song once on both.",
+      "keyIdea": "Pick the structure by the operation you repeat most."
     },
     "reverse-preview": {
-      "title": "Next up: reverse a list",
-      "caption": "In the Exercise you reverse a list in place with three pointers: prev, current and next. Before the first move, prev is null, current sits on the head and next is one node ahead. You redirect each node's link, one node at a time."
+      "title": "Next up: play the queue backwards",
+      "caption": "In Practice you play the queue in reverse order, last song first, by reversing the list in place. You use three pointers: prev, current and next. Before the first move, prev is null, current sits on the head and next is one node ahead. You redirect each node's link, one node at a time."
+    },
+    "where-you-meet-it": {
+      "title": "Where you will meet it",
+      "caption": "Here is where you meet linked lists outside this app. Each keeps items in order and changes them at a spot it already holds. The note under them says when an array is the better pick."
     }
   },
   "checks": {
-    "what-a-node-holds": {
-      "prompt": "Besides its value, what does each node of a linked list hold?",
+    "what-a-node-links-to": {
+      "prompt": "Intro is a single node, and a new song, Echo, will come after it. What must Intro hold besides its song name?",
       "options": {
-        "next-link": "A link to the next node, because the list continues from it",
-        "index": "Its index, because the list finds a node by its position",
-        "previous-link": "A link to the previous node, because the list is read from the end"
+        "next-link": "A link to the next node, because the queue continues by following it",
+        "copy-of-next": "A copy of the next song's name, because the name tells you which song follows",
+        "position-number": "Its position number, because the queue finds each song by position",
+        "nothing-extra": "Nothing more, because nodes sit side by side like array cells"
       },
-      "explanation": "Each node holds a link to the next node, called next, and the list continues by following it. Nodes have no index, because a list finds a node by walking the links, not by position. A link back is not needed to read the list forward, so the simplest node has only next."
+      "explanation": "Intro holds a link to the next node, called next, and the queue continues by following it. A copy of Echo's name says nothing about where Echo is, and two songs can share a name. Nodes have no position number, because a list finds a node by walking the links. Nodes do not sit side by side in memory, so without a link nothing connects Intro to Echo."
     },
-    "which-node-becomes-head": {
-      "prompt": "The list has no head yet. Select the node the head should refer to.",
-      "explanation": "The head is A, because no link leads into A, so only the head can lead you there. If you pointed the head at C, you would lose A and B. If you pointed it at D, the last node, you could reach nothing else, since its next is null."
+    "which-song-is-head": {
+      "prompt": "The queue has no head yet. Select the song the head should refer to.",
+      "explanation": "The head is Intro, because no link leads into Intro, so only the head can lead you there. If the head referred to Drift, you would lose Intro and Echo. If it referred to Pulse, the last node, you could reach nothing else, since its next is null."
     },
-    "where-current-moves": {
-      "prompt": "current is on B. After it follows one more link, which node is it on?",
-      "explanation": "current is on C. Links only point forward, so current never goes back to A. It also never skips a node, because B's next leads straight to C."
+    "where-the-walk-lands": {
+      "prompt": "A cursor starts on the song now-playing marks and follows next one link at a time. After two moves, which song is it on?",
+      "explanation": "The cursor is on Drift: the first move reaches Echo and the second reaches Drift. It does not stop on Echo, because a move counts only when you follow a link. It does not reach Pulse either, since that takes a third move. Links only point forward, so the cursor never goes back."
     },
-    "cost-of-insert-at-head": {
-      "prompt": "A list holds n nodes. How does the work of inserting a node at the head grow as n grows?",
+    "first-link-for-play-next": {
+      "prompt": "A new song, Glow, is about to be added right after Intro, which is playing. Which link do you set first?",
       "options": {
-        "constant": "O(1), because only the new node and the head change",
-        "shift-everything": "O(n), because every node moves one place",
-        "walk-to-the-end": "O(n), because you walk to the end first",
-        "update-every-link": "O(n), because every node's link has to be updated"
-      },
-      "explanation": "It is O(1): one new node, one link and one head change, whatever the length. Nodes never shift, because a node's place comes from links, not from its position in memory. You never walk to the end, because the head is already in hand. Only the new node and the head change, and every other link stays as it is."
-    },
-    "first-link-to-change": {
-      "prompt": "You insert a new node X after A. Which link do you set first?",
-      "options": {
-        "new-to-next": "The new node's next, set to B, because the new node must know what follows it",
-        "prev-to-new": "A's next, set to the new node, because A must know what follows it",
-        "new-to-prev": "The new node's next, set to A, because the new node must know where it came from",
+        "new-to-next": "Glow's next, set to Echo, because Glow must lead to the song that follows it before anything points at Glow",
+        "current-to-new": "Intro's next, set to Glow, because the playing song must lead to Glow",
+        "new-to-current": "Glow's next, set to Intro, because Glow's next should point back at the song before it",
         "either-order": "Either one first, because both links are set in the end"
       },
-      "explanation": "You set the new node's next to B first. If you link A to the new node first, nothing points to B any more, and B, C and D are lost. If you set the new node's next back to A, you then link A to the new node, so A leads to X and X leads back to A. The list loops, and B onward can no longer be reached. The order matters because A's old next is the only reference to the rest of the list."
+      "explanation": "You set Glow's next to Echo first, because Glow's next must lead to the song that follows it. If you point it at Intro instead, Intro then links to Glow and Glow links back to Intro, so the queue loops and Echo, Drift and Pulse become unreachable. If you link Intro to Glow first, nothing points to Echo any more and it is lost. The order matters because Intro's old next is the only reference to the rest of the queue."
     },
-    "prev-next-after-deletion": {
-      "prompt": "prev is on A, and X will be removed by relinking. Which node will prev's next point to afterwards?",
-      "explanation": "prev's next points to B. Before the removal A links to X and X links to B, so you link A straight to B and X drops out. prev's next does not point to X, and it does not become null, because the list continues after X."
+    "song-before-the-removed": {
+      "prompt": "The listener removes Echo from the queue. Select the song whose next link must change.",
+      "explanation": "Glow's next must change, because Glow is the node that points at Echo. Intro's next already points at Glow and stays as it is. Drift's next points at Pulse, so it stays too. You link Glow straight to Drift, and Echo drops out."
     },
     "cost-of-reaching-index-k": {
-      "prompt": "What does it cost to reach the node at index k of a linked list, counting from the head?",
+      "prompt": "The listener taps the song at index k, where the head is index 0. How much work does the app do to reach it, counting from the head?",
       "options": {
-        "k-moves": "k moves, because you follow k links from the head: O(n) at worst",
-        "one-move": "1 move, because the list knows where each node is: O(1)",
-        "whole-list": "n moves, because you must walk the whole list every time: O(n)",
-        "halving": "About log k moves, because you can skip nodes along the way"
+        "k-moves": "k moves, because the app follows k links from the head: O(n) at worst",
+        "one-move": "1 move, because the queue knows where each song is: O(1)",
+        "whole-queue": "n moves, because the app always walks the whole queue: O(n)",
+        "halving": "About log k moves, because the app can skip songs along the way"
       },
-      "explanation": "You follow k links from the head, so the cost grows with k and is O(n) in the worst case. A list cannot jump the way an array does, because nodes are not stored side by side. You stop at index k rather than at the end, and a link only leads to the next node, so there is nothing to skip."
+      "explanation": "The app follows k links from the head, so the cost grows with k and is O(n) in the worst case. A list cannot jump the way an array does, because nodes are not stored side by side. The walk stops at index k rather than at the end. A link only leads to the next node, so there is nothing to skip."
     },
     "cheaper-on-a-list": {
-      "prompt": "Which operation is cheaper on a linked list than on an array?",
+      "prompt": "Imagine the same queue stored as an array. Which job is cheaper on the linked list than on the array?",
       "options": {
-        "insert-at-front": "Inserting a new item at the front, because no item has to move",
-        "read-by-index": "Reading the item at index k, because the links lead straight to it",
-        "visit-every-element": "Visiting every item once, because links lead from one to the next"
+        "insert-after-current": "Playing a song next, because only two links change and no song moves",
+        "read-by-index": "Jumping to song 500, because the links lead straight to it",
+        "show-every-song": "Showing every song in Up next, because each link leads to the next song"
       },
-      "explanation": "Inserting at the front is cheaper: O(1) on a list, while the array shifts every cell, O(n). Reading by index favours the array, with O(1) against a walk of k moves. Visiting every item costs O(n) on both, because each item is visited once either way."
+      "explanation": "Playing a song next is cheaper: two link changes on the list, O(1), while the array shifts every song behind it, O(n). Jumping to song 500 favours the array, with O(1) against a walk of 499 links. Showing every song costs O(n) on both, because each song is visited once either way."
     }
   },
   "terms": {
@@ -153,7 +154,7 @@
     },
     "pointer": {
       "term": "pointer",
-      "gloss": "A labelled marker that refers to one node, like current or prev."
+      "gloss": "A labelled marker that refers to one node, like now-playing or prev."
     },
     "traversal": {
       "term": "traversal",
