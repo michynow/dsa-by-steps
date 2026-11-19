@@ -21,13 +21,13 @@ test('opens a Term Chip with the keyboard, reads its gloss and closes it with Es
     window.localStorage.setItem('dsa-by-steps.progress', ${JSON.stringify(seededProgress)});
   `);
   await page.goto('/en/foundations/linked-lists/2');
-  const chip = page.getByRole('button', { name: 'node new' });
+  const chip = page.getByRole('button', { name: 'node' });
   await chip.focus();
   await page.keyboard.press('Enter');
   await expect(chip).toHaveAttribute('aria-expanded', 'true');
-  await expect(page.getByRole('note')).toHaveText(`node ${lesson.terms.node.gloss}`);
+  await expect(chip).toHaveAccessibleDescription(`New term node ${lesson.terms.node.gloss}`);
   await page.keyboard.press('Escape');
   await expect(chip).toHaveAttribute('aria-expanded', 'false');
-  await expect(page.getByRole('note')).toHaveCount(0);
+  await expect(chip).toHaveAccessibleDescription('New term');
   await expect(chip).toBeFocused();
 });

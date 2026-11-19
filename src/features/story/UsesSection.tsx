@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import type { ReactElement } from 'react';
 import { useMessages } from '@/features/locale';
 import { CaptionText } from '@/features/terms';
@@ -13,10 +14,11 @@ export interface UsesSectionProps {
 
 export function UsesSection({ outro, glossary }: UsesSectionProps): ReactElement {
   const messages = useMessages(storyMessages);
+  const headingId = useId();
   const plain = { ...glossary, introduced: [] };
   return (
-    <section className={styles.section} aria-labelledby="uses-title">
-      <h3 id="uses-title" className={styles.heading}>
+    <section className={styles.section} aria-labelledby={headingId}>
+      <h3 id={headingId} className={styles.heading}>
         {messages.uses}
       </h3>
       <ul className={styles.list}>

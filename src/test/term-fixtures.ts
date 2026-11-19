@@ -13,6 +13,7 @@ const markedMessages = (prefix: string) => ({
     why: {
       title: `${prefix}Why stacks`,
       caption: `${prefix}A [[stack]] holds things, a [[stack]]`,
+      keyIdea: `${prefix}Remember the [[stack]]`,
     },
     push: {
       title: `${prefix}Push one`,

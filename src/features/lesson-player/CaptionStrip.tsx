@@ -1,9 +1,10 @@
+import { Fragment } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 import { Link } from 'react-router';
 import type { StepMessages } from '@/content';
 import { StoryCard, UsesSection } from '@/features/story';
 import type { LessonFraming } from '@/features/story';
-import { CaptionText, KeyIdea } from '@/features/terms';
+import { afterCaption, CaptionText, KeyIdea } from '@/features/terms';
 import type { CaptionGlossary } from '@/features/terms';
 import type { LessonPlayerMessages } from './messages';
 import styles from './CaptionStrip.module.css';
@@ -36,7 +37,7 @@ export function CaptionStrip({
   return (
     <section className={styles.strip} aria-labelledby={showCaption ? 'step-title' : undefined}>
       {showCaption && step !== undefined ? (
-        <>
+        <Fragment key={step.title}>
           {problem ? <p className={styles.problem}>{messages.rail.problem}</p> : null}
           {framing.story === undefined ? null : (
             <StoryCard story={framing.story} glossary={glossary} />
@@ -47,11 +48,13 @@ export function CaptionStrip({
           <p className={styles.caption}>
             <CaptionText text={step.caption} glossary={glossary} />
           </p>
-          {step.keyIdea === undefined ? null : <KeyIdea text={step.keyIdea} glossary={glossary} />}
+          {step.keyIdea === undefined ? null : (
+            <KeyIdea text={step.keyIdea} glossary={afterCaption(glossary, step.caption)} />
+          )}
           {framing.outro === undefined ? null : (
             <UsesSection outro={framing.outro} glossary={glossary} />
           )}
-        </>
+        </Fragment>
       ) : null}
       {panel}
       {practice === undefined ? null : (

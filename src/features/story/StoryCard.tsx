@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import type { ReactElement } from 'react';
 import type { StoryMessages } from '@/content';
 import { CaptionText } from '@/features/terms';
@@ -10,11 +11,12 @@ export interface StoryCardProps {
 }
 
 export function StoryCard({ story, glossary }: StoryCardProps): ReactElement {
+  const titleId = useId();
   return (
-    <section className={styles.card} aria-labelledby="story-title">
-      <h3 id="story-title" className={styles.title}>
+    <section className={styles.card} aria-labelledby={titleId}>
+      <p id={titleId} className={styles.title}>
         {story.title}
-      </h3>
+      </p>
       <p className={styles.summary}>
         <CaptionText text={story.summary} glossary={{ ...glossary, introduced: [] }} />
       </p>

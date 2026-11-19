@@ -23,7 +23,7 @@ export function TermsPanel({ content, locale, step }: TermsPanelProps): ReactEle
   return (
     <details className={styles.panel}>
       <summary className={styles.summary}>{messages.panel}</summary>
-      <ul className={styles.list}>
+      <ul key={step} className={styles.list}>
         {shown.map(({ id, term }) => (
           <li key={id}>
             <TermChip term={term} isNew={false} />

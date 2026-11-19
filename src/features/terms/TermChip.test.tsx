@@ -8,9 +8,21 @@ import { TermChip } from './TermChip';
 const node = { term: 'node', gloss: 'One item of a list.' };
 const head = { term: 'head', gloss: 'The first node.' };
 
+type User = ReturnType<typeof userEvent.setup>;
+
 function renderChips(locale: 'en' | 'pl', ui: ReactElement) {
   return render(<I18nextProvider i18n={createI18n(locale)}>{ui}</I18nextProvider>);
 }
+
+function popoverOf(chip: HTMLElement): HTMLElement | null {
+  const id = chip.getAttribute('aria-controls');
+  return id === null ? null : document.getElementById(id);
+}
+
+const openPopovers = () =>
+  screen
+    .getAllByRole('button', { expanded: true })
+    .map((chip) => popoverOf(chip)?.textContent ?? null);
 
 const pair = (
   <>
@@ -25,24 +37,22 @@ describe('TermChip', () => {
     renderChips('en', <TermChip term={node} isNew={false} />);
     const chip = screen.getByRole('button', { name: 'node' });
     expect(chip.getAttribute('aria-expanded')).toBe('false');
+    expect(chip.getAttribute('aria-controls')).toBeNull();
     expect(screen.queryByText('One item of a list.')).toBeNull();
   });
 
   it.each([
-    [
-      'click',
-      async (user: ReturnType<typeof userEvent.setup>) => user.click(screen.getByRole('button')),
-    ],
+    ['click', async (user: User) => user.click(screen.getByRole('button'))],
     [
       'Enter',
-      async (user: ReturnType<typeof userEvent.setup>) => {
+      async (user: User) => {
         await user.tab();
         await user.keyboard('{Enter}');
       },
     ],
     [
       'Space',
-      async (user: ReturnType<typeof userEvent.setup>) => {
+      async (user: User) => {
         await user.tab();
         await user.keyboard(' ');
       },
@@ -51,15 +61,38 @@ describe('TermChip', () => {
     const user = userEvent.setup();
     renderChips('en', <TermChip term={node} isNew={false} />);
     await activate(user);
-    expect(screen.getByRole('button', { name: 'node' }).getAttribute('aria-expanded')).toBe('true');
-    expect(screen.getByRole('note').textContent).toBe('node One item of a list.');
+    const chip = screen.getByRole('button', { name: 'node' });
+    expect(chip.getAttribute('aria-expanded')).toBe('true');
+    expect(popoverOf(chip)?.textContent).toBe('node One item of a list.');
+  });
+
+  it('links the popover to the chip by id and announces it as the description', async () => {
+    const user = userEvent.setup();
+    renderChips('en', <TermChip term={node} isNew={false} />);
+    const chip = screen.getByRole('button', { name: 'node' });
+    await user.click(chip);
+    const popover = popoverOf(chip);
+    expect(popover?.id).toBe(chip.getAttribute('aria-controls'));
+    expect(chip.getAttribute('aria-describedby')).toBe(popover?.id);
+    expect(chip).toHaveAccessibleDescription('node One item of a list.');
+  });
+
+  it('gives every popover its own id', async () => {
+    const user = userEvent.setup();
+    renderChips('en', pair);
+    await user.click(screen.getByRole('button', { name: 'node' }));
+    const first = screen.getByRole('button', { name: 'node' }).getAttribute('aria-controls');
+    await user.click(screen.getByRole('button', { name: 'head' }));
+    const second = screen.getByRole('button', { name: 'head' }).getAttribute('aria-controls');
+    expect(first === second).toBe(false);
   });
 
   it('shows the gloss of the current Locale', async () => {
     const user = userEvent.setup();
     renderChips('pl', <TermChip term={{ term: 'node', gloss: 'Element listy.' }} isNew={false} />);
-    await user.click(screen.getByRole('button', { name: 'node' }));
-    expect(screen.getByRole('note').textContent).toBe('node Element listy.');
+    const chip = screen.getByRole('button', { name: 'node' });
+    await user.click(chip);
+    expect(popoverOf(chip)?.textContent).toBe('node Element listy.');
   });
 
   it('closes on Escape and returns focus to the chip', async () => {
@@ -68,7 +101,7 @@ describe('TermChip', () => {
     const chip = screen.getByRole('button', { name: 'node' });
     await user.click(chip);
     await user.keyboard('{Escape}');
-    expect(screen.queryByRole('note')).toBeNull();
+    expect(popoverOf(chip)).toBeNull();
     expect(chip.getAttribute('aria-expanded')).toBe('false');
     expect(document.activeElement).toBe(chip);
   });
@@ -79,7 +112,8 @@ describe('TermChip', () => {
     const chip = screen.getByRole('button', { name: 'node' });
     await user.click(chip);
     await user.click(chip);
-    expect(screen.queryByRole('note')).toBeNull();
+    expect(chip.getAttribute('aria-expanded')).toBe('false');
+    expect(screen.queryByText('One item of a list.')).toBeNull();
   });
 
   it('closes when clicking outside', async () => {
@@ -87,7 +121,7 @@ describe('TermChip', () => {
     renderChips('en', pair);
     await user.click(screen.getByRole('button', { name: 'node' }));
     await user.click(screen.getByRole('button', { name: 'elsewhere' }));
-    expect(screen.queryByRole('note')).toBeNull();
+    expect(screen.queryByText('One item of a list.')).toBeNull();
   });
 
   it('keeps only one popover open at a time', async () => {
@@ -95,9 +129,7 @@ describe('TermChip', () => {
     renderChips('en', pair);
     await user.click(screen.getByRole('button', { name: 'node' }));
     await user.click(screen.getByRole('button', { name: 'head' }));
-    expect(screen.getAllByRole('note').map((note) => note.textContent)).toEqual([
-      'head The first node.',
-    ]);
+    expect(openPopovers()).toEqual(['head The first node.']);
   });
 
   it('keeps only one popover open when moving by keyboard', async () => {
@@ -107,18 +139,40 @@ describe('TermChip', () => {
     await user.keyboard('{Enter}');
     await user.tab();
     await user.keyboard('{Enter}');
-    expect(screen.getAllByRole('note').map((note) => note.textContent)).toEqual([
-      'head The first node.',
-    ]);
+    expect(openPopovers()).toEqual(['head The first node.']);
   });
 
-  it('carries the new marker in the visible text and the accessible name', () => {
+  it('keeps the new marker out of the accessible name and exposes it as the description', () => {
     renderChips('en', <TermChip term={node} isNew />);
-    expect(screen.getByRole('button', { name: 'node new' }).textContent).toBe('node new');
+    const chip = screen.getByRole('button', { name: 'node' });
+    expect(chip).toHaveAccessibleDescription('New term');
+    expect(chip.textContent).toBe('node new');
   });
 
-  it('localises the new marker', () => {
+  it('localises the new marker description', () => {
     renderChips('pl', <TermChip term={node} isNew />);
-    expect(screen.getByRole('button', { name: 'node nowe' }).textContent).toBe('node nowe');
+    expect(screen.getByRole('button', { name: 'node' })).toHaveAccessibleDescription(
+      'Nowe pojęcie',
+    );
+  });
+
+  it('describes a new Term by both the marker and the open popover', async () => {
+    const user = userEvent.setup();
+    renderChips('en', <TermChip term={node} isNew />);
+    const chip = screen.getByRole('button', { name: 'node' });
+    await user.click(chip);
+    expect(chip).toHaveAccessibleDescription('New term node One item of a list.');
+  });
+
+  it('shifts the popover back inside the viewport edge', async () => {
+    const user = userEvent.setup();
+    const rect = vi
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockReturnValue({ left: 300, right: window.innerWidth + 100 } as DOMRect);
+    renderChips('en', <TermChip term={node} isNew={false} />);
+    const chip = screen.getByRole('button', { name: 'node' });
+    await user.click(chip);
+    expect(popoverOf(chip)?.style.marginLeft).toBe('-116px');
+    rect.mockRestore();
   });
 });

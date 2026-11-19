@@ -33,7 +33,7 @@
   inset-inline-start: 0;
   display: block;
   width: max-content;
-  max-width: 100%;
+  max-width: min(28rem, calc(100vw - 2 * var(--space-4)));
   padding: var(--space-2) var(--space-3);
   font-family: var(--font-sans);
   font-size: var(--font-size-body);

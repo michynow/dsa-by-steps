@@ -1,4 +1,4 @@
-import { termIntroductions } from '@/content';
+import { parseCaption, termIntroductions } from '@/content';
 import type { LessonContent, TermId, TermMessages } from '@/content';
 import type { Locale } from '@/domain';
 
@@ -28,4 +28,11 @@ export function captionGlossary(
   step: number,
 ): CaptionGlossary {
   return { terms: content.messages[locale].terms, introduced: termsIntroducedAt(content, step) };
+}
+
+export function afterCaption(glossary: CaptionGlossary, caption: string): CaptionGlossary {
+  const used = parseCaption(caption).flatMap((segment) =>
+    segment.kind === 'term' ? [segment.term] : [],
+  );
+  return { ...glossary, introduced: glossary.introduced.filter((term) => !used.includes(term)) };
 }
