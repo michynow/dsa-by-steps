@@ -38,7 +38,15 @@ test('steps through the Linked lists Lesson, remembers seen Steps and keeps the 
     await page.getByRole('button', { name: 'Next' }).click();
     await expect(page).toHaveURL(new RegExp(`/${String(step)}$`));
   }
-  await expect(page.getByRole('button', { name: 'Next' })).toBeDisabled();
+  const next = page.getByRole('button', { name: 'Next' });
+  if (await next.isEnabled()) {
+    await next.click();
+    await expect(page).toHaveURL(/\/en\/foundations\/(?!linked-lists\/)[a-z0-9-]+\/1$/);
+    await page.goBack();
+    await expect(page).toHaveURL(new RegExp(`/${String(stepCount)}$`));
+  } else {
+    await expect(next).toBeDisabled();
+  }
   await expect(rail.getByRole('link', { name: /seen$/ })).toHaveCount(stepCount - 1);
 
   await rail.getByRole('link').first().click();

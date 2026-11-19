@@ -5,7 +5,7 @@ Four Lessons, each with Steps, Checks, a Story, Uses and an Exercise, modelled o
 ## Rules every Lesson package follows
 
 - Follow docs/authoring.md step by step, ADR 0004 (EN source, natural PL, Terms in English), ADR 0009 (Checks posed on the pre-Step Scene; no answer drawn, highlighted or stated before answering), ADR 0010 (the Exercise lives in Practice; no Exercise Step in the Rail).
-- 10–13 Steps, one idea each; a Problem Step framed in the Story; a closing Use Step; Key Ideas on 4–6 Steps; `[[term]]` markers at each Term's first use, identical placement EN/PL.
+- 10–13 Steps, one idea each; Step 1 is an Overview (what the Structure is, in two or three plain sentences, with a small drawing of a finished example and no Check); then a Problem Step framed in the Story; a closing Use Step; Key Ideas on 4–6 Steps; `[[term]]` markers at each Term's first use, identical placement EN/PL.
 - At least 6 Checks mixing Predict and Choice (no Order Checks yet); every Choice option shares the form "<answer>, because <reason>"; every distractor is a real misconception; every Outcome is exercised by a Check.
 - Structures drawn: only array, linked-list, stack, queue and hash-map, at most 6–8 elements each, short values named after the Story.
 - story { title, summary }, exactly 4 accurate Uses, an honest whenNot. Every factual claim (costs, real-world uses) technically accurate; no exaggerated motivation.
