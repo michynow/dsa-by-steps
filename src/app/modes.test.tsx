@@ -139,3 +139,11 @@ describe('legacy Exercise URLs', () => {
     expect(router.state.location.pathname).toBe('/en/practice');
   });
 });
+
+describe('Module progress bar', () => {
+  it.each(['/en/practice/basics/stacks', '/en/practice'])('is absent on %s', async (path) => {
+    renderAt(path);
+    await screen.findByRole('heading', { level: 1 });
+    expect(screen.queryByRole('group', { name: 'Module progress' })).toBeNull();
+  });
+});

@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { createMemoryRouter } from 'react-router';
 import { createI18n } from '@/features/locale';
 import { testModules } from '@/test/lesson-fixtures';
-import { modules } from '@/content';
+import { lessonContent, modules, parseCaption } from '@/content';
+import type { LessonContent, ModuleContent } from '@/content';
 import { noStepCheck } from '@/features/lesson-player';
 import type { UseStepCheck } from '@/features/lesson-player';
 import { createMemoryProgressRepository, createProgressStore } from '@/features/progress';
@@ -19,8 +20,8 @@ function renderAt(path: string, content = modules, useStepCheck: UseStepCheck = 
   return Object.assign(router, { progress });
 }
 
-function renderWithDefaultChecks(path: string) {
-  const router = createMemoryRouter(createRoutes({ modules }), { initialEntries: [path] });
+function renderWithDefaultChecks(path: string, content: readonly ModuleContent[] = modules) {
+  const router = createMemoryRouter(createRoutes({ modules: content }), { initialEntries: [path] });
   const progress = createProgressStore(createMemoryProgressRepository());
   render(<App i18n={createI18n('en')} router={router} progress={progress} />);
 }
@@ -73,13 +74,15 @@ describe('App', () => {
       ]);
       expect(
         screen
-          .getAllByRole('link', { name: /^(Stacks|Queues|Bare)$/ })
+          .getAllByRole('link', { name: /^(Stacks|Queues)$/ })
           .map((link) => [link.textContent, link.getAttribute('href')]),
       ).toEqual([
         ['Stacks', '/en/basics/stacks/1'],
         ['Queues', '/en/basics/queues/1'],
-        ['Bare', '/en/solo/bare/1'],
       ]);
+      expect(screen.getByText('Bare')).toBeVisible();
+      expect(screen.getByText('No steps yet')).toBeVisible();
+      expect(screen.queryByRole('link', { name: /Bare/ })).toBeNull();
     });
 
     it('shows a Module without Lessons as a heading with no list', async () => {
@@ -169,12 +172,47 @@ describe('App', () => {
   });
 
   describe('Checks in the Lesson player', () => {
-    const wrongOption = 'Its index, because the list finds a node by its position';
-    const caption = /You store each item in its own node/;
+    const escaped = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-    it('gates the Step, counts Misses, offers Show me and unblocks next on Reveal', async () => {
+    function visibleText(raw: string): RegExp {
+      const longest = parseCaption(raw)
+        .flatMap((segment) => (segment.kind === 'text' ? [segment.text.trim()] : []))
+        .reduce((best, text) => (text.length > best.length ? text : best), '');
+      return new RegExp(escaped(longest));
+    }
+
+    function gatedStepOf(content: LessonContent) {
+      const index = content.lesson.steps.findIndex((step) => step.check?.kind === 'choice');
+      const step = content.lesson.steps[index];
+      const check = step?.check;
+      if (step === undefined || check?.kind !== 'choice') throw new Error('no Choice Check');
+      const messages = content.messages.en;
+      const checkMessages = messages.checks[check.id];
+      const label = (option: string) => checkMessages?.options?.[option] ?? '';
+      const wrong = check.options.find((option) => option !== check.correct) ?? '';
+      return {
+        path: `/en/${content.module}/${content.lesson.slug}/${String(index + 1)}`,
+        wrongOption: label(wrong),
+        caption: visibleText(messages.steps[step.id]?.caption ?? ''),
+        explanation: visibleText(checkMessages?.explanation ?? ''),
+      };
+    }
+
+    function replacing(content: LessonContent): readonly ModuleContent[] {
+      const existing = modules.some((module) => module.slug === content.module);
+      const base = existing ? modules : testModules;
+      return base.map((module) => ({
+        ...module,
+        lessons: module.lessons.map((lesson) =>
+          lesson.lesson.slug === content.lesson.slug ? content : lesson,
+        ),
+      }));
+    }
+
+    async function gatesAndReveals(content: LessonContent) {
+      const { path, wrongOption, caption, explanation } = gatedStepOf(content);
       const user = userEvent.setup();
-      renderWithDefaultChecks('/en/foundations/linked-lists/2');
+      renderWithDefaultChecks(path, replacing(content));
       await screen.findByRole('radiogroup');
       expect(screen.getByRole('button', { name: 'Next' })).toHaveAttribute('aria-disabled', 'true');
       expect(screen.queryByText(caption)).toBeNull();
@@ -190,7 +228,23 @@ describe('App', () => {
         'true',
       );
       expect(screen.getByText(caption)).toBeVisible();
-      expect(screen.getByText(/Each node holds a link to the next node/)).toBeVisible();
+      expect(screen.getByText(explanation)).toBeVisible();
+    }
+
+    it('gates the first Choice Step of Linked lists, counts Misses and unblocks next on Reveal', async () => {
+      const content = lessonContent('foundations', 'linked-lists');
+      if (content === undefined) throw new Error('missing Lesson');
+      await gatesAndReveals(content);
+    });
+
+    it('does the same when the first Choice Check sits on Step 3', async () => {
+      const stacks = testModules[0]?.lessons[0];
+      if (stacks === undefined) throw new Error('fixture');
+      const [why, push, pop] = stacks.lesson.steps;
+      if (why === undefined || push === undefined || pop === undefined) throw new Error('fixture');
+      const content = { ...stacks, lesson: { ...stacks.lesson, steps: [why, pop, push] } };
+      expect(gatedStepOf(content).path).toBe('/en/basics/stacks/3');
+      await gatesAndReveals(content);
     });
   });
 });

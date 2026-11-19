@@ -63,9 +63,9 @@
 .turn {
   padding: 0 var(--space-1);
   font-size: var(--font-size-caption);
-  color: var(--color-turn-ink, var(--color-ink));
-  background: var(--color-turn-soft, var(--color-surface));
-  border: var(--border-width) solid var(--color-turn, var(--color-success));
+  color: var(--color-turn-ink);
+  background: var(--color-turn-surface);
+  border: var(--border-width) solid var(--color-turn-border);
   border-radius: var(--radius-control);
 }
 

@@ -444,13 +444,13 @@ describe('LessonPage Practice and Your turn', () => {
   it('frames the Stage and shows the banner while the Check is unsettled', () => {
     renderAt('/en/basics/stacks/2', { useStepCheck: fakeCheck(false) });
     expect(frame()).toHaveAttribute('data-turn', 'true');
-    expect(screen.getByText('Your turn — predict what happens')).toBeVisible();
+    expect(screen.getByText('Your turn — answer before the step plays')).toBeVisible();
   });
 
   it('announces the banner politely', () => {
     renderAt('/en/basics/stacks/2', { useStepCheck: fakeCheck(false) });
     expect(
-      screen.getByText('Your turn — predict what happens').closest('[aria-live]'),
+      screen.getByText('Your turn — answer before the step plays').closest('[aria-live]'),
     ).toHaveAttribute('aria-live', 'polite');
   });
 
@@ -459,13 +459,13 @@ describe('LessonPage Practice and Your turn', () => {
     renderAt('/en/basics/stacks/2', { useStepCheck: fakeCheck(false) });
     await user.click(screen.getByRole('button', { name: 'settle' }));
     expect(frame()).toHaveAttribute('data-turn', 'false');
-    expect(screen.queryByText('Your turn — predict what happens')).toBeNull();
+    expect(screen.queryByText('Your turn — answer before the step plays')).toBeNull();
   });
 
   it('shows neither on a settled or unchecked Step', () => {
     renderAt('/en/basics/stacks/2', { useStepCheck: fakeCheck(true) });
     expect(frame()).toHaveAttribute('data-turn', 'false');
-    expect(screen.queryByText('Your turn — predict what happens')).toBeNull();
+    expect(screen.queryByText('Your turn — answer before the step plays')).toBeNull();
   });
 
   it('shows neither on a Step without a Check under an unsettled binding', () => {

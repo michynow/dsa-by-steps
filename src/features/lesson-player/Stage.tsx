@@ -11,14 +11,19 @@ export interface StageProps {
   readonly messages: LessonPlayerMessages;
   readonly selection: SceneSelection | undefined;
   readonly turn: boolean;
+  readonly stepId: string;
 }
 
-export function Stage({ scene, messages, selection, turn }: StageProps): ReactElement {
+export function Stage({ scene, messages, selection, turn, stepId }: StageProps): ReactElement {
   const labels = sceneLabelsOf(messages);
   return (
     <div className={styles.stage} data-stage="true" data-turn={turn}>
       <div aria-live="polite">
-        {turn ? <p className={styles.banner}>{messages.stage.turn}</p> : null}
+        {turn ? (
+          <p key={stepId} className={styles.banner}>
+            {messages.stage.turn}
+          </p>
+        ) : null}
       </div>
       {selection === undefined ? (
         <SceneView scene={scene} labels={labels} />

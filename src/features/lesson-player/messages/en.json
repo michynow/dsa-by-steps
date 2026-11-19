@@ -5,7 +5,7 @@
     "body": "Its content is broken. Please report it."
   },
   "stage": {
-    "turn": "Your turn — predict what happens",
+    "turn": "Your turn — answer before the step plays",
     "figure": "Scene",
     "select": "Select",
     "structure": {

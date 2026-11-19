@@ -26,6 +26,13 @@ export interface LessonLayoutProps {
   readonly useStepCheck: UseStepCheck;
 }
 
+function practiceLinkOf(content: LessonContent, locale: Locale, step: number): string | undefined {
+  const { lesson } = content;
+  return step === lesson.steps.length - 1
+    ? practicePath(locale, content.module, lesson.slug)
+    : undefined;
+}
+
 export function LessonLayout({
   course,
   content,
@@ -39,10 +46,7 @@ export function LessonLayout({
   const key = lessonKey(content.module, lesson.slug);
   const binding = useBoundCheck(useStepCheck, content, locale, step);
   const current = lesson.steps[step];
-  const practiceLink =
-    step === lesson.steps.length - 1
-      ? practicePath(locale, content.module, lesson.slug)
-      : undefined;
+  const practiceLink = practiceLinkOf(content, locale, step);
   const gated = current?.check !== undefined && !binding.settled;
   const scenes = useLessonScenes(lesson, key);
   const navigation = useStepNavigation({
@@ -71,6 +75,7 @@ export function LessonLayout({
             messages={messages}
             selection={binding.selection}
             turn={gated}
+            stepId={current?.id ?? ''}
           />
           <CaptionStrip
             step={current === undefined ? undefined : lessonMessages.steps[current.id]}

@@ -7,16 +7,16 @@
 }
 
 .stage[data-turn='true'] {
-  border-color: var(--color-turn, var(--color-success));
-  outline: var(--border-width) solid var(--color-turn, var(--color-success));
+  border-color: var(--color-turn-border);
+  outline: var(--border-width) solid var(--color-turn-border);
 }
 
 .banner {
   padding: var(--space-1) var(--space-3);
   margin: 0 0 var(--space-3);
   font-weight: 600;
-  color: var(--color-turn-ink, var(--color-ink));
-  background: var(--color-turn-soft, var(--color-surface));
-  border: var(--border-width) solid var(--color-turn, var(--color-success));
+  color: var(--color-turn-ink);
+  background: var(--color-turn-surface);
+  border: var(--border-width) solid var(--color-turn-border);
   border-radius: var(--radius-control);
 }

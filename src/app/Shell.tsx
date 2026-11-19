@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, Outlet, useParams } from 'react-router';
+import { Link, Outlet, useLocation, useParams } from 'react-router';
 import type { ModuleContent } from '@/content';
 import { ModuleProgressBar } from '@/features/lesson-player';
 import { LocaleSwitcher } from '@/features/locale';
@@ -10,6 +10,7 @@ import styles from './Shell.module.css';
 export function Shell({ modules }: { readonly modules: readonly ModuleContent[] }): ReactElement {
   const { t } = useTranslation();
   const { locale = '', module, lesson } = useParams();
+  const practising = useLocation().pathname.split('/')[2] === 'practice';
 
   return (
     <div className={styles.shell}>
@@ -18,7 +19,7 @@ export function Shell({ modules }: { readonly modules: readonly ModuleContent[] 
           {t('course.title')}
         </Link>
         <ModeSwitch />
-        {module === undefined || lesson === undefined ? null : (
+        {practising || module === undefined || lesson === undefined ? null : (
           <ModuleProgressBar modules={modules} module={module} lesson={lesson} />
         )}
         <LocaleSwitcher />
