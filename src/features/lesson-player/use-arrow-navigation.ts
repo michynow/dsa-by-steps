@@ -3,22 +3,18 @@ import { UNSAFE_DataRouterContext } from 'react-router';
 import type { CoursePosition } from '@/domain';
 import { useProgress } from '@/features/progress';
 import { arrowTarget } from './arrow-target';
+import { isKeyOwnedByControl } from './key-ownership';
 import { pathOf, positionOfPath, samePosition } from './step-paths';
 import type { NavigationInput } from './use-step-navigation';
-
-const ownedByControl =
-  'input, textarea, select, [contenteditable], [role="radiogroup"], [role="radio"], [role="textbox"], [data-stage] button';
-
-function isOwnedByControl(target: EventTarget | null): boolean {
-  return target instanceof Element && target.closest(ownedByControl) !== null;
-}
 
 function hasModifier(event: KeyboardEvent): boolean {
   return event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
 }
 
 function isIgnored(event: KeyboardEvent): boolean {
-  return event.defaultPrevented || hasModifier(event) || isOwnedByControl(event.target);
+  return (
+    event.defaultPrevented || hasModifier(event) || isKeyOwnedByControl(event.target, event.key)
+  );
 }
 
 export function useArrowNavigation(input: NavigationInput, go: (path: string) => void): void {

@@ -175,6 +175,18 @@ export function applyStepEvents(scene: Scene, events: readonly StepEvent[]): Red
   );
 }
 
+export function framesOf(
+  scene: Scene,
+  events: readonly StepEvent[],
+): Result<readonly Scene[], SceneError> {
+  const start: Result<readonly Scene[], SceneError> = ok([scene]);
+  return events.reduce((acc, event) => {
+    if (!acc.ok) return acc;
+    const next = applyStepEvent(acc.value.at(-1) ?? scene, event);
+    return next.ok ? ok([...acc.value, next.value]) : next;
+  }, start);
+}
+
 export function scenesOf(lesson: Lesson): Result<readonly Scene[], SceneError> {
   const initial: Result<readonly Scene[], SceneError> = ok([]);
   return lesson.steps.reduce((acc, step) => {

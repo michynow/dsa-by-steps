@@ -18,5 +18,5 @@ export type {
   StructureId,
   StructureKind,
 } from './types';
-export { applyStepEvent, applyStepEvents, scenesOf } from './reduce';
+export { applyStepEvent, applyStepEvents, framesOf, scenesOf } from './reduce';
 export { elementIdsOf } from './scene-access';

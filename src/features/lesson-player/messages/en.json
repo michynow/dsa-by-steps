@@ -54,5 +54,11 @@
     "position": "Lesson {number} of {count}",
     "passed": "passed",
     "notPassed": "not passed"
+  },
+  "playback": {
+    "controls": "Playback",
+    "replay": "Replay",
+    "pause": "Pause",
+    "play": "Play"
   }
 }

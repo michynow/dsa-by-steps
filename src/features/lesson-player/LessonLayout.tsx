@@ -10,13 +10,12 @@ import { CaptionStrip } from './CaptionStrip';
 import styles from './LessonLayout.module.css';
 import { lessonPlayerMessages } from './messages';
 import { LessonPanels } from './LessonPanels';
-import { displayedScene } from './scene-choice';
 import { Stage } from './Stage';
 import type { UseStepCheck } from './step-check';
 import { StepRail } from './StepRail';
 import { useBoundCheck } from './use-bound-check';
 import { useDocumentTitle } from './use-document-title';
-import { useLessonScenes } from './use-lesson-scenes';
+import { useLessonScenes, useStepFrames } from './use-lesson-scenes';
 import { useMarkStepSeen } from './use-mark-step-seen';
 import { useStepNavigation } from './use-step-navigation';
 
@@ -50,6 +49,7 @@ export function LessonLayout({
   const current = lesson.steps[step];
   const gated = current?.check !== undefined && !binding.settled;
   const scenes = useLessonScenes(lesson, key);
+  const frames = useStepFrames(lesson, scenes, step, gated);
   const navigation = useStepNavigation({
     course,
     locale,
@@ -72,11 +72,12 @@ export function LessonLayout({
         />
         <div className={styles.main}>
           <Stage
-            scene={displayedScene(lesson, scenes, step, gated)}
+            frames={frames}
             messages={messages}
             selection={binding.selection}
             turn={gated}
             stepId={current?.id ?? ''}
+            lessonKey={key}
           />
           <CaptionStrip
             step={current === undefined ? undefined : lessonMessages.steps[current.id]}
