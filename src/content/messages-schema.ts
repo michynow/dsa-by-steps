@@ -20,6 +20,12 @@ const checkMessages = z.strictObject({
 
 const termMessages = z.strictObject({ term: text, gloss: text });
 
+export const exerciseMessagesSchema = z.strictObject({
+  title: text,
+  task: text,
+  hints: z.array(text).readonly(),
+});
+
 export const lessonMessagesSchema = z.strictObject({
   title: text,
   story,
@@ -29,4 +35,5 @@ export const lessonMessagesSchema = z.strictObject({
   steps: z.record(z.string(), stepMessages),
   checks: z.record(z.string(), checkMessages),
   terms: z.record(z.string(), termMessages),
+  exercise: z.exactOptional(exerciseMessagesSchema),
 });

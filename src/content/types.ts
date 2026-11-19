@@ -1,4 +1,13 @@
-import type { CheckId, Lesson, Locale, ModuleSlug, OptionId, OutcomeId, StepId } from '@/domain';
+import type {
+  CheckId,
+  Exercise,
+  Lesson,
+  Locale,
+  ModuleSlug,
+  OptionId,
+  OutcomeId,
+  StepId,
+} from '@/domain';
 
 export type TermId = string;
 
@@ -29,6 +38,12 @@ export interface UseMessages {
   readonly body: string;
 }
 
+export interface ExerciseMessages {
+  readonly title: string;
+  readonly task: string;
+  readonly hints: readonly string[];
+}
+
 export interface LessonMessages {
   readonly title: string;
   readonly story: StoryMessages;
@@ -38,12 +53,14 @@ export interface LessonMessages {
   readonly steps: Readonly<Record<StepId, StepMessages>>;
   readonly checks: Readonly<Record<CheckId, CheckMessages>>;
   readonly terms: Readonly<Record<TermId, TermMessages>>;
+  readonly exercise?: ExerciseMessages;
 }
 
 export interface LessonContent {
   readonly module: ModuleSlug;
   readonly lesson: Lesson;
   readonly terms: readonly TermId[];
+  readonly exercise?: Exercise;
   readonly messages: Readonly<Record<Locale, LessonMessages>>;
 }
 

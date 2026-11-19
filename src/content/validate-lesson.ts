@@ -12,6 +12,8 @@ import type {
 } from '@/domain';
 import { hasMarker, malformedMarkers, stepTerms } from './caption';
 import type { LessonContent, TermId } from './types';
+import { exerciseIssues, exerciseTaskTerms, testIdsOf } from './validate-exercise';
+import type { ExerciseIssue } from './validate-exercise';
 
 export type IdKind =
   | 'module'
@@ -23,7 +25,8 @@ export type IdKind =
   | 'term'
   | 'structure'
   | 'element'
-  | 'pointer';
+  | 'pointer'
+  | 'test';
 
 export type ContentIssue =
   | { readonly code: 'missing-message-key'; readonly locale: Locale; readonly path: string }
@@ -87,7 +90,8 @@ export type ContentIssue =
   | { readonly code: 'unused-term'; readonly term: TermId }
   | { readonly code: 'invalid-id'; readonly kind: IdKind; readonly id: string }
   | { readonly code: 'duplicate-step-id'; readonly step: StepId }
-  | { readonly code: 'duplicate-check-id'; readonly check: CheckId };
+  | { readonly code: 'duplicate-check-id'; readonly check: CheckId }
+  | ExerciseIssue;
 
 const contentLocales: readonly Locale[] = ['en', 'pl'];
 
@@ -178,6 +182,7 @@ function allIdUses(content: LessonContent): readonly IdUse[] {
     ...checks.flatMap(checkIdUses),
     ...idUses('term', content.terms),
     ...sceneIdUses(content),
+    ...idUses('test', content.exercise === undefined ? [] : testIdsOf(content.exercise)),
   ];
 }
 
@@ -380,7 +385,9 @@ function messageIssues(content: LessonContent): readonly ContentIssue[] {
   const actual = new Map(
     contentLocales.map((locale): [Locale, ReadonlySet<string>] => [
       locale,
-      new Set(keyPaths(content.messages[locale], '')),
+      new Set(
+        keyPaths(content.messages[locale], '').filter((path) => !path.startsWith('exercise.')),
+      ),
     ]),
   );
   return [
@@ -430,7 +437,7 @@ function leafStrings(value: unknown, prefix: string): readonly (readonly [string
   );
 }
 
-const captionPath = /^steps\.[^.]+\.(?:caption|keyIdea)$/;
+const captionPath = /^(?:steps\.[^.]+\.(?:caption|keyIdea)|exercise\.task)$/;
 
 function markerPlacementIssues(content: LessonContent): readonly ContentIssue[] {
   return contentLocales.flatMap((locale) =>
@@ -449,11 +456,12 @@ function markerPlacementIssues(content: LessonContent): readonly ContentIssue[] 
 }
 
 function unusedTermIssues(content: LessonContent): readonly ContentIssue[] {
-  const marked = new Set(
-    contentLocales.flatMap((locale) =>
+  const marked = new Set([
+    ...contentLocales.flatMap((locale) =>
       content.lesson.steps.flatMap((step) => stepTerms(content.messages[locale], step.id)),
     ),
-  );
+    ...exerciseTaskTerms(content),
+  ]);
   return content.terms
     .filter((term) => !marked.has(term))
     .map((term): ContentIssue => ({ code: 'unused-term', term }));
@@ -472,5 +480,6 @@ export function validateLessonContent(
     ...unknownTermIssues(content),
     ...mismatchedTermIssues(content),
     ...unusedTermIssues(content),
+    ...exerciseIssues(content),
   ];
 }

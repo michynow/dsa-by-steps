@@ -48,5 +48,10 @@
       "term": "array",
       "gloss": "A row of cells stored side by side and read by index."
     }
+  },
+  "exercise": {
+    "title": "Second number",
+    "task": "Return the second number of an [[array]] of numbers.",
+    "hints": ["Which index holds the second cell?", "Read the array at that index."]
   }
 }
