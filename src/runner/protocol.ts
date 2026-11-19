@@ -1,29 +1,41 @@
 import { z } from 'zod';
-import type { ComplexityTest, Result, RunMode, RunReport, ShapedValue, TestCase } from '@/domain';
-import type { CompileError } from './types';
+import type { ComplexityTest, Result, ShapedValue, TestCase, TestOutcome } from '@/domain';
 import { err, isShapedValue, ok } from '@/domain';
 
 export const protocolVersion = 1;
 
-export interface RunRequest {
+interface Tagged {
   readonly version: 1;
-  readonly type: 'run';
-  readonly mode: RunMode;
-  readonly exercise: {
-    readonly functionName: string;
-    readonly visibleTests: readonly TestCase[];
-    readonly hiddenTests: readonly TestCase[];
-    readonly complexityTest?: ComplexityTest | undefined;
-    readonly referenceSolution: string;
-  };
-  readonly code: string;
+  readonly nonce: string;
 }
 
-export type RunResponse =
-  | { readonly version: 1; readonly type: 'report'; readonly report: RunReport }
-  | { readonly version: 1; readonly type: 'compile-error'; readonly error: CompileError };
+export type RunRequest =
+  | (Tagged & {
+      readonly type: 'run-tests';
+      readonly functionName: string;
+      readonly code: string;
+      readonly tests: readonly TestCase[];
+    })
+  | (Tagged & {
+      readonly type: 'run-complexity';
+      readonly functionName: string;
+      readonly learnerCode: string;
+      readonly referenceCode: string;
+      readonly test: ComplexityTest;
+    });
 
-const version = z.literal(protocolVersion);
+export type RunResponse =
+  | (Tagged & { readonly type: 'test-started'; readonly testId: string })
+  | (Tagged & { readonly type: 'outcome'; readonly outcome: TestOutcome })
+  | (Tagged & {
+      readonly type: 'reference-timed';
+      readonly ms: number;
+      readonly budgetMs: number;
+    })
+  | (Tagged & { readonly type: 'internal-error'; readonly message: string })
+  | (Tagged & { readonly type: 'done' });
+
+const tagged = { version: z.literal(protocolVersion), nonce: z.string() };
 const shapedValue = z.custom<ShapedValue>(isShapedValue);
 
 const testCase = z.strictObject({
@@ -43,21 +55,25 @@ const complexityTest = z.strictObject({
   complexity: z.string(),
 });
 
-const runRequest: z.ZodType<RunRequest> = z.strictObject({
-  version,
-  type: z.literal('run'),
-  mode: z.enum(['run', 'submit']),
-  exercise: z.strictObject({
+const runRequest: z.ZodType<RunRequest> = z.discriminatedUnion('type', [
+  z.strictObject({
+    ...tagged,
+    type: z.literal('run-tests'),
     functionName: z.string(),
-    visibleTests: z.array(testCase),
-    hiddenTests: z.array(testCase),
-    complexityTest: complexityTest.optional(),
-    referenceSolution: z.string(),
+    code: z.string(),
+    tests: z.array(testCase),
   }),
-  code: z.string(),
-});
+  z.strictObject({
+    ...tagged,
+    type: z.literal('run-complexity'),
+    functionName: z.string(),
+    learnerCode: z.string(),
+    referenceCode: z.string(),
+    test: complexityTest,
+  }),
+]);
 
-const testOutcome = z.discriminatedUnion('kind', [
+const testOutcome: z.ZodType<TestOutcome> = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('passed'), testId: z.string(), durationMs: z.number() }),
   z.strictObject({
     kind: z.literal('failed'),
@@ -66,7 +82,13 @@ const testOutcome = z.discriminatedUnion('kind', [
     expected: shapedValue,
     actual: shapedValue,
   }),
-  z.strictObject({ kind: z.literal('errored'), testId: z.string(), message: z.string() }),
+  z.strictObject({
+    kind: z.literal('errored'),
+    testId: z.string(),
+    message: z.string(),
+    reason: z.literal('stack-overflow').optional(),
+  }),
+  z.strictObject({ kind: z.literal('skipped'), testId: z.string() }),
   z.strictObject({ kind: z.literal('timed-out'), testId: z.string(), limitMs: z.number() }),
   z.strictObject({
     kind: z.literal('too-slow'),
@@ -78,20 +100,16 @@ const testOutcome = z.discriminatedUnion('kind', [
 ]);
 
 const runResponse: z.ZodType<RunResponse> = z.discriminatedUnion('type', [
+  z.strictObject({ ...tagged, type: z.literal('test-started'), testId: z.string() }),
+  z.strictObject({ ...tagged, type: z.literal('outcome'), outcome: testOutcome }),
   z.strictObject({
-    version,
-    type: z.literal('report'),
-    report: z.strictObject({
-      mode: z.enum(['run', 'submit']),
-      outcomes: z.array(testOutcome),
-      passed: z.boolean(),
-    }),
+    ...tagged,
+    type: z.literal('reference-timed'),
+    ms: z.number(),
+    budgetMs: z.number(),
   }),
-  z.strictObject({
-    version,
-    type: z.literal('compile-error'),
-    error: z.strictObject({ message: z.string(), line: z.number(), column: z.number() }),
-  }),
+  z.strictObject({ ...tagged, type: z.literal('internal-error'), message: z.string() }),
+  z.strictObject({ ...tagged, type: z.literal('done') }),
 ]);
 
 function describeIssues(error: z.ZodError): string {

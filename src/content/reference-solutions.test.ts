@@ -1,7 +1,9 @@
 import type { Exercise } from '@/domain';
-import { executeTests, transpile } from '@/runner';
-import { modules } from './registry';
+import { executeTests, measureComplexity, transpile } from '@/runner';
 import { templateContent } from './_template';
+import { modules } from './registry';
+
+const anyNumber = expect.any(Number) as number;
 
 const exercises: readonly (readonly [string, Exercise])[] = [
   ...modules.flatMap((module) =>
@@ -16,21 +18,21 @@ const exercises: readonly (readonly [string, Exercise])[] = [
     : [['template', templateContent.exercise] as const]),
 ];
 
-const anyNumber = expect.any(Number) as number;
+const withComplexity = exercises.filter(([, exercise]) => exercise.complexityTest !== undefined);
 
 describe('reference solutions', () => {
   it('cover at least the template exercise', () => {
     expect(exercises.map(([name]) => name)).toContain('template');
   });
 
-  it.each(exercises)('%s: starter code compiles', (_name, exercise) => {
-    expect(transpile(exercise.starterCode).ok).toBe(true);
+  it.each(exercises)('%s: starter code compiles', async (_name, exercise) => {
+    expect((await transpile(exercise.starterCode)).ok).toBe(true);
   });
 
   it.each(exercises)(
     '%s: the Reference Solution passes every visible and hidden test',
-    (_name, exercise) => {
-      const compiled = transpile(exercise.referenceSolution);
+    async (_name, exercise) => {
+      const compiled = await transpile(exercise.referenceSolution);
       expect(compiled.ok).toBe(true);
       if (!compiled.ok) return;
       const tests = [...exercise.visibleTests, ...exercise.hiddenTests];
@@ -44,4 +46,28 @@ describe('reference solutions', () => {
       );
     },
   );
+
+  it.each(withComplexity)(
+    '%s: the Reference Solution passes its own Complexity Test within budget',
+    async (_name, exercise) => {
+      const compiled = await transpile(exercise.referenceSolution);
+      expect(compiled.ok).toBe(true);
+      if (!compiled.ok || exercise.complexityTest === undefined) return;
+      expect(
+        measureComplexity({
+          learnerCode: compiled.value,
+          referenceCode: compiled.value,
+          functionName: exercise.functionName,
+          test: exercise.complexityTest,
+        }),
+      ).toEqual({
+        ok: true,
+        value: { kind: 'passed', testId: exercise.complexityTest.id, durationMs: anyNumber },
+      });
+    },
+  );
+
+  it('includes at least one Exercise with a Complexity Test', () => {
+    expect(withComplexity.length).toBeGreaterThan(0);
+  });
 });

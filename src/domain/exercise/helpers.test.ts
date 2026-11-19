@@ -36,6 +36,8 @@ const nonPassing: readonly TestOutcome[] = [
     actual: { shape: 'value', value: 2 },
   },
   { kind: 'errored', testId: 'x', message: 'boom' },
+  { kind: 'errored', testId: 'x', message: 'deep', reason: 'stack-overflow' },
+  { kind: 'skipped', testId: 'x' },
   { kind: 'timed-out', testId: 'x', limitMs: 1000 },
   { kind: 'too-slow', testId: 'x', durationMs: 90, budgetMs: 50, complexity: 'O(n)' },
 ];

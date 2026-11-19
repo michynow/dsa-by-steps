@@ -5,6 +5,5 @@ export { parseRunRequest, parseRunResponse } from './protocol';
 export type { RunRequest, RunResponse } from './protocol';
 export { transpile } from './transpile';
 export type { CompileError, RunResult, WorkerLike } from './types';
-export { handleRunRequest } from './handle-run-request';
 export { createWorkerExerciseRunner } from './worker-runner';
 export type { ExerciseRunner, WorkerRunnerOptions } from './worker-runner';

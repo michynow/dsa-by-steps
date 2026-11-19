@@ -1,53 +1,61 @@
-import type { Exercise, Result, TestOutcome } from '@/domain';
-import { complexityFor, err, ok, reportPassed, testsFor } from '@/domain';
+import type { Result } from '@/domain';
+import { assertNever, ok } from '@/domain';
 import { measureComplexity } from './complexity';
-import { executeTests } from './execute';
+import { executeTestsStreaming } from './execute';
 import type { RunRequest, RunResponse } from './protocol';
 import { parseRunRequest, protocolVersion } from './protocol';
-import { transpile } from './transpile';
 
-function toExercise(request: RunRequest): Exercise {
-  const { complexityTest, ...rest } = request.exercise;
-  return {
-    ...rest,
-    ...(complexityTest === undefined ? {} : { complexityTest }),
-    starterCode: '',
-    hintCount: 0,
-  };
+type Post = (response: RunResponse) => void;
+
+function tagOf(request: RunRequest) {
+  return { version: protocolVersion, nonce: request.nonce } as const;
 }
 
-function outcomesFor(request: RunRequest, learnerCode: string, referenceCode: string) {
-  const exercise = toExercise(request);
-  const { functionName } = exercise;
-  const tests = executeTests({
-    code: learnerCode,
-    functionName,
-    tests: testsFor(exercise, request.mode),
+function runTests(request: Extract<RunRequest, { type: 'run-tests' }>, post: Post): void {
+  const tag = tagOf(request);
+  executeTestsStreaming(request, {
+    started: (testId) => {
+      post({ ...tag, type: 'test-started', testId });
+    },
+    outcome: (outcome) => {
+      post({ ...tag, type: 'outcome', outcome });
+    },
   });
-  const complexityTest = complexityFor(exercise, request.mode);
-  if (complexityTest === undefined) return tests;
-  const complexity = measureComplexity({
-    learnerCode,
-    referenceCode,
-    functionName,
-    test: complexityTest,
-  });
-  return [...tests, complexity];
+  post({ ...tag, type: 'done' });
 }
 
-function respond(request: RunRequest): Result<RunResponse, string> {
-  const learner = transpile(request.code);
-  if (!learner.ok) {
-    return ok({ version: protocolVersion, type: 'compile-error', error: learner.error });
+function runComplexity(request: Extract<RunRequest, { type: 'run-complexity' }>, post: Post): void {
+  const tag = tagOf(request);
+  const result = measureComplexity({
+    ...request,
+    onReferenceTimed: (timing) => {
+      post({ ...tag, type: 'reference-timed', ms: timing.ms, budgetMs: timing.budgetMs });
+    },
+  });
+  if (result.ok) {
+    post({ ...tag, type: 'outcome', outcome: result.value });
+    post({ ...tag, type: 'done' });
+  } else {
+    post({ ...tag, type: 'internal-error', message: result.error });
   }
-  const reference = transpile(request.exercise.referenceSolution);
-  if (!reference.ok) return err(`Reference Solution does not compile: ${reference.error.message}`);
-  const outcomes: readonly TestOutcome[] = outcomesFor(request, learner.value, reference.value);
-  const report = { mode: request.mode, outcomes, passed: reportPassed(outcomes) };
-  return ok({ version: protocolVersion, type: 'report', report });
 }
 
-export function handleRunRequest(data: unknown): Result<RunResponse, string> {
+function dispatch(request: RunRequest, post: Post): void {
+  switch (request.type) {
+    case 'run-tests':
+      runTests(request, post);
+      return;
+    case 'run-complexity':
+      runComplexity(request, post);
+      return;
+    default:
+      assertNever(request);
+  }
+}
+
+export function handleRunRequest(data: unknown, post: Post): Result<void, string> {
   const request = parseRunRequest(data);
-  return request.ok ? respond(request.value) : request;
+  if (!request.ok) return request;
+  dispatch(request.value, post);
+  return ok(undefined);
 }

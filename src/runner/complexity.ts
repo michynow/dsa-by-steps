@@ -1,14 +1,24 @@
-import type { ComplexityTest, InputGenerator, ShapedValue, TestOutcome } from '@/domain';
-import { timeBudget } from '@/domain';
-import type { Callable } from './execute';
-import { callTimed, loadFunction } from './execute';
-import { ListNode, shapedEqual, toArgument, toShaped } from './values';
+import type { ComplexityTest, InputGenerator, Result, ShapedValue, TestOutcome } from '@/domain';
+import { err, ok, timeBudgetFloorMs } from '@/domain';
+import { callTimed, erroredOutcome, loadFunction } from './execute';
+import { intrinsics } from './intrinsics';
+import { ListNode, shapedEqual, toArgument } from './values';
+
+export interface ReferenceTiming {
+  readonly ms: number;
+  readonly budgetMs: number;
+}
 
 export interface ComplexityInput {
   readonly learnerCode: string;
   readonly referenceCode: string;
   readonly functionName: string;
   readonly test: ComplexityTest;
+  readonly onReferenceTimed?: (timing: ReferenceTiming) => void;
+}
+
+export function budgetOf(referenceMs: number, multiple: number): number {
+  return intrinsics.max(referenceMs * multiple, timeBudgetFloorMs);
 }
 
 function generateInput(generator: InputGenerator): ShapedValue {
@@ -16,46 +26,46 @@ function generateInput(generator: InputGenerator): ShapedValue {
   return { shape: generator.kind === 'range' ? 'value' : 'linked-list', value };
 }
 
-function errored(test: ComplexityTest, message: string): TestOutcome {
-  return { kind: 'errored', testId: test.id, message };
-}
-
 function shapeOfResult(result: unknown): ShapedValue['shape'] {
   return result instanceof ListNode ? 'linked-list' : 'value';
 }
 
-function load(code: string, input: ComplexityInput): Callable | string {
-  const loaded = loadFunction(code, input.functionName);
-  return loaded.ok ? loaded.value : loaded.error;
+export function measureComplexity(input: ComplexityInput): Result<TestOutcome, string> {
+  const { test } = input;
+  const reference = loadFunction(input.referenceCode, input.functionName);
+  if (!reference.ok) return err(`Reference: ${reference.error.message}`);
+  const shaped = generateInput(test.generator);
+  const expected = callTimed(reference.value, [toArgument(shaped)], shapeOfResult);
+  if (!expected.ok) return err(`Reference: ${expected.error.message}`);
+  if (!expected.value.shaped.ok) return err(`Reference: ${expected.value.shaped.error}`);
+  const budgetMs = budgetOf(expected.value.durationMs, test.budgetMultiple);
+  input.onReferenceTimed?.({ ms: expected.value.durationMs, budgetMs });
+  return ok(judgeLearner(input, shaped, expected.value.shaped.value, budgetMs));
 }
 
-export function measureComplexity(input: ComplexityInput): TestOutcome {
+function judgeLearner(
+  input: ComplexityInput,
+  shaped: ShapedValue,
+  expected: ShapedValue,
+  budgetMs: number,
+): TestOutcome {
   const { test } = input;
-  const reference = load(input.referenceCode, input);
-  const learner = load(input.learnerCode, input);
-  if (typeof reference === 'string') return errored(test, `Reference: ${reference}`);
-  if (typeof learner === 'string') return errored(test, learner);
-  const shaped = generateInput(test.generator);
-  const expectedCall = callTimed(reference, [toArgument(shaped)]);
-  if (!expectedCall.ok) return errored(test, `Reference: ${expectedCall.error}`);
-  const budgetMs = timeBudget(expectedCall.value.durationMs, test.budgetMultiple);
-  const actualCall = callTimed(learner, [toArgument(shaped)]);
-  if (!actualCall.ok) return errored(test, actualCall.error);
-  const resultShape = shapeOfResult(expectedCall.value.result);
-  const expected = toShaped(expectedCall.value.result, resultShape);
-  const actual = toShaped(actualCall.value.result, resultShape);
-  if (!expected.ok) return errored(test, `Reference: ${expected.error}`);
-  if (!actual.ok) return errored(test, actual.error);
-  if (!shapedEqual(expected.value, actual.value)) {
+  const learner = loadFunction(input.learnerCode, input.functionName);
+  if (!learner.ok) return erroredOutcome(test.id, learner.error);
+  const actual = callTimed(learner.value, [toArgument(shaped)], () => expected.shape);
+  if (!actual.ok) return erroredOutcome(test.id, actual.error);
+  if (!actual.value.shaped.ok)
+    return erroredOutcome(test.id, { message: actual.value.shaped.error });
+  if (!shapedEqual(expected, actual.value.shaped.value)) {
     return {
       kind: 'failed',
       testId: test.id,
       args: [shaped],
-      expected: expected.value,
-      actual: actual.value,
+      expected,
+      actual: actual.value.shaped.value,
     };
   }
-  const { durationMs } = actualCall.value;
+  const { durationMs } = actual.value;
   return durationMs > budgetMs
     ? { kind: 'too-slow', testId: test.id, durationMs, budgetMs, complexity: test.complexity }
     : { kind: 'passed', testId: test.id, durationMs };

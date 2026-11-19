@@ -53,7 +53,7 @@ describe('preludeFor', () => {
     ).toContain('class ListNode');
   });
 
-  it('is valid TypeScript that transpiles', () => {
-    expect(transpile(preludeFor({ ...base, visibleTests: [listTest([1])] })).ok).toBe(true);
+  it('is valid TypeScript that transpiles', async () => {
+    expect((await transpile(preludeFor({ ...base, visibleTests: [listTest([1])] }))).ok).toBe(true);
   });
 });

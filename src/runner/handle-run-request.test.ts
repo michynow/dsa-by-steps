@@ -1,11 +1,17 @@
-import type { ComplexityTest, Exercise, TestCase } from '@/domain';
+import type { ComplexityTest, TestCase } from '@/domain';
 import { handleRunRequest } from './handle-run-request';
+import type { RunResponse } from './protocol';
+
+const anyNumber = expect.any(Number) as number;
+const tagged = { version: 1, nonce: 'nonce-1' };
 
 const sum = (id: string, xs: readonly number[], total: number): TestCase => ({
   id,
   args: [{ shape: 'value', value: xs }],
   expected: { shape: 'value', value: total },
 });
+
+const correct = 'function sum(xs) { return xs.reduce((a, b) => a + b, 0); }';
 
 const complexityTest: ComplexityTest = {
   id: 'big',
@@ -15,69 +21,86 @@ const complexityTest: ComplexityTest = {
   complexity: 'O(n)',
 };
 
-const exercise: Exercise = {
-  functionName: 'sum',
-  starterCode: '',
-  referenceSolution: 'function sum(xs: number[]): number { return xs.reduce((a, b) => a + b, 0); }',
-  visibleTests: [sum('visible', [1, 2], 3)],
-  hiddenTests: [sum('hidden', [4, 5], 9)],
-  complexityTest,
-  hintCount: 0,
-};
-
-const message = (mode: 'run' | 'submit', code: string) => ({
-  version: 1,
-  type: 'run',
-  mode,
-  exercise: {
-    functionName: exercise.functionName,
-    visibleTests: exercise.visibleTests,
-    hiddenTests: exercise.hiddenTests,
-    complexityTest,
-    referenceSolution: exercise.referenceSolution,
-  },
-  code,
-});
-
-const correct = 'function sum(xs: number[]): number { return xs.reduce((a, b) => a + b, 0); }';
-
-const anyNumber = expect.any(Number) as number;
+function collect(request: unknown) {
+  const posted: RunResponse[] = [];
+  const result = handleRunRequest(request, (response) => posted.push(response));
+  return { result, posted };
+}
 
 describe('handleRunRequest', () => {
-  it('run mode executes only visible tests', () => {
-    const result = handleRunRequest(message('run', correct));
-    expect(result.ok && result.value.type === 'report' && result.value.report).toEqual({
-      mode: 'run',
-      passed: true,
-      outcomes: [{ kind: 'passed', testId: 'visible', durationMs: anyNumber }],
+  it('streams test-started and outcome per test, then done, all tagged with the nonce', () => {
+    const { result, posted } = collect({
+      ...tagged,
+      type: 'run-tests',
+      functionName: 'sum',
+      code: correct,
+      tests: [sum('one', [1, 2], 3), sum('two', [1, 2], 4)],
+    });
+    expect({ result, posted }).toEqual({
+      result: { ok: true, value: undefined },
+      posted: [
+        { ...tagged, type: 'test-started', testId: 'one' },
+        {
+          ...tagged,
+          type: 'outcome',
+          outcome: { kind: 'passed', testId: 'one', durationMs: anyNumber },
+        },
+        { ...tagged, type: 'test-started', testId: 'two' },
+        {
+          ...tagged,
+          type: 'outcome',
+          outcome: {
+            kind: 'failed',
+            testId: 'two',
+            args: [{ shape: 'value', value: [1, 2] }],
+            expected: { shape: 'value', value: 4 },
+            actual: { shape: 'value', value: 3 },
+          },
+        },
+        { ...tagged, type: 'done' },
+      ],
     });
   });
 
-  it('submit mode executes visible, hidden and the complexity test', () => {
-    const result = handleRunRequest(message('submit', correct));
-    const ids =
-      result.ok &&
-      result.value.type === 'report' &&
-      result.value.report.outcomes.map((o) => o.testId);
-    expect(ids).toEqual(['visible', 'hidden', 'big']);
-  });
-
-  it('reports a compile error without running tests', () => {
-    expect(handleRunRequest(message('run', 'const = 1;'))).toEqual({
-      ok: true,
-      value: {
-        version: 1,
-        type: 'compile-error',
-        error: { message: 'Variable declaration expected.', line: 1, column: 7 },
+  it('posts reference-timed before the complexity outcome, then done', () => {
+    const { posted } = collect({
+      ...tagged,
+      type: 'run-complexity',
+      functionName: 'sum',
+      learnerCode: correct,
+      referenceCode: correct,
+      test: complexityTest,
+    });
+    expect(posted).toEqual([
+      { ...tagged, type: 'reference-timed', ms: anyNumber, budgetMs: 50 },
+      {
+        ...tagged,
+        type: 'outcome',
+        outcome: { kind: 'passed', testId: 'big', durationMs: anyNumber },
       },
-    });
+      { ...tagged, type: 'done' },
+    ]);
   });
 
-  it('rejects a malformed message', () => {
-    expect(handleRunRequest({ version: 2 })).toEqual({
-      ok: false,
-      error:
-        'version: Invalid input: expected 1; type: Invalid input: expected "run"; mode: Invalid option: expected one of "run"|"submit"; exercise: Invalid input: expected object, received undefined; code: Invalid input: expected string, received undefined',
+  it('posts internal-error when the Reference throws', () => {
+    const { posted } = collect({
+      ...tagged,
+      type: 'run-complexity',
+      functionName: 'sum',
+      learnerCode: correct,
+      referenceCode: 'function sum() { throw new Error("broken"); }',
+      test: complexityTest,
+    });
+    expect(posted).toEqual([{ ...tagged, type: 'internal-error', message: 'Reference: broken' }]);
+  });
+
+  it('rejects a malformed request without posting', () => {
+    expect(collect({ version: 2 })).toEqual({
+      result: {
+        ok: false,
+        error: "type: Invalid discriminator value. Expected 'run-tests' | 'run-complexity'",
+      },
+      posted: [],
     });
   });
 });

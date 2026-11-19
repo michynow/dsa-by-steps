@@ -1,97 +1,101 @@
-import type { RunReport } from '@/domain';
+import type { TestOutcome } from '@/domain';
 import { parseRunRequest, parseRunResponse } from './protocol';
 
-const request = {
-  version: 1,
-  type: 'run',
-  mode: 'run',
-  exercise: {
-    functionName: 'f',
-    visibleTests: [
-      {
-        id: 'a',
-        args: [{ shape: 'value', value: 1 }],
-        expected: { shape: 'linked-list', value: [1] },
-      },
-    ],
-    hiddenTests: [],
-    referenceSolution: 'function f() {}',
-  },
-  code: 'function f() {}',
-};
+const tagged = { version: 1, nonce: 'n1' };
 
-const report: RunReport = {
-  mode: 'run',
-  passed: false,
-  outcomes: [
-    { kind: 'passed', testId: 'a', durationMs: 1 },
-    { kind: 'errored', testId: 'b', message: 'm' },
-    { kind: 'timed-out', testId: 'c', limitMs: 5 },
-    { kind: 'too-slow', testId: 'd', durationMs: 9, budgetMs: 5, complexity: 'O(n)' },
+const testRequest = {
+  ...tagged,
+  type: 'run-tests',
+  functionName: 'f',
+  code: 'function f() {}',
+  tests: [
     {
-      kind: 'failed',
-      testId: 'e',
-      args: [{ shape: 'value', value: [1] }],
-      expected: { shape: 'value', value: 1 },
-      actual: { shape: 'linked-list', value: null },
+      id: 'a',
+      args: [{ shape: 'value', value: 1 }],
+      expected: { shape: 'linked-list', value: [1] },
     },
   ],
 };
 
-describe('parseRunRequest', () => {
-  it('accepts a well-formed request', () => {
-    expect(parseRunRequest(request)).toEqual({ ok: true, value: request });
-  });
+const complexityRequest = {
+  ...tagged,
+  type: 'run-complexity',
+  functionName: 'f',
+  learnerCode: 'function f() {}',
+  referenceCode: 'function f() {}',
+  test: {
+    id: 'c',
+    generator: { kind: 'range', size: 3 },
+    expected: 'reference',
+    budgetMultiple: 5,
+    complexity: 'O(n)',
+  },
+};
 
-  it('accepts an optional complexity test', () => {
-    const complexityTest = {
-      id: 'c',
-      generator: { kind: 'range', size: 3 },
-      expected: 'reference',
-      budgetMultiple: 5,
-      complexity: 'O(n)',
-    };
-    const withComplexity = { ...request, exercise: { ...request.exercise, complexityTest } };
-    expect(parseRunRequest(withComplexity)).toEqual({ ok: true, value: withComplexity });
+const outcomes: readonly TestOutcome[] = [
+  { kind: 'passed', testId: 'a', durationMs: 1 },
+  { kind: 'errored', testId: 'b', message: 'm' },
+  { kind: 'errored', testId: 'b', message: 'm', reason: 'stack-overflow' },
+  { kind: 'skipped', testId: 'b' },
+  { kind: 'timed-out', testId: 'c', limitMs: 5 },
+  { kind: 'too-slow', testId: 'd', durationMs: 9, budgetMs: 5, complexity: 'O(n)' },
+  {
+    kind: 'failed',
+    testId: 'e',
+    args: [{ shape: 'value', value: [1] }],
+    expected: { shape: 'value', value: 1 },
+    actual: { shape: 'linked-list', value: null },
+  },
+];
+
+describe('parseRunRequest', () => {
+  it.each([
+    ['run-tests', testRequest],
+    ['run-complexity', complexityRequest],
+  ])('accepts a well-formed %s request', (_name, request) => {
+    expect(parseRunRequest(request)).toEqual({ ok: true, value: request });
   });
 
   it.each([
     ['not an object', 'nope', ': Invalid input: expected object, received string'],
     ['null', null, ': Invalid input: expected object, received null'],
-    ['version mismatch', { ...request, version: 2 }, 'version: Invalid input: expected 1'],
-    ['missing version', { ...request, version: undefined }, 'version: Invalid input: expected 1'],
-    ['unknown type', { ...request, type: 'stop' }, 'type: Invalid input: expected "run"'],
     [
-      'unknown mode',
-      { ...request, mode: 'peek' },
-      'mode: Invalid option: expected one of "run"|"submit"',
+      'unknown type',
+      { ...testRequest, type: 'stop' },
+      "type: Invalid discriminator value. Expected 'run-tests' | 'run-complexity'",
+    ],
+    ['version mismatch', { ...testRequest, version: 2 }, 'version: Invalid input: expected 1'],
+    [
+      'missing nonce',
+      { ...testRequest, nonce: undefined },
+      'nonce: Invalid input: expected string, received undefined',
     ],
     [
       'code not a string',
-      { ...request, code: 5 },
+      { ...testRequest, code: 5 },
       'code: Invalid input: expected string, received number',
     ],
     [
       'bad shaped value',
       {
-        ...request,
-        exercise: {
-          ...request.exercise,
-          visibleTests: [
-            {
-              id: 'a',
-              args: [{ shape: 'linked-list', value: 5 }],
-              expected: { shape: 'value', value: 1 },
-            },
-          ],
-        },
+        ...testRequest,
+        tests: [
+          {
+            id: 'a',
+            args: [{ shape: 'linked-list', value: 5 }],
+            expected: { shape: 'value', value: 1 },
+          },
+        ],
       },
-      'exercise.visibleTests.0.args.0: Invalid input',
+      'tests.0.args.0: Invalid input',
     ],
     [
-      'missing function name',
-      { ...request, exercise: { ...request.exercise, functionName: undefined } },
-      'exercise.functionName: Invalid input: expected string, received undefined',
+      'complexity test with unknown generator',
+      {
+        ...complexityRequest,
+        test: { ...complexityRequest.test, generator: { kind: 'spiral', size: 3 } },
+      },
+      'test.generator.kind: Invalid option: expected one of "range"|"linked-list-range"',
     ],
   ])('rejects %s', (_name, data, message) => {
     expect(parseRunRequest(data)).toEqual({ ok: false, error: message });
@@ -99,54 +103,57 @@ describe('parseRunRequest', () => {
 });
 
 describe('parseRunResponse', () => {
-  it('accepts a report with every outcome kind', () => {
-    const response = { version: 1, type: 'report', report };
-    expect(parseRunResponse(response)).toEqual({ ok: true, value: response });
-  });
+  const accepted: readonly (readonly [string, unknown])[] = [
+    ['test-started', { ...tagged, type: 'test-started', testId: 'a' }],
+    ['reference-timed', { ...tagged, type: 'reference-timed', ms: 1.5, budgetMs: 50 }],
+    ['internal-error', { ...tagged, type: 'internal-error', message: 'm' }],
+    ['done', { ...tagged, type: 'done' }],
+    ...outcomes.map((outcome): readonly [string, unknown] => [
+      `outcome ${outcome.kind}`,
+      { ...tagged, type: 'outcome', outcome },
+    ]),
+  ];
 
-  it('accepts a compile error', () => {
-    const response = {
-      version: 1,
-      type: 'compile-error',
-      error: { message: 'm', line: 1, column: 2 },
-    };
+  it.each(accepted)('accepts %s', (_name, response) => {
     expect(parseRunResponse(response)).toEqual({ ok: true, value: response });
   });
 
   it.each([
     [
       'version mismatch',
-      { version: 2, type: 'report', report },
+      { version: 2, nonce: 'n1', type: 'done' },
       'version: Invalid input: expected 1',
     ],
     [
+      'missing nonce',
+      { version: 1, type: 'done' },
+      'nonce: Invalid input: expected string, received undefined',
+    ],
+    [
       'unknown type',
-      { version: 1, type: 'log' },
-      "type: Invalid discriminator value. Expected 'report' | 'compile-error'",
+      { ...tagged, type: 'report' },
+      "type: Invalid discriminator value. Expected 'test-started' | 'outcome' | 'reference-timed' | 'internal-error' | 'done'",
     ],
     [
       'unknown outcome kind',
-      {
-        version: 1,
-        type: 'report',
-        report: { ...report, outcomes: [{ kind: 'skipped', testId: 'x' }] },
-      },
-      "report.outcomes.0.kind: Invalid discriminator value. Expected 'passed' | 'failed' | 'errored' | 'timed-out' | 'too-slow'",
+      { ...tagged, type: 'outcome', outcome: { kind: 'unknown', testId: 'x' } },
+      "outcome.kind: Invalid discriminator value. Expected 'passed' | 'failed' | 'errored' | 'skipped' | 'timed-out' | 'too-slow'",
     ],
     [
       'outcome missing duration',
-      {
-        version: 1,
-        type: 'report',
-        report: { ...report, outcomes: [{ kind: 'passed', testId: 'x' }] },
-      },
-      'report.outcomes.0.durationMs: Invalid input: expected number, received undefined',
+      { ...tagged, type: 'outcome', outcome: { kind: 'passed', testId: 'x' } },
+      'outcome.durationMs: Invalid input: expected number, received undefined',
     ],
     [
-      'compile error without line',
-      { version: 1, type: 'compile-error', error: { message: 'm', column: 2 } },
-      'error.line: Invalid input: expected number, received undefined',
+      'unknown reason',
+      {
+        ...tagged,
+        type: 'outcome',
+        outcome: { kind: 'errored', testId: 'x', message: 'm', reason: 'oops' },
+      },
+      'outcome.reason: Invalid input: expected "stack-overflow"',
     ],
+    ['extra field', { ...tagged, type: 'done', extra: 1 }, ': Unrecognized key: "extra"'],
     ['not an object', 7, ': Invalid input: expected object, received number'],
   ])('rejects %s', (_name, data, message) => {
     expect(parseRunResponse(data)).toEqual({ ok: false, error: message });
