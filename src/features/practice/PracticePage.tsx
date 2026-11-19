@@ -1,10 +1,9 @@
 import type { ReactElement } from 'react';
-import { Link } from 'react-router';
 import type { ModuleContent } from '@/content';
 import { useLocale, useMessages } from '@/features/locale';
 import styles from './PracticePage.module.css';
 import { practiceMessages } from './messages';
-import { practicePath } from './practice-paths';
+import { PracticeCard } from './PracticeCard';
 
 export function PracticePage({
   modules,
@@ -27,12 +26,9 @@ export function PracticePage({
           <h2 id={`practice-module-${module.slug}`}>{module.titles[locale]}</h2>
           {module.lessons.length === 0 ? null : (
             <ul className={styles.cards}>
-              {module.lessons.map(({ lesson, messages: lessonMessages }) => (
-                <li key={lesson.slug}>
-                  <Link to={practicePath(locale, module.slug, lesson.slug)} className={styles.card}>
-                    <span className={styles.name}>{lessonMessages[locale].title}</span>{' '}
-                    <span className={styles.status}>{messages.exercise.status}</span>
-                  </Link>
+              {module.lessons.map((content) => (
+                <li key={content.lesson.slug}>
+                  <PracticeCard content={content} />
                 </li>
               ))}
             </ul>
