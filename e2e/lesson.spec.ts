@@ -56,6 +56,8 @@ test('steps through the Linked lists Lesson, remembers seen Steps and keeps the 
     await expect(page).toHaveURL(new RegExp(`/${String(step)}$`));
   }
   await page.keyboard.press('ArrowRight');
+  await expect(page).toHaveURL(/\/en\/foundations\/(?!linked-lists\/)[a-z0-9-]+\/1$/);
+  await page.goBack();
   await expect(page).toHaveURL(new RegExp(`/${String(stepCount)}$`));
   await page.keyboard.press('ArrowLeft');
   await expect(page).toHaveURL(new RegExp(`/${String(stepCount - 1)}$`));
