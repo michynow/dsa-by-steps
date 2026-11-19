@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import lesson from '../src/content/foundations/linked-lists/en.json' with { type: 'json' };
 
-const beat = 450;
+const beat = 1000;
 const linkingSongsPath = '/en/foundations/linked-lists/3';
 const introToEcho = JSON.stringify(['queue', 'intro', 'echo']);
 const seededProgress = JSON.stringify({
