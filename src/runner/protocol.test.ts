@@ -95,7 +95,7 @@ describe('parseRunRequest', () => {
         ...complexityRequest,
         test: { ...complexityRequest.test, generator: { kind: 'spiral', size: 3 } },
       },
-      'test.generator.kind: Invalid option: expected one of "range"|"linked-list-range"',
+      `test.generator.kind: Invalid discriminator value. Expected 'range' | 'linked-list-range' | 'repeat-string' | 'string-range'`,
     ],
   ])('rejects %s', (_name, data, message) => {
     expect(parseRunRequest(data)).toEqual({ ok: false, error: message });
