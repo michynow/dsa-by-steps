@@ -64,7 +64,7 @@ export const stacksAndQueuesLesson: Lesson = {
           structure: {
             kind: 'stack',
             id: 'undo',
-            items: [cell('type', 'Type'), cell('bold', 'Bold'), cell('paste', 'Paste')],
+            items: [],
           },
         },
       ],
@@ -73,8 +73,6 @@ export const stacksAndQueuesLesson: Lesson = {
       id: 'push-edits',
       kind: 'explain',
       events: [
-        { type: 'remove', structureId: 'undo' },
-        { type: 'create', structure: { kind: 'stack', id: 'undo', items: [] } },
         { type: 'push', structureId: 'undo', cell: cell('type', 'Type') },
         { type: 'push', structureId: 'undo', cell: cell('bold', 'Bold') },
         { type: 'push', structureId: 'undo', cell: cell('paste', 'Paste') },

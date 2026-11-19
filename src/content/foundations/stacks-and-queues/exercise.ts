@@ -34,7 +34,9 @@ export const isBalancedExercise: Exercise = {
   hiddenTests: [
     lineOf('empty-line', '', true),
     lineOf('no-brackets', 'let total = 1 + 2;', true),
+    lineOf('single-opener', '(', false),
     lineOf('single-closer', ')', false),
+    lineOf('single-mismatched-closer', ']', false),
     lineOf('closer-before-opener', ')(', false),
     lineOf('repeated-pairs', '(()())[][]{{}}', true),
     lineOf('unclosed-opener', 'run({ list: [1, 2] )', false),

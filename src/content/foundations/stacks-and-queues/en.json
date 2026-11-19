@@ -22,7 +22,7 @@
       "body": "The operating system keeps your keystrokes in a queue, so an app that is busy for a moment still reads them in the order you typed them."
     }
   ],
-  "whenNot": "A stack or a queue only gives you its ends: the top of a stack, or the front and the back of a queue. If you need to read or change the fifth edit in the middle, an array or a linked list fits better. If the next item to serve is neither the newest nor the oldest, such as the most urgent print job, you need a priority queue, which comes later in the Course.",
+  "whenNot": "A stack or a queue only gives you its ends: the top of a stack, or the front and the back of a queue. If you need to read or change the fifth edit in the middle, an array fits better, because only an array reads by position in O(1), while a linked list has to walk to it. If the next item to serve is neither the newest nor the oldest, such as the most urgent print job, you need a priority queue, which comes later in the Course.",
   "outcomes": {
     "push-and-pop-at-the-top": "Push and pop items at the top of a stack",
     "constant-time-operations": "State the cost of push and pop",
@@ -37,26 +37,26 @@
     },
     "the-problem": {
       "title": "Undo has to find the right edit",
-      "caption": "A writer types a line, bolds a word and pastes a paragraph, and your editor keeps these edits in the order they happened. Every Ctrl+Z has to take back the right edit, even when the history holds thousands of them. The editor must find that edit at once, without searching. The printer in the same office will need a different rule, which you meet later.",
+      "caption": "You build undo for an editor, where a writer types a line, bolds a word and pastes a paragraph. The editor keeps these edits in the order they happened. Every Ctrl+Z has to take back the right edit, even when the history holds thousands of them, and you must find it at once without searching. The printer in the same office will need a different rule, which you meet later.",
       "keyIdea": "Some jobs need the newest item first, and others need the oldest first."
     },
     "push-edits": {
       "title": "Each edit goes on top",
-      "caption": "You start with an empty undo stack, where the editor touches only one end, called the top. The writer types, then bolds a word, then pastes. Each edit goes onto the stack with [[push]], which places it on top of the items already there. Type goes in first, then Bold, then Paste.",
+      "caption": "You start with an empty undo stack, where you touch only one end, called the top. You type a line, bold a word, then paste. Each edit goes onto the stack with [[push]], which places it on top of the items already there. Type goes in first, then Bold, then Paste.",
       "keyIdea": "A stack gives back its newest item first: last in, first out."
     },
     "undo-pops": {
       "title": "Undo takes the top",
-      "caption": "The writer presses Ctrl+Z. The editor removes the top edit from the stack with [[pop]] and takes that edit back. Pop touches only the top, so the other edits stay exactly where they were."
+      "caption": "You press Ctrl+Z. The editor removes the top edit from the stack with [[pop]] and takes that edit back. Pop touches only the top, so the other edits stay exactly where they were."
     },
     "new-edit-after-undo": {
       "title": "A new edit goes on top again",
-      "caption": "The writer deletes a line, and the editor pushes Delete onto the stack. The next Ctrl+Z pops Delete, because the newest edit is always the one on top. Type and Bold wait underneath."
+      "caption": "You delete a line, and the editor pushes Delete onto the stack. The next Ctrl+Z pops Delete, because the newest edit is always the one on top. Type and Bold wait underneath."
     },
     "constant-time": {
       "title": "Push and pop never search",
-      "caption": "The writer applies Italic, and the editor pushes it on top. Push and pop touch only the top, so they take the same work with 2 edits or 100,000. Nothing shifts and nothing is searched, so each costs O(1).",
-      "keyIdea": "Push and pop touch only the top, so each costs O(1)."
+      "caption": "You apply Italic, and the editor pushes it on top. Push and pop touch only the top, so they take the same work with 2 edits or 100,000. Nothing is searched, so pop costs O(1), and push costs O(1) amortised for an array-backed stack, because the array occasionally has to grow.",
+      "keyIdea": "Pop costs O(1), and push costs O(1) amortised for an array-backed stack."
     },
     "a-queue": {
       "title": "The printer follows the opposite rule",
@@ -65,15 +65,15 @@
     },
     "enqueue-jobs": {
       "title": "Jobs join at the back",
-      "caption": "Three people print one after another: first Report, then Invoice, then Ticket. [[enqueue]] adds a job at the back of the queue. The queue keeps the jobs in arrival order, with Report at the front."
+      "caption": "You send three jobs one after another: first Report, then Invoice, then Ticket. [[enqueue]] adds a job at the back of the queue. The queue keeps the jobs in arrival order."
     },
     "dequeue-print": {
       "title": "The printer takes the front job",
-      "caption": "The printer is free and takes its next job with [[dequeue]], which removes the item at the front. Report leaves the queue, and Invoice becomes the front job. Ticket, the newest job, still waits at the back."
+      "caption": "The printer is free and takes its next job with [[dequeue]], which removes the item at the front. Report leaves the queue and the printer starts on it. The jobs behind it keep waiting."
     },
     "late-job": {
       "title": "A late job waits its turn",
-      "caption": "Poster arrives and joins the back, behind Invoice and Ticket. The printer then takes two jobs: Invoice first, then Ticket. Only Poster is left, because every job ahead of it has gone."
+      "caption": "You add a late job, Poster, at the back of the queue. The printer then takes two jobs, one after the other. Only Poster is left, because every job ahead of it has gone."
     },
     "stack-vs-queue": {
       "title": "Same items, different order out",
@@ -82,7 +82,7 @@
     },
     "bracket-preview": {
       "title": "Next up: check the brackets",
-      "caption": "In Practice you check that every (, [ and { in a line of code is closed in the right order. A stack suits that job, because the bracket opened last has to be closed first. In the line shown, ( and [ are still open, so [ has to close before ( can."
+      "caption": "In Practice you check that every (, [ and { in a line of code is closed in the right order. A stack suits that job, because the bracket opened last has to be closed first. The open brackets shown are ( and [, so [ has to close before ( can."
     },
     "where-you-meet-it": {
       "title": "Where you will meet them",
@@ -91,11 +91,11 @@
   },
   "checks": {
     "which-edit-is-undone": {
-      "prompt": "The undo stack holds Type, Bold and Paste, pushed in that order. The writer presses Ctrl+Z. Select the edit that is undone.",
+      "prompt": "The undo stack holds Type, Bold and Paste, pushed in that order. You press Ctrl+Z. Select the edit that is undone.",
       "explanation": "Paste is undone, because it sits on top and a stack gives back only its top. Bold lies directly below Paste, so it can come up only after Paste is gone. Type is at the bottom, so it is undone last."
     },
     "undo-after-a-new-edit": {
-      "prompt": "The writer undid Paste, so the stack holds Type and Bold. Now the writer deletes a line, which is a new edit, and presses Ctrl+Z. Which edit is undone?",
+      "prompt": "You undid Paste, so the stack holds Type and Bold. Now you delete a line, which is a new edit, and press Ctrl+Z. Which edit is undone?",
       "options": {
         "delete-on-top": "Delete, because the newest edit sits on top",
         "paste-comes-back": "Paste, because the editor returns to the edit it undid last",
@@ -105,14 +105,14 @@
       "explanation": "Delete is undone, because push puts every new edit on top and pop takes the top. Paste is gone from the stack once it is undone, so nothing brings it back first. A new edit never joins at the bottom: that is how a queue grows, not a stack. A stack never reaches for its oldest item first, because Type lies at the bottom."
     },
     "cost-of-push-on-a-long-history": {
-      "prompt": "The undo history grows from 2 edits to 100,000. Roughly how much work does one push need?",
+      "prompt": "The undo history grows from 2 edits to 100,000. Roughly how much work does one push or one pop need?",
       "options": {
-        "same-small-work": "The same small amount as before, because push touches only the top: O(1)",
-        "shift-all": "More work with every edit, because push shifts all the edits to make room: O(n)",
-        "walk-to-spot": "More work with every edit, because push first walks down to find its place: O(n)",
-        "halving": "About log n steps, because push finds its place by halving the history"
+        "same-small-work": "The same small amount as before, because both touch only the top: pop is O(1) and push is O(1) amortised for an array-backed stack",
+        "shift-all": "More work with every edit, because a push or a pop shifts all the edits: O(n)",
+        "walk-to-spot": "More work with every edit, because a push or a pop first walks down to find its place: O(n)",
+        "halving": "About log n steps, because a push or a pop finds its place by halving the history"
       },
-      "explanation": "One push costs O(1), because it touches only the top and the other edits do not matter. Nothing shifts, because the new edit goes on top of the pile instead of into a numbered position. Nothing is searched either, because the place is always the top. Halving applies to searching a sorted array, and a stack never searches."
+      "explanation": "Pop costs O(1) and push costs O(1) amortised for an array-backed stack, because both touch only the top and the other edits do not matter. Nothing shifts, because the new edit goes on top of the pile instead of into a numbered position. Nothing is searched either, because the place is always the top. Halving applies to searching a sorted array, and a stack never searches."
     },
     "which-job-prints-first": {
       "prompt": "The print queue holds Report, Invoice and Ticket, sent in that order. The printer is free. Select the job it takes.",
@@ -169,7 +169,7 @@
     "task": "The editor flags a line of code whose brackets are wrong. Write isBalanced, which takes a line of code and returns true when every (, [ and { is closed by the matching ), ] or } in the right order. Ignore every other character, and let a [[stack]] help you so one pass over the line is enough.",
     "hints": [
       "Look at the order in which brackets must close: the one opened last has to close first. Which structure gives back its newest item first?",
-      "Keep only the brackets that are still open. When a closing bracket arrives, it has to match the most recent one that is open.",
+      "Only opening brackets need remembering, and every other character can be skipped. Think about what a closing bracket should be compared with.",
       "A closing bracket with nothing open has nothing to match. When the line ends, check what is left over: an opening bracket that never closed makes the line unbalanced."
     ]
   }
