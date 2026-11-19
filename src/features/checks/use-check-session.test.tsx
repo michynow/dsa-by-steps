@@ -269,6 +269,35 @@ describe('useCheckSession predict', () => {
   });
 });
 
+describe('useCheckSession moving between Checks', () => {
+  it('judges a selection on an open Predict Check shown after a settled one', () => {
+    const store = createProgressStore(createMemoryProgressRepository());
+    store.getState().actions.setCheckState(checkKey(lesson, choice.id), {
+      misses: 0,
+      status: 'passed',
+    });
+    function wrapper({ children }: { readonly children: ReactNode }) {
+      return <ProgressProvider store={store}>{children}</ProgressProvider>;
+    }
+    const first: { readonly check: Check } = { check: choice };
+    const { result, rerender } = renderHook(
+      ({ check }: { readonly check: Check }) => ({
+        session: useCheckSession(lesson, check),
+        stored: useProgress((p) => p.checks[checkKey(lesson, predict.id)]),
+      }),
+      { wrapper, initialProps: first },
+    );
+    rerender({ check: predict });
+    act(() => {
+      result.current.session.select(e1);
+    });
+    act(() => {
+      result.current.session.submit();
+    });
+    expect(result.current.stored).toEqual({ misses: 1, status: 'open' });
+  });
+});
+
 describe('useCheckSession order', () => {
   it('is settled with no selection and ignores everything', () => {
     const { result } = setup(order);
