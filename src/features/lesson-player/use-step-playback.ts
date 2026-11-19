@@ -1,23 +1,10 @@
 import { useEffect, useState } from 'react';
-import { applyStepEvent, emptyScene, ok } from '@/domain';
-import type { Result, Scene, SceneError, StepEvent } from '@/domain';
+import { emptyScene } from '@/domain';
+import type { Scene } from '@/domain';
+import { useReducedMotion } from '@/ui';
+import { isKeyOwnedByControl } from './key-ownership';
 
 export const STEP_BEAT_MILLISECONDS = 450;
-
-const ownedByControl =
-  'input, textarea, select, button, [contenteditable], [role="radiogroup"], [role="radio"], [role="textbox"], [data-canvas]';
-
-export function framesOf(
-  scene: Scene,
-  events: readonly StepEvent[],
-): Result<readonly Scene[], SceneError> {
-  const start: Result<readonly Scene[], SceneError> = ok([scene]);
-  return events.reduce((acc, event) => {
-    if (!acc.ok) return acc;
-    const next = applyStepEvent(acc.value.at(-1) ?? scene, event);
-    return next.ok ? ok([...acc.value, next.value]) : next;
-  }, start);
-}
 
 interface PlaybackState {
   readonly key: string;
@@ -32,17 +19,9 @@ export interface StepPlayback {
   readonly toggle: () => void;
 }
 
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-}
-
 function isIgnored(event: KeyboardEvent): boolean {
   const modified = event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
-  const owned = event.target instanceof Element && event.target.closest(ownedByControl) !== null;
-  return event.defaultPrevented || modified || owned;
+  return event.defaultPrevented || modified || isKeyOwnedByControl(event.target, event.key);
 }
 
 function usePlaybackKeys(replay: () => void, toggle: () => void): void {
@@ -65,11 +44,12 @@ function usePlaybackKeys(replay: () => void, toggle: () => void): void {
 
 export function useStepPlayback(frames: readonly Scene[], key: string): StepPlayback {
   const [state, setState] = useState<PlaybackState>({ key, index: 0, paused: false });
+  const reduced = useReducedMotion();
   const last = frames.length - 1;
   const fresh: PlaybackState = { key, index: 0, paused: false };
   if (state.key !== key) setState(fresh);
   const current = state.key === key ? state : fresh;
-  const index = prefersReducedMotion() ? last : Math.min(current.index, last);
+  const index = reduced ? last : Math.min(current.index, last);
   const playing = !current.paused && index < last;
 
   useEffect(() => {

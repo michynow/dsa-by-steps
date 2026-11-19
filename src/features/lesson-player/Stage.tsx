@@ -14,11 +14,22 @@ export interface StageProps {
   readonly selection: SceneSelection | undefined;
   readonly turn: boolean;
   readonly stepId: string;
+  readonly lessonKey: string;
 }
 
-export function Stage({ frames, messages, selection, turn, stepId }: StageProps): ReactElement {
+export function Stage({
+  frames,
+  messages,
+  selection,
+  turn,
+  stepId,
+  lessonKey,
+}: StageProps): ReactElement {
   const labels = sceneLabelsOf(messages);
-  const { scene, playing, replay, toggle } = useStepPlayback(frames, `${stepId}:${String(turn)}`);
+  const { scene, playing, replay, toggle } = useStepPlayback(
+    frames,
+    `${lessonKey}/${stepId}:${String(turn)}`,
+  );
   return (
     <div className={styles.stage} data-stage="true" data-turn={turn}>
       <div aria-live="polite">

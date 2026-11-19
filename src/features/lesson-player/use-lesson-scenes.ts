@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
-import { scenesOf } from '@/domain';
+import { framesOf, scenesOf } from '@/domain';
 import type { Lesson, LessonKey, Scene } from '@/domain';
 import { displayedScene } from './scene-choice';
-import { framesOf } from './use-step-playback';
 
 export function useLessonScenes(lesson: Lesson, key: LessonKey): readonly Scene[] {
   return useMemo(() => {

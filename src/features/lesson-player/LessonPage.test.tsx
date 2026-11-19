@@ -13,8 +13,10 @@ import {
   ProgressProvider,
 } from '@/features/progress';
 import type { ProgressRepository } from '@/features/progress';
+import { stubReducedMotion } from '@/test/reduced-motion';
 import { createFakeStorage } from '@/test/storage-fakes';
 import { testModules } from '@/test/lesson-fixtures';
+import { STEP_BEAT_MILLISECONDS } from './use-step-playback';
 import { LessonError, LessonPage, LessonRedirect, noStepCheck } from './index';
 import type { StepCheckBinding, UseStepCheck } from './index';
 
@@ -102,9 +104,7 @@ const railNames = () =>
     .map((link) => link.textContent.replace(/\s+/g, ' ').trim());
 
 beforeEach(() => {
-  vi.stubGlobal('matchMedia', (query: string) => ({
-    matches: query === '(prefers-reduced-motion: reduce)',
-  }));
+  stubReducedMotion(true);
 });
 
 afterEach(() => {
@@ -283,6 +283,30 @@ describe('LessonPage navigation', () => {
     expect(router.state.location.pathname).toBe('/en/basics/stacks/2');
     await user.keyboard('{ArrowLeft}');
     expect(router.state.location.pathname).toBe('/en/basics/stacks/1');
+  });
+
+  it('keeps the arrow keys navigating while a playback button has focus', async () => {
+    const user = userEvent.setup();
+    const { router } = renderAt('/en/basics/stacks/1');
+    screen.getByRole('button', { name: 'Replay' }).focus();
+    await user.keyboard('{ArrowRight}');
+    expect(router.state.location.pathname).toBe('/en/basics/stacks/2');
+  });
+
+  it('plays the Step frames one beat apart under normal motion', () => {
+    stubReducedMotion(false);
+    vi.useFakeTimers();
+    try {
+      renderAt('/en/basics/stacks/1');
+      const seen = [sceneLines()];
+      act(() => {
+        vi.advanceTimersByTime(STEP_BEAT_MILLISECONDS);
+      });
+      seen.push(sceneLines());
+      expect(seen).toEqual([['Stack: i0 (top)'], ['Stack: i1 (top), i0']]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('reads the current Step for two arrow keys fired before React re-renders', () => {

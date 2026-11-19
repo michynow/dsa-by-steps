@@ -76,6 +76,7 @@ export function LessonLayout({
             selection={binding.selection}
             turn={gated}
             stepId={current?.id ?? ''}
+            lessonKey={key}
           />
           <CaptionStrip
             step={current === undefined ? undefined : lessonMessages.steps[current.id]}

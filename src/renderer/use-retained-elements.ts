@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Scene } from '@/domain';
+import { prefersReducedMotion } from '@/ui';
 import { FALLBACK_MILLISECONDS } from './metrics';
 import type { ElementItem } from './scene-items';
 
@@ -12,13 +13,6 @@ interface Memory {
 export interface RetainedElements {
   readonly elements: readonly ElementItem[];
   readonly release: (key: string) => void;
-}
-
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
 }
 
 export function useRetainedElements(scene: Scene, items: readonly ElementItem[]): RetainedElements {

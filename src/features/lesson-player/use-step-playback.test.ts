@@ -1,40 +1,41 @@
-import { applyStepEvents, emptyScene } from '@/domain';
-import type { Scene, StepEvent } from '@/domain';
-import { arrayOf, errorOf, sceneOf, unwrap } from '@/test/scene-fixtures';
-import { framesOf } from './use-step-playback';
+import { act, renderHook } from '@testing-library/react';
+import { arrayOf, sceneOf } from '@/test/scene-fixtures';
+import { STEP_BEAT_MILLISECONDS, useStepPlayback } from './use-step-playback';
 
-const create: StepEvent = { type: 'create', structure: arrayOf('arr', 'a') };
-const grow: StepEvent = {
-  type: 'insert-cell',
-  structureId: 'arr',
-  index: 1,
-  cell: { id: 'b', value: 'b' },
-};
+const frames = [
+  sceneOf([arrayOf('arr', 'a')]),
+  sceneOf([arrayOf('arr', 'a', 'b')]),
+  sceneOf([arrayOf('arr', 'a', 'b', 'c')]),
+];
 
-describe('framesOf', () => {
-  it('returns the Scene before the Step then the Scene after each event', () => {
-    const frames = unwrap(framesOf(emptyScene, [create, grow]));
-    const expected: readonly Scene[] = [
-      emptyScene,
-      sceneOf([arrayOf('arr', 'a')]),
-      sceneOf([arrayOf('arr', 'a', 'b')]),
-    ];
-    expect(frames).toEqual(expected);
+describe('useStepPlayback', () => {
+  it('leaves no timer behind once unmounted mid-playback', () => {
+    vi.useFakeTimers();
+    try {
+      const { unmount } = renderHook(() => useStepPlayback(frames, 'k'));
+      const running = vi.getTimerCount();
+      unmount();
+      expect({ running, afterUnmount: vi.getTimerCount() }).toEqual({
+        running: 1,
+        afterUnmount: 0,
+      });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
-  it('ends on the Scene that applying every event produces', () => {
-    const frames = unwrap(framesOf(emptyScene, [create, grow]));
-    expect(frames.at(-1)).toEqual(unwrap(applyStepEvents(emptyScene, [create, grow])));
-  });
-
-  it('returns only the starting Scene for a Step without events', () => {
-    expect(unwrap(framesOf(emptyScene, []))).toEqual([emptyScene]);
-  });
-
-  it('propagates the error of an event that cannot apply', () => {
-    const missing: StepEvent = { type: 'remove', structureId: 'nope' };
-    expect(errorOf(framesOf(emptyScene, [create, missing]))).toEqual(
-      errorOf(applyStepEvents(emptyScene, [create, missing])),
-    );
+  it('advances one frame per beat', () => {
+    vi.useFakeTimers();
+    try {
+      const { result } = renderHook(() => useStepPlayback(frames, 'k'));
+      const seen = [result.current.scene];
+      act(() => {
+        vi.advanceTimersByTime(STEP_BEAT_MILLISECONDS);
+      });
+      seen.push(result.current.scene);
+      expect(seen).toEqual([frames[0], frames[1]]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

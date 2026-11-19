@@ -1,5 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import type { Scene } from '@/domain';
+import { stubReducedMotion } from '@/test/reduced-motion';
+import type { ReducedMotionStub } from '@/test/reduced-motion';
 import { arrayOf, sceneOf } from '@/test/scene-fixtures';
 import en from './messages/en.json';
 import { Stage } from './Stage';
@@ -8,7 +10,16 @@ import { STEP_BEAT_MILLISECONDS } from './use-step-playback';
 const scene = { structures: [], pointers: [], highlights: [] };
 
 function stage(stepId: string) {
-  return <Stage frames={[scene]} messages={en} selection={undefined} turn stepId={stepId} />;
+  return (
+    <Stage
+      frames={[scene]}
+      messages={en}
+      selection={undefined}
+      turn
+      stepId={stepId}
+      lessonKey="m/l"
+    />
+  );
 }
 
 describe('Stage turn frame', () => {
@@ -31,7 +42,14 @@ describe('Stage turn frame', () => {
     const { container, rerender } = render(stage('a'));
     expect(container.querySelector('[data-stage]')?.getAttribute('data-turn')).toBe('true');
     rerender(
-      <Stage frames={[scene]} messages={en} selection={undefined} turn={false} stepId="a" />,
+      <Stage
+        frames={[scene]}
+        messages={en}
+        selection={undefined}
+        turn={false}
+        stepId="a"
+        lessonKey="m/l"
+      />,
     );
     expect(container.querySelector('[data-stage]')?.getAttribute('data-turn')).toBe('false');
   });
@@ -43,8 +61,17 @@ const framesOf = (...rows: readonly (readonly string[])[]): readonly Scene[] =>
 const growing = framesOf(['a'], ['a', 'b'], ['a', 'b', 'c']);
 const other = framesOf(['x'], ['x', 'y']);
 
-function playing(frames: readonly Scene[], stepId: string, turn = false) {
-  return <Stage frames={frames} messages={en} selection={undefined} turn={turn} stepId={stepId} />;
+function playing(frames: readonly Scene[], stepId: string, turn = false, lessonKey = 'm/l') {
+  return (
+    <Stage
+      frames={frames}
+      messages={en}
+      selection={undefined}
+      turn={turn}
+      stepId={stepId}
+      lessonKey={lessonKey}
+    />
+  );
 }
 
 function shown(container: HTMLElement): readonly string[] {
@@ -70,13 +97,11 @@ function withFakeTimers(body: () => void): void {
   }
 }
 
-function withReducedMotion(body: () => void): void {
-  vi.stubGlobal('matchMedia', (query: string) => ({
-    matches: query === '(prefers-reduced-motion: reduce)',
-  }));
+function withReducedMotion(body: (stub: ReducedMotionStub) => void, initial = true): void {
+  const stub = stubReducedMotion(initial);
   vi.useFakeTimers();
   try {
-    body();
+    body(stub);
   } finally {
     vi.useRealTimers();
     vi.unstubAllGlobals();
@@ -176,14 +201,14 @@ describe('Stage playback', () => {
   it('pauses and resumes with Space without scrolling the page', () => {
     withFakeTimers(() => {
       const { container } = render(playing(growing, 'one'));
-      const pausedNotPrevented = fireEvent.keyDown(document.body, { key: ' ' });
+      const spaceDefaultPrevented = !fireEvent.keyDown(document.body, { key: ' ' });
       beat(5);
       const seen = [shown(container)];
       fireEvent.keyDown(document.body, { key: ' ' });
       beat();
       seen.push(shown(container));
-      expect({ pausedNotPrevented, seen }).toEqual({
-        pausedNotPrevented: false,
+      expect({ spaceDefaultPrevented, seen }).toEqual({
+        spaceDefaultPrevented: true,
         seen: [['a'], ['a', 'b']],
       });
     });
@@ -222,6 +247,63 @@ describe('Stage playback', () => {
     withReducedMotion(() => {
       const { container } = render(playing(growing, 'one'));
       fireEvent.click(screen.getByRole('button', { name: 'Replay' }));
+      beat();
+      expect(shown(container)).toEqual(['a', 'b', 'c']);
+    });
+  });
+
+  it('restarts from the first frame when another Lesson has the same Step id', () => {
+    withFakeTimers(() => {
+      const { container, rerender } = render(playing(growing, 'one', false, 'm/first'));
+      beat(2);
+      rerender(playing(growing, 'one', false, 'm/second'));
+      expect(shown(container)).toEqual(['a']);
+    });
+  });
+
+  it('keeps R working while a playback button has focus', () => {
+    withFakeTimers(() => {
+      const { container } = render(playing(growing, 'one'));
+      beat(5);
+      fireEvent.keyDown(screen.getByRole('button', { name: 'Play' }), { key: 'r' });
+      expect(shown(container)).toEqual(['a']);
+    });
+  });
+
+  it('leaves Space on a playback button to its native activation', () => {
+    withFakeTimers(() => {
+      const { container } = render(playing(growing, 'one'));
+      const notPrevented = fireEvent.keyDown(screen.getByRole('button', { name: 'Pause' }), {
+        key: ' ',
+      });
+      beat();
+      expect({ notPrevented, shown: shown(container) }).toEqual({
+        notPrevented: true,
+        shown: ['a', 'b'],
+      });
+    });
+  });
+
+  it('jumps to the final Scene when reduced motion is enabled mid-play', () => {
+    withReducedMotion((stub) => {
+      const { container } = render(playing(growing, 'one'));
+      beat();
+      const before = shown(container);
+      act(() => {
+        stub.set(true);
+      });
+      expect({ before, after: shown(container) }).toEqual({
+        before: ['a', 'b'],
+        after: ['a', 'b', 'c'],
+      });
+    }, false);
+  });
+
+  it('does not restart when re-rendered with an equal frames array', () => {
+    withFakeTimers(() => {
+      const { container, rerender } = render(playing(growing, 'one'));
+      beat();
+      rerender(playing([...growing], 'one'));
       beat();
       expect(shown(container)).toEqual(['a', 'b', 'c']);
     });

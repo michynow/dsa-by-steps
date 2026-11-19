@@ -15,7 +15,7 @@ const seededProgress = JSON.stringify({
   checks: passedChecks,
 });
 
-const firstStepTitle = 'Adding to the front is expensive';
+const firstStepTitle = 'Play next gets slower as the queue grows';
 
 test('steps through the Linked lists Lesson, remembers seen Steps and keeps the Step on Locale switch', async ({
   page,
