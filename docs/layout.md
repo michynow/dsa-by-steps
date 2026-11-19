@@ -58,4 +58,4 @@ On narrow screens Editor and Tests stack, and a notice recommends a wider screen
 
 ## Term Chips
 
-A Term written as `[[term-id]]` in a Caption renders as a chip in the Term colour. Hover, focus or tap opens its definition (Polish equivalent in Polish). The first use in a Lesson carries a "new" marker. The Terms panel lists the Terms introduced up to the current Step.
+A Term written as `[[term-id]]` in a Caption renders as a chip in the Term colour. Click, tap, Enter or Space opens its definition (Polish equivalent in Polish); Escape or a second activation closes it, and it closes when the Step changes. The first use in a Lesson carries a "new" marker. The Terms panel lists the Terms introduced up to the current Step.
