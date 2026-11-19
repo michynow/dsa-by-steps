@@ -1,0 +1,16 @@
+.card {
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-paper);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius-control);
+}
+
+.title {
+  font-weight: 600;
+  margin: 0;
+  font-size: var(--font-size-body);
+}
+
+.summary {
+  margin: 0;
+}

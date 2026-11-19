@@ -1,0 +1,20 @@
+export const PADDING = 8;
+export const CELL_WIDTH = 64;
+export const CELL_HEIGHT = 40;
+export const ENTRY_WIDTH = 96;
+export const GAP = 16;
+export const LIST_GAP = 32;
+export const ROW_GAP = 8;
+export const STRUCTURE_GAP = 32;
+export const MARKER_HEIGHT = 20;
+export const INDEX_HEIGHT = 20;
+export const LIST_FOOT = 40;
+export const ROUTE_DEPTH = 28;
+export const ROUTE_INSET = 8;
+export const STUB_LENGTH = 8;
+export const TOP_LABEL_WIDTH = 56;
+export const BUCKET_INDEX_WIDTH = 32;
+
+export const MAXIMUM_SCALE = 2;
+export const TRANSITION_MILLISECONDS = 220;
+export const FALLBACK_MILLISECONDS = TRANSITION_MILLISECONDS + 50;

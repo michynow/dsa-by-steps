@@ -1,0 +1,16 @@
+{
+  "submit": "Sprawdź odpowiedź",
+  "reveal": "Pokaż mi",
+  "emptyChoice": "Najpierw wybierz opcję.",
+  "emptyPredict": "Najpierw zaznacz element na scenie.",
+  "predictHint": "Zaznacz element na scenie, a potem sprawdź odpowiedź.",
+  "miss": "To nie to. Spróbuj jeszcze raz.",
+  "passed": "Dobrze.",
+  "revealed": "Oto odpowiedź.",
+  "correctOption": "poprawna odpowiedź",
+  "region": "Twoja kolej",
+  "header": "Twoja kolej · Sprawdzian",
+  "misses": "Pomyłki {count} z {max}",
+  "doneCorrect": "Dobrze",
+  "doneRevealed": "Pokazano odpowiedź"
+}

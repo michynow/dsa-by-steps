@@ -1,0 +1,36 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.heading {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-title);
+}
+
+.body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-6);
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+@media (width <= 48rem) {
+  .body {
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .main {
+    width: 100%;
+  }
+}

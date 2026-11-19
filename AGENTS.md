@@ -60,6 +60,7 @@ Each folder exposes a deliberate public surface through `index.ts`. Deep imports
 - Named exports only. One React component per file, file named after the component in PascalCase; non-component modules in kebab-case.
 - Styling uses CSS Modules co-located with components, built only from the design tokens in `ui/tokens`. Every token has a light and a dark value. Raw colours, spacing or font sizes in component styles are a lint error.
 - Interface text and Captions come only from Locale message files. A string literal rendered to the Learner is a bug.
+- Every union value shown to the Learner (Structure kinds, tones, statuses) has an entry in a typed label map (`Record<Union, string>`), so adding a variant fails compilation until it is labelled.
 - Functions stay small and do one thing. A function that needs a comment to explain a block gets that block extracted under a name that explains it.
 
 ## State
@@ -87,11 +88,13 @@ Keyboard-complete: every Step, Check (including Order Checks) and Exercise actio
 - **Content tests** run every Lesson's Reference Solution against all its Tests, assert every Locale defines every message key, and assert every Step's Step Events reduce to a valid Scene.
 - A behaviour change without a test that fails before it and passes after is unfinished.
 - Assert whole values: `toEqual` on the full Result, Scene or error, never only `.ok`, a length or an occurrence count. Type tests prove types with annotations and `expectTypeOf`, not casts.
+- Tests outside `src/content` never hard-code Lesson wording, Step numbers or Check positions; derive them from the registered content.
 - Test builders shared by several test files live in `src/test/`. Only `*.test.ts(x)` files may import them; production source never contains test helpers.
 
 ## Workflow
 
 - Package manager: `pnpm`. Discover scripts in `package.json`; `pnpm check` is the full local gate.
+- End-to-end runs build and serve their own preview and never reuse a running server. Parallel worktrees set a unique `E2E_PORT` (e.g. `E2E_PORT=4290 pnpm test:e2e`).
 - CSS Module typings (`*.module.d.css.ts`) are generated and gitignored. `pnpm typecheck` regenerates them; run it after adding or renaming a class.
 - TypeScript stays on the newest version `typescript-eslint` supports, which may lag the latest release.
 - Before declaring work done, run typecheck, lint, unit tests and content tests, and report their actual output.

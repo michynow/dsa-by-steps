@@ -1,0 +1,64 @@
+{
+  "document": "{lesson} · {course}",
+  "error": {
+    "title": "This Lesson cannot be shown.",
+    "body": "Its content is broken. Please report it."
+  },
+  "stage": {
+    "turn": "Your turn — answer before the step plays",
+    "figure": "Scene",
+    "select": "Select",
+    "structure": {
+      "array": "Array",
+      "linked-list": "Linked list",
+      "stack": "Stack",
+      "queue": "Queue",
+      "hash-map": "Hash map"
+    },
+    "tone": {
+      "focus": "focused",
+      "compare": "being compared",
+      "done": "done",
+      "error": "error"
+    },
+    "head": "head",
+    "top": "top",
+    "front": "front",
+    "back": "back",
+    "nullLink": "null",
+    "empty": "empty",
+    "bucket": "Bucket",
+    "index": "Index"
+  },
+  "rail": {
+    "label": "Steps",
+    "turn": "Your turn",
+    "problem": "Problem",
+    "seen": "seen",
+    "current": "current",
+    "unseen": "not seen yet"
+  },
+  "caption": {
+    "navigation": "Step navigation",
+    "previous": "Previous",
+    "next": "Next",
+    "practice": "Practice this",
+    "nextBlocked": "Answer the question to continue."
+  },
+  "panels": {
+    "outcomes": "Outcomes"
+  },
+  "progress": {
+    "segment": "{lesson}, {status}",
+    "label": "Module progress",
+    "position": "Lesson {number} of {count}",
+    "passed": "passed",
+    "notPassed": "not passed"
+  },
+  "playback": {
+    "controls": "Playback",
+    "replay": "Replay",
+    "pause": "Pause",
+    "play": "Play"
+  }
+}

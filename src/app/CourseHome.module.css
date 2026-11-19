@@ -9,3 +9,17 @@
   margin: 0;
   color: var(--color-ink-muted);
 }
+
+.module {
+  margin-top: var(--space-6);
+}
+
+.lessons {
+  padding-left: var(--space-6);
+  margin: 0;
+}
+
+.status {
+  font-size: var(--font-size-caption);
+  color: var(--color-ink-muted);
+}

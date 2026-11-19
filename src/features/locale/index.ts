@@ -4,3 +4,5 @@ export { LocaleSwitcher } from './LocaleSwitcher';
 export { RootRedirect } from './RootRedirect';
 export { createLocalePreferenceStore } from './locale-preference';
 export { localeFromLanguageTags, localeFromPath } from './resolve-locale';
+export { useLocale, useMessages } from './use-messages';
+export type { MessageBundle } from './use-messages';

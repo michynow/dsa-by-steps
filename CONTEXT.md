@@ -34,6 +34,18 @@ _Avoid_: Scenario, motivation
 One item on a Lesson's "what you'll learn" list.
 _Avoid_: Objective, goal
 
+**Story**:
+The one real product situation a Lesson follows from Problem to end, such as a music app's play queue.
+_Avoid_: Scenario, example, context
+
+**Use**:
+A real system where the Lesson's Structure appears, shown in the Lesson's closing Step, together with when not to choose it.
+_Avoid_: Application, use case
+
+**Key Idea**:
+The one sentence a Step wants the Learner to keep, shown as a callout under its Caption.
+_Avoid_: Takeaway, summary, tip
+
 **Deep Dive**:
 Optional long-form reading attached to a Lesson for material that outgrows Captions.
 _Avoid_: Article, appendix, extra
@@ -56,10 +68,18 @@ _Avoid_: Action, operation, mutation
 A labelled marker that refers to a position in a Structure, such as `i`, `head`, or `slow`.
 _Avoid_: Cursor, arrow, index marker
 
+**Learn**:
+The mode in which the Learner walks through Lessons and answers Checks.
+_Avoid_: Study, lesson mode
+
+**Practice**:
+The mode in which the Learner solves Exercises.
+_Avoid_: Exercises tab, coding mode
+
 ### Checks
 
 **Check**:
-A question embedded in a Step that the learner must answer before advancing.
+A question embedded in a Step, posed on the Scene before that Step's change and answered before the change plays.
 _Avoid_: Quiz, question, test
 
 **Predict Check**:
@@ -151,5 +171,5 @@ The language a Learner reads Captions and interface text in: English or Polish.
 _Avoid_: Language setting, translation
 
 **Term**:
-A data structures and algorithms word kept in English in every Locale, introduced once with its Polish equivalent.
+A data structures and algorithms word kept in English in every Locale, introduced once with its Polish equivalent. Marked in Captions as a Term Chip that opens its definition.
 _Avoid_: Keyword, jargon

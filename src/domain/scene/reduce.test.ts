@@ -16,8 +16,8 @@ import {
   stackOf,
   unwrap,
 } from '@/test/scene-fixtures';
-import { applyStepEvent, applyStepEvents, scenesOf } from './index';
-import type { StepEvent } from './index';
+import { applyStepEvent, applyStepEvents, emptyScene, framesOf, scenesOf } from './index';
+import type { Scene, StepEvent } from './index';
 
 const everyEvent: readonly StepEvent[] = [
   { type: 'create', structure: arrayOf('x', 'x0') },
@@ -163,5 +163,40 @@ describe('scenesOf', () => {
       code: 'unknown-structure',
       structureId: 'zzz',
     });
+  });
+});
+
+describe('framesOf', () => {
+  const create: StepEvent = { type: 'create', structure: arrayOf('arr', 'a') };
+  const grow: StepEvent = {
+    type: 'insert-cell',
+    structureId: 'arr',
+    index: 1,
+    cell: { id: 'b', value: 'b' },
+  };
+
+  it('returns the Scene before the Step then the Scene after each event', () => {
+    const expected: readonly Scene[] = [
+      emptyScene,
+      sceneOf([arrayOf('arr', 'a')]),
+      sceneOf([arrayOf('arr', 'a', 'b')]),
+    ];
+    expect(unwrap(framesOf(emptyScene, [create, grow]))).toEqual(expected);
+  });
+
+  it('ends on the Scene that applying every event produces', () => {
+    const frames = unwrap(framesOf(emptyScene, [create, grow]));
+    expect(frames.at(-1)).toEqual(unwrap(applyStepEvents(emptyScene, [create, grow])));
+  });
+
+  it('returns only the starting Scene for a Step without events', () => {
+    expect(unwrap(framesOf(emptyScene, []))).toEqual([emptyScene]);
+  });
+
+  it('propagates the error of an event that cannot apply', () => {
+    const missing: StepEvent = { type: 'remove', structureId: 'nope' };
+    expect(errorOf(framesOf(emptyScene, [create, missing]))).toEqual(
+      errorOf(applyStepEvents(emptyScene, [create, missing])),
+    );
   });
 });

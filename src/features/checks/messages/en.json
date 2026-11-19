@@ -1,0 +1,16 @@
+{
+  "submit": "Check answer",
+  "reveal": "Show me",
+  "emptyChoice": "Pick an option first.",
+  "emptyPredict": "Select an element on the Stage first.",
+  "predictHint": "Select an element on the Stage, then check your answer.",
+  "miss": "Not right. Try again.",
+  "passed": "Correct.",
+  "revealed": "Here is the answer.",
+  "correctOption": "correct answer",
+  "region": "Your turn",
+  "header": "Your turn · Check",
+  "misses": "Misses {count} of {max}",
+  "doneCorrect": "Correct",
+  "doneRevealed": "Answer shown"
+}

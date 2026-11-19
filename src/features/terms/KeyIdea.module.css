@@ -1,0 +1,18 @@
+.callout {
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-highlight-ink);
+  background: var(--color-highlight);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius-control);
+}
+
+.label {
+  margin: 0;
+  font-size: var(--font-size-caption);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.text {
+  margin: 0;
+}
