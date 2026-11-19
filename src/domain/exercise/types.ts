@@ -16,7 +16,9 @@ export interface TestCase {
 
 export type InputGenerator =
   | { readonly kind: 'range'; readonly size: number }
-  | { readonly kind: 'linked-list-range'; readonly size: number };
+  | { readonly kind: 'linked-list-range'; readonly size: number }
+  | { readonly kind: 'repeat-string'; readonly unit: string; readonly size: number }
+  | { readonly kind: 'string-range'; readonly prefix: string; readonly size: number };
 
 export interface ComplexityTest {
   readonly id: string;

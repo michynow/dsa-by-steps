@@ -44,7 +44,7 @@ export const isBalancedExercise: Exercise = {
   ],
   complexityTest: {
     id: 'long-line-complexity',
-    generator: { kind: 'range', size: 100000 },
+    generator: { kind: 'repeat-string', unit: '()', size: 50000 },
     expected: 'reference',
     budgetMultiple: 8,
     complexity: 'O(n)',

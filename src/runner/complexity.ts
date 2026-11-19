@@ -1,5 +1,5 @@
 import type { ComplexityTest, InputGenerator, Result, ShapedValue, TestOutcome } from '@/domain';
-import { err, ok, timeBudgetFloorMs } from '@/domain';
+import { assertNever, err, ok, timeBudgetFloorMs } from '@/domain';
 import { callTimed, erroredOutcome, loadFunction } from './execute';
 import { intrinsics } from './intrinsics';
 import { ListNode, shapedEqual, toArgument } from './values';
@@ -22,8 +22,21 @@ export function budgetOf(referenceMs: number, multiple: number): number {
 }
 
 function generateInput(generator: InputGenerator): ShapedValue {
-  const value = Array.from({ length: generator.size }, (_, index) => index);
-  return { shape: generator.kind === 'range' ? 'value' : 'linked-list', value };
+  switch (generator.kind) {
+    case 'range':
+      return { shape: 'value', value: Array.from({ length: generator.size }, (_, i) => i) };
+    case 'linked-list-range':
+      return { shape: 'linked-list', value: Array.from({ length: generator.size }, (_, i) => i) };
+    case 'repeat-string':
+      return { shape: 'value', value: generator.unit.repeat(generator.size) };
+    case 'string-range':
+      return {
+        shape: 'value',
+        value: Array.from({ length: generator.size }, (_, i) => generator.prefix + String(i)),
+      };
+    default:
+      return assertNever(generator);
+  }
 }
 
 function shapeOfResult(result: unknown): ShapedValue['shape'] {
