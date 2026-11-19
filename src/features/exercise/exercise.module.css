@@ -1,5 +1,6 @@
 .exercise {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
 }
 
@@ -27,6 +28,7 @@
 
 .columns {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
 }
 
@@ -35,6 +37,11 @@
   gap: var(--space-2);
   min-width: 0;
   align-content: start;
+}
+
+.editorFrame {
+  min-width: 0;
+  overflow: hidden;
 }
 
 .editorHint {
@@ -144,6 +151,10 @@
 
 .valueScene {
   max-width: 28rem;
+}
+
+.valueScene svg {
+  max-height: 8rem;
 }
 
 .valueCode {

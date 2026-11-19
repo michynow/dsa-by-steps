@@ -22,18 +22,20 @@ export function EditorColumn({ exercise, code, run, messages }: EditorColumnProp
   const commands = useEditorCommands(run.start, runButton);
   return (
     <div className={styles.editorColumn}>
-      <Suspense fallback={<p>{messages.loadingEditor}</p>}>
-        <LazyCodeEditor
-          path="file:///solution.ts"
-          value={code.initial}
-          label={messages.editor.label}
-          extraLib={preludeFor(exercise)}
-          height="22rem"
-          cursor={run.cursor}
-          commands={commands}
-          onChange={code.edit}
-        />
-      </Suspense>
+      <div className={styles.editorFrame}>
+        <Suspense fallback={<p>{messages.loadingEditor}</p>}>
+          <LazyCodeEditor
+            path="file:///solution.ts"
+            value={code.initial}
+            label={messages.editor.label}
+            extraLib={preludeFor(exercise)}
+            height="22rem"
+            cursor={run.cursor}
+            commands={commands}
+            onChange={code.edit}
+          />
+        </Suspense>
+      </div>
       <p className={styles.editorHint}>{messages.editor.hint}</p>
       <RunControls
         running={run.running}
