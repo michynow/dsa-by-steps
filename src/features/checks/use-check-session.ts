@@ -62,40 +62,41 @@ export function useCheckSession(lesson: LessonKey, check: Check): CheckSession {
   const actions = useProgressActions();
   const [stored, setLocal] = useState<Local>(blank(key));
   const local = stored.key === key ? stored : blank(key);
-  const current = useRef(state);
+  const written = useRef<CheckState | null>(null);
   const submitted = useRef(false);
 
   useEffect(() => {
-    current.current = state;
+    written.current = null;
     submitted.current = false;
   });
 
   const settled = check.kind === 'order' || state.status !== 'open';
-  const editable = check.kind !== 'order' && current.current.status === 'open';
+  const live = (): CheckState => written.current ?? state;
+  const editable = (): boolean => check.kind !== 'order' && live().status === 'open';
 
   const change = (pending: Local['pending']): void => {
     setLocal({ key, pending, lastVerdict: local.lastVerdict });
   };
 
   const write = (next: CheckState): void => {
-    current.current = next;
+    written.current = next;
     actions.setCheckState(key, next);
   };
 
   const choose = (option: OptionId): void => {
-    if (editable && check.kind === 'choice') change(option);
+    if (editable() && check.kind === 'choice') change(option);
   };
 
   const select = (target: ElementRef): void => {
-    if (editable && check.kind === 'predict') change(target);
+    if (editable() && check.kind === 'predict') change(target);
   };
 
   const submit = (): void => {
     const answer = answerOf(check, local.pending);
-    if (!editable || answer === null || submitted.current) return;
+    if (!editable() || answer === null || submitted.current) return;
     const verdict = judge(check, answer);
     if (!verdict.ok) return;
-    const next = recordVerdict(current.current, verdict.value);
+    const next = recordVerdict(live(), verdict.value);
     if (!next.ok) return;
     submitted.current = true;
     write(next.value);
@@ -103,8 +104,8 @@ export function useCheckSession(lesson: LessonKey, check: Check): CheckSession {
   };
 
   const revealAnswer = (): void => {
-    if (!editable || !canReveal(current.current)) return;
-    const next = reveal(current.current);
+    if (!editable() || !canReveal(live())) return;
+    const next = reveal(live());
     if (next.ok) write(next.value);
   };
 

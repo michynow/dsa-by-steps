@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import type { LessonContent } from '@/content';
-import { lessonKey } from '@/domain';
 import type { Course, Locale } from '@/domain';
 import { useMessages } from '@/features/locale';
 import { lessonFraming } from '@/features/story';
@@ -13,11 +12,8 @@ import { LessonPanels } from './LessonPanels';
 import { Stage } from './Stage';
 import type { UseStepCheck } from './step-check';
 import { StepRail } from './StepRail';
-import { useBoundCheck } from './use-bound-check';
 import { useDocumentTitle } from './use-document-title';
-import { useLessonScenes, useStepFrames } from './use-lesson-scenes';
-import { useMarkStepSeen } from './use-mark-step-seen';
-import { useStepNavigation } from './use-step-navigation';
+import { useLessonState } from './use-lesson-state';
 
 export interface LessonLayoutProps {
   readonly course: Course;
@@ -44,19 +40,13 @@ export function LessonLayout({
   const messages = useMessages(lessonPlayerMessages);
   const lessonMessages = content.messages[locale];
   const { lesson } = content;
-  const key = lessonKey(content.module, lesson.slug);
-  const binding = useBoundCheck(useStepCheck, content, locale, step);
-  const current = lesson.steps[step];
-  const gated = current?.check !== undefined && !binding.settled;
-  const scenes = useLessonScenes(lesson, key);
-  const frames = useStepFrames(lesson, scenes, step, gated);
-  const navigation = useStepNavigation({
+  const { key, current, binding, gated, frames, navigation } = useLessonState(
     course,
+    content,
     locale,
-    position: { module: content.module, lesson: lesson.slug, step },
-    settled: binding.settled,
-  });
-  useMarkStepSeen(key, current?.id, binding.settled);
+    step,
+    useStepCheck,
+  );
   useDocumentTitle(lessonMessages.title);
 
   return (
