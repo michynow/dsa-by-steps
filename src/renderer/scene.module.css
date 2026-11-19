@@ -67,6 +67,7 @@
   fill: var(--color-ink);
   text-anchor: middle;
   dominant-baseline: central;
+  animation: enter var(--scene-motion) ease-out;
 }
 
 .element[data-tone='focus'] .box {
@@ -127,7 +128,15 @@
   fill: none;
   stroke: var(--color-line);
   stroke-width: var(--border-width);
+  stroke-dasharray: 1;
   transition: d var(--scene-motion) ease-out;
+  animation: draw var(--scene-motion) ease-out;
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
 }
 
 .arrowHead {
@@ -158,4 +167,15 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .control,
+  .element,
+  .marker,
+  .link,
+  .value {
+    transition: none;
+    animation: none;
+  }
 }

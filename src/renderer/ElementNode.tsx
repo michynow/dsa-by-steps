@@ -24,7 +24,7 @@ export function ElementNode({ item, selected, onFaded }: ElementNodeProps): Reac
       }}
     >
       <rect className={styles.box} width={item.width} height={item.height} />
-      <text className={styles.value} x={item.width / 2} y={item.height / 2}>
+      <text key={item.label} className={styles.value} x={item.width / 2} y={item.height / 2}>
         {truncateToWidth(item.label, item.width)}
       </text>
     </g>

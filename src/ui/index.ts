@@ -3,3 +3,4 @@ import './global.css';
 
 export { Button } from './button/Button';
 export type { ButtonProps } from './button/Button';
+export { prefersReducedMotion, useReducedMotion } from './prefers-reduced-motion';

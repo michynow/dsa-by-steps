@@ -8,6 +8,7 @@ const base = '/en/foundations/linked-lists';
 test('answers a Choice Check and a Predict Check, unblocks next and keeps them settled on reload', async ({
   page,
 }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto(`${base}/${String(choice.number)}`);
   const next = page.getByRole('button', { name: 'Next' });
   const submit = page.getByRole('button', { name: 'Check answer' });
@@ -28,6 +29,7 @@ test('answers a Choice Check and a Predict Check, unblocks next and keeps them s
   await expect(next).not.toHaveAttribute('aria-disabled', 'true');
 
   await page.goto(`${base}/${String(predict.number)}`);
+  await page.reload();
   await expect(next).toHaveAttribute('aria-disabled', 'true');
 
   await page.getByRole('button', { name: predict.wrong }).click();

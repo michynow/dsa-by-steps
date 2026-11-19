@@ -1,28 +1,26 @@
 import type { ReactElement } from 'react';
-import type { LessonContent, LessonMessages } from '@/content';
+import type { LessonContent } from '@/content';
+import type { Locale } from '@/domain';
+import { TermsPanel } from '@/features/terms';
 import type { LessonPlayerMessages } from './messages';
 import { OutcomesPanel } from './OutcomesPanel';
-import { TermsPanel } from './TermsPanel';
 
 export interface LessonPanelsProps {
   readonly content: LessonContent;
-  readonly lessonMessages: LessonMessages;
+  readonly locale: Locale;
   readonly messages: LessonPlayerMessages;
+  readonly step: number;
 }
 
-export function LessonPanels({
-  content,
-  lessonMessages,
-  messages,
-}: LessonPanelsProps): ReactElement {
+export function LessonPanels({ content, locale, messages, step }: LessonPanelsProps): ReactElement {
   return (
     <>
       <OutcomesPanel
         outcomes={content.lesson.outcomes}
-        lessonMessages={lessonMessages}
+        lessonMessages={content.messages[locale]}
         messages={messages}
       />
-      <TermsPanel terms={content.terms} lessonMessages={lessonMessages} messages={messages} />
+      <TermsPanel content={content} locale={locale} step={step} />
     </>
   );
 }

@@ -14,6 +14,7 @@ const seededProgress = JSON.stringify({
 test('steps through the Linked lists Lesson, remembers seen Steps and keeps the Step on Locale switch', async ({
   page,
 }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.addInitScript(`
     if (window.localStorage.getItem('dsa-by-steps.progress') === null) {
       window.localStorage.setItem('dsa-by-steps.progress', ${JSON.stringify(seededProgress)});

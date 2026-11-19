@@ -46,15 +46,19 @@
     "nextBlocked": "Answer the question to continue."
   },
   "panels": {
-    "outcomes": "Outcomes",
-    "terms": "Terms"
+    "outcomes": "Outcomes"
   },
   "progress": {
     "segment": "{lesson}, {status}",
-
     "label": "Module progress",
     "position": "Lesson {number} of {count}",
     "passed": "passed",
     "notPassed": "not passed"
+  },
+  "playback": {
+    "controls": "Playback",
+    "replay": "Replay",
+    "pause": "Pause",
+    "play": "Play"
   }
 }
