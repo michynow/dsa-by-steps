@@ -1,12 +1,8 @@
 import { expect, test } from '@playwright/test';
-import lesson from '../src/content/foundations/linked-lists/en.json' with { type: 'json' };
+import { checkIds, firstStepTitle, lessonTitle, stepCount } from './lesson-content';
 
-const stepCount = 12;
 const passedChecks = Object.fromEntries(
-  Object.keys(lesson.checks).map((id) => [
-    `foundations/linked-lists/${id}`,
-    { misses: 0, status: 'passed' },
-  ]),
+  checkIds.map((id) => [`foundations/linked-lists/${id}`, { misses: 0, status: 'passed' }]),
 );
 const seededProgress = JSON.stringify({
   version: 1,
@@ -14,8 +10,6 @@ const seededProgress = JSON.stringify({
   exercises: {},
   checks: passedChecks,
 });
-
-const firstStepTitle = 'Adding to the front is expensive';
 
 test('steps through the Linked lists Lesson, remembers seen Steps and keeps the Step on Locale switch', async ({
   page,
@@ -26,7 +20,7 @@ test('steps through the Linked lists Lesson, remembers seen Steps and keeps the 
     }
   `);
   await page.goto('/en');
-  await page.getByRole('main').getByRole('link', { name: 'Linked lists' }).click();
+  await page.getByRole('main').getByRole('link', { name: lessonTitle }).click();
   await expect(page).toHaveURL(/\/en\/foundations\/linked-lists\/1$/);
   const rail = page.getByRole('navigation', { name: 'Steps' });
   await expect(rail.getByRole('link')).toHaveCount(stepCount);
@@ -70,7 +64,7 @@ test('steps through the Linked lists Lesson, remembers seen Steps and keeps the 
   );
 
   await polishRail.getByRole('link').last().click();
-  await expect(page).toHaveURL(/\/pl\/foundations\/linked-lists\/12$/);
+  await expect(page).toHaveURL(new RegExp(`/pl/foundations/linked-lists/${String(stepCount)}$`));
   await page.getByRole('link', { name: 'Przećwicz to' }).click();
   await expect(page).toHaveURL(/\/pl\/practice\/foundations\/linked-lists$/);
   await expect(page.getByText('Wkrótce')).toBeVisible();
