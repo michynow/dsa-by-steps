@@ -1,5 +1,5 @@
 import { scenesOf } from '@/domain';
-import type { ElementId, Scene } from '@/domain';
+import type { Scene } from '@/domain';
 import { lessonContent } from '../../registry';
 import { linkedListsContent } from './index';
 
@@ -15,42 +15,58 @@ const scenes = reduced();
 
 interface Summary {
   readonly structures: readonly string[];
-  readonly list: {
-    readonly head: ElementId | null;
-    readonly order: readonly ElementId[];
-    readonly nodes: readonly ElementId[];
-  } | null;
+  readonly head: string | null;
+  readonly order: readonly string[];
+  readonly nodes: readonly string[];
+  readonly cells: readonly string[];
   readonly pointers: readonly string[];
 }
 
-function summarise(scene: Scene): Summary {
-  const list = scene.structures.find((structure) => structure.id === 'list');
-  const order: ElementId[] = [];
-  if (list?.kind === 'linked-list') {
-    let current = list.head;
-    while (current !== null) {
-      order.push(current);
-      const at: ElementId = current;
-      current = list.nodes.find((node) => node.id === at)?.next ?? null;
-    }
-  }
-  return {
-    structures: scene.structures.map((structure) => structure.id),
-    list:
-      list?.kind === 'linked-list'
-        ? { head: list.head, order, nodes: list.nodes.map((node) => node.id) }
-        : null,
-    pointers: scene.pointers.map(
-      (pointer) => `${pointer.id}:${pointer.target?.elementId ?? 'null'}`,
-    ),
-  };
+function pointerLabels(scene: Scene): readonly string[] {
+  return scene.pointers.map((pointer) => `${pointer.id}:${pointer.target?.elementId ?? 'null'}`);
 }
 
-function sceneAt(stepId: string): Scene {
-  const index = lesson.steps.findIndex((step) => step.id === stepId);
-  const scene = scenes[index];
-  if (scene === undefined) throw new Error(`no scene for ${stepId}`);
-  return scene;
+function highlightLabels(scene: Scene): readonly string[] {
+  return scene.highlights.map(
+    (highlight) =>
+      `${highlight.target.structureId}/${highlight.target.elementId}:${highlight.tone}`,
+  );
+}
+
+type Queue = Extract<Scene['structures'][number], { kind: 'linked-list' }>;
+
+function queueOf(scene: Scene): Queue | undefined {
+  const found = scene.structures.find((structure) => structure.id === 'queue');
+  return found?.kind === 'linked-list' ? found : undefined;
+}
+
+function cellsOf(scene: Scene): readonly string[] {
+  const found = scene.structures.find((structure) => structure.id === 'queue-array');
+  return found?.kind === 'array' ? found.cells.map((cell) => String(cell.value)) : [];
+}
+
+function songsFromHead(queue: Queue | undefined): readonly string[] {
+  if (queue === undefined) return [];
+  const valueOf = new Map(queue.nodes.map((node) => [node.id, String(node.value)]));
+  const next = new Map(queue.nodes.map((node) => [node.id, node.next]));
+  const order: string[] = [];
+  for (let at = queue.head; at !== null; at = next.get(at) ?? null) {
+    order.push(valueOf.get(at) ?? at);
+  }
+  return order;
+}
+
+function summarise(scene: Scene): Summary {
+  const queue = queueOf(scene);
+  const order = songsFromHead(queue);
+  return {
+    structures: scene.structures.map((structure) => structure.id),
+    head: order[0] ?? null,
+    order,
+    nodes: queue === undefined ? [] : queue.nodes.map((node) => String(node.value)),
+    cells: cellsOf(scene),
+    pointers: pointerLabels(scene),
+  };
 }
 
 function sceneBefore(stepId: string): Scene {
@@ -58,9 +74,11 @@ function sceneBefore(stepId: string): Scene {
   return index === 0 ? lesson.initialScene : (scenes[index - 1] ?? lesson.initialScene);
 }
 
-const abcd = ['node-a', 'node-b', 'node-c', 'node-d'] as const;
-const zabcd = ['node-z', 'node-a', 'node-b', 'node-c', 'node-d'] as const;
-const withZ = ['node-a', 'node-b', 'node-c', 'node-d', 'node-z'] as const;
+const firstFour = ['Intro', 'Echo', 'Drift', 'Pulse'] as const;
+const afterPlayNext = ['Intro', 'Glow', 'Echo', 'Drift', 'Pulse'] as const;
+const afterRemoval = ['Intro', 'Glow', 'Drift', 'Pulse'] as const;
+const afterRemovalNodes = ['Intro', 'Drift', 'Pulse', 'Glow'] as const;
+const nowPlaying = ['now-playing:intro'] as const;
 
 describe('linked lists Lesson', () => {
   it('is registered under foundations', () => {
@@ -71,15 +89,15 @@ describe('linked lists Lesson', () => {
     expect(lesson.steps.map((step) => step.id)).toEqual([
       'the-problem',
       'a-node',
-      'linking-nodes',
+      'linking-songs',
       'the-head',
-      'current-pointer',
+      'now-playing-pointer',
       'traversal',
-      'insert-at-head',
-      'insert-after',
-      'delete-after',
-      'access-by-index',
+      'play-next',
+      'remove-from-queue',
+      'jump-to-song',
       'arrays-vs-lists',
+      'where-you-meet-it',
       'reverse-preview',
     ]);
   });
@@ -91,59 +109,96 @@ describe('linked lists Lesson', () => {
     ]);
   });
 
-  it('reduces every Step to the expected Structures, list order and Pointers', () => {
+  it('reduces every Step to the expected Structures, head, song order and Pointers', () => {
     expect(scenes.map(summarise)).toEqual([
-      { structures: ['tasks'], list: null, pointers: [] },
-      { structures: ['list'], list: { head: null, order: [], nodes: ['node-a'] }, pointers: [] },
-      { structures: ['list'], list: { head: null, order: [], nodes: [...abcd] }, pointers: [] },
       {
-        structures: ['list'],
-        list: { head: 'node-a', order: [...abcd], nodes: [...abcd] },
+        structures: ['queue-array'],
+        head: null,
+        order: [],
+        nodes: [],
+        cells: [...afterPlayNext],
+        pointers: [],
+      },
+      { structures: ['queue'], head: null, order: [], nodes: ['Intro'], cells: [], pointers: [] },
+      {
+        structures: ['queue'],
+        head: null,
+        order: [],
+        nodes: [...firstFour],
+        cells: [],
         pointers: [],
       },
       {
-        structures: ['list'],
-        list: { head: 'node-a', order: [...abcd], nodes: [...abcd] },
-        pointers: ['current:node-b'],
-      },
-      {
-        structures: ['list'],
-        list: { head: 'node-a', order: [...abcd], nodes: [...abcd] },
+        structures: ['queue'],
+        head: 'Intro',
+        order: [...firstFour],
+        nodes: [...firstFour],
+        cells: [],
         pointers: [],
       },
       {
-        structures: ['list'],
-        list: { head: 'node-z', order: [...zabcd], nodes: [...withZ] },
+        structures: ['queue'],
+        head: 'Intro',
+        order: [...firstFour],
+        nodes: [...firstFour],
+        cells: [],
+        pointers: [...nowPlaying],
+      },
+      {
+        structures: ['queue'],
+        head: 'Intro',
+        order: [...firstFour],
+        nodes: [...firstFour],
+        cells: [],
+        pointers: [...nowPlaying],
+      },
+      {
+        structures: ['queue'],
+        head: 'Intro',
+        order: [...afterPlayNext],
+        nodes: [...firstFour, 'Glow'],
+        cells: [],
+        pointers: [...nowPlaying],
+      },
+      {
+        structures: ['queue'],
+        head: 'Intro',
+        order: [...afterRemoval],
+        nodes: [...afterRemovalNodes],
+        cells: [],
+        pointers: [...nowPlaying],
+      },
+      {
+        structures: ['queue'],
+        head: 'Intro',
+        order: [...afterRemoval],
+        nodes: [...afterRemovalNodes],
+        cells: [],
+        pointers: [...nowPlaying],
+      },
+      {
+        structures: ['queue', 'queue-array'],
+        head: 'Intro',
+        order: [...afterRemoval],
+        nodes: [...afterRemovalNodes],
+        cells: [...afterRemoval],
+        pointers: [...nowPlaying],
+      },
+      {
+        structures: ['queue'],
+        head: 'Intro',
+        order: [...afterRemoval],
+        nodes: [...afterRemovalNodes],
+        cells: [],
         pointers: [],
       },
       {
-        structures: ['list'],
-        list: {
-          head: 'node-z',
-          order: ['node-z', 'node-a', 'node-x', 'node-b', 'node-c', 'node-d'],
-          nodes: [...withZ, 'node-x'],
-        },
-        pointers: ['prev:node-a'],
-      },
-      {
-        structures: ['list'],
-        list: { head: 'node-z', order: [...zabcd], nodes: [...withZ] },
-        pointers: ['prev:node-a'],
-      },
-      {
-        structures: ['list'],
-        list: { head: 'node-z', order: [...zabcd], nodes: [...withZ] },
-        pointers: [],
-      },
-      {
-        structures: ['list', 'cells'],
-        list: { head: 'node-z', order: [...zabcd], nodes: [...withZ] },
-        pointers: [],
-      },
-      {
-        structures: ['list'],
-        list: { head: 'node-z', order: [...zabcd], nodes: [...withZ] },
-        pointers: ['prev:null', 'current:node-z', 'next:node-a'],
+        structures: ['queue'],
+        head: 'Intro',
+        order: [...afterRemoval],
+        nodes: [...afterRemovalNodes],
+        cells: [],
+        pointers: ['prev:null', 'current:intro', 'next:glow'],
       },
     ]);
   });
@@ -154,13 +209,12 @@ describe('linked lists Lesson', () => {
         step.check === undefined ? [] : [[step.id, step.check.id, step.check.kind]],
       ),
     ).toEqual([
-      ['a-node', 'what-a-node-holds', 'choice'],
-      ['the-head', 'which-node-becomes-head', 'predict'],
-      ['traversal', 'where-current-moves', 'predict'],
-      ['insert-at-head', 'cost-of-insert-at-head', 'choice'],
-      ['insert-after', 'first-link-to-change', 'choice'],
-      ['delete-after', 'prev-next-after-deletion', 'predict'],
-      ['access-by-index', 'cost-of-reaching-index-k', 'choice'],
+      ['linking-songs', 'what-a-node-links-to', 'choice'],
+      ['the-head', 'which-song-is-head', 'predict'],
+      ['traversal', 'where-the-walk-lands', 'predict'],
+      ['play-next', 'first-link-for-play-next', 'choice'],
+      ['remove-from-queue', 'song-before-the-removed', 'predict'],
+      ['jump-to-song', 'cost-of-reaching-index-k', 'choice'],
       ['arrays-vs-lists', 'cheaper-on-a-list', 'choice'],
     ]);
   });
@@ -170,13 +224,13 @@ describe('linked lists Lesson', () => {
       step.check?.kind === 'predict' ? [[step.id, step.check.correct.elementId]] : [],
     );
     expect(answers).toEqual([
-      ['the-head', 'node-a'],
-      ['traversal', 'node-c'],
-      ['delete-after', 'node-b'],
+      ['the-head', 'intro'],
+      ['traversal', 'drift'],
+      ['remove-from-queue', 'glow'],
     ]);
     expect(
       answers.map(([stepId, elementId]) => {
-        const list = sceneBefore(stepId ?? '').structures.find((s) => s.id === 'list');
+        const list = sceneBefore(stepId ?? '').structures.find((s) => s.id === 'queue');
         return list?.kind === 'linked-list' && list.nodes.some((n) => n.id === elementId);
       }),
     ).toEqual([true, true, true]);
@@ -185,38 +239,19 @@ describe('linked lists Lesson', () => {
   it('poses each Check on a Scene with exactly these Pointers and Highlights', () => {
     const checked = lesson.steps.filter((step) => step.check !== undefined);
     expect(
-      checked.map((step) => {
-        const before = sceneBefore(step.id);
-        return {
-          step: step.id,
-          pointers: before.pointers.map(
-            (pointer) => `${pointer.id}:${pointer.target?.elementId ?? 'null'}`,
-          ),
-          highlights: before.highlights.map(
-            (highlight) =>
-              `${highlight.target.structureId}/${highlight.target.elementId}:${highlight.tone}`,
-          ),
-        };
-      }),
+      checked.map((step) => ({
+        step: step.id,
+        pointers: pointerLabels(sceneBefore(step.id)),
+        highlights: highlightLabels(sceneBefore(step.id)),
+      })),
     ).toEqual([
-      {
-        step: 'a-node',
-        pointers: [],
-        highlights: [
-          'tasks/cell-z:focus',
-          'tasks/cell-a:error',
-          'tasks/cell-b:error',
-          'tasks/cell-c:error',
-          'tasks/cell-d:error',
-        ],
-      },
+      { step: 'linking-songs', pointers: [], highlights: [] },
       { step: 'the-head', pointers: [], highlights: [] },
-      { step: 'traversal', pointers: ['current:node-b'], highlights: ['list/node-b:focus'] },
-      { step: 'insert-at-head', pointers: [], highlights: [] },
-      { step: 'insert-after', pointers: [], highlights: ['list/node-z:focus'] },
-      { step: 'delete-after', pointers: ['prev:node-a'], highlights: ['list/node-x:focus'] },
-      { step: 'access-by-index', pointers: ['prev:node-a'], highlights: ['list/node-a:done'] },
-      { step: 'arrays-vs-lists', pointers: [], highlights: [] },
+      { step: 'traversal', pointers: [...nowPlaying], highlights: [] },
+      { step: 'play-next', pointers: [...nowPlaying], highlights: [] },
+      { step: 'remove-from-queue', pointers: [...nowPlaying], highlights: [] },
+      { step: 'jump-to-song', pointers: [...nowPlaying], highlights: [] },
+      { step: 'arrays-vs-lists', pointers: [...nowPlaying], highlights: [] },
     ]);
   });
 
@@ -236,15 +271,15 @@ describe('linked lists Lesson', () => {
     expect(marked).toEqual([
       { step: 'the-head', pointed: false, highlighted: false },
       { step: 'traversal', pointed: false, highlighted: false },
-      { step: 'delete-after', pointed: false, highlighted: false },
+      { step: 'remove-from-queue', pointed: false, highlighted: false },
     ]);
   });
 
   it('ends with the prev, current and next Pointers', () => {
-    expect(sceneAt('reverse-preview').pointers).toEqual([
+    expect(scenes.at(-1)?.pointers).toEqual([
       { id: 'prev', label: 'prev', target: null },
-      { id: 'current', label: 'current', target: { structureId: 'list', elementId: 'node-z' } },
-      { id: 'next', label: 'next', target: { structureId: 'list', elementId: 'node-a' } },
+      { id: 'current', label: 'current', target: { structureId: 'queue', elementId: 'intro' } },
+      { id: 'next', label: 'next', target: { structureId: 'queue', elementId: 'glow' } },
     ]);
   });
 });
