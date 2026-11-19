@@ -17,6 +17,18 @@
   border-color: var(--color-success-ink);
 }
 
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--font-size-body);
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+}
+
 .header {
   margin: 0;
   font-size: var(--font-size-caption);
@@ -62,6 +74,7 @@
 }
 
 .explanation {
+  color: var(--color-ink);
   margin: 0;
   padding: var(--space-3);
   background: var(--color-surface);

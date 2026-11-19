@@ -297,13 +297,36 @@ describe('CheckPanel Your turn card', () => {
     const first = renderPanel(choice);
     await first.user.click(screen.getByRole('radio', { name: 'Bravo' }));
     await first.user.click(screen.getByRole('button', { name: 'Check answer' }));
-    expect(screen.getByRole('region', { name: 'Your turn' })).toHaveTextContent('Correct');
+    expect(screen.getByText('Your turn · Correct')).toBeInTheDocument();
     first.unmount();
     const second = renderPanel(choice);
     await missTwiceChoice(second.user);
     await second.user.click(screen.getByRole('radio', { name: 'Alpha' }));
     await second.user.click(screen.getByRole('button', { name: 'Check answer' }));
     await second.user.click(screen.getByRole('button', { name: 'Show me' }));
-    expect(screen.getByRole('region', { name: 'Your turn' })).toHaveTextContent('Answer shown');
+    expect(screen.getByText('Your turn · Answer shown')).toBeInTheDocument();
+  });
+
+  it('carries the done styling only once settled', async () => {
+    const { user } = renderPanel(choice);
+    const region = screen.getByRole('region', { name: 'Your turn' });
+    expect(region).not.toHaveClass('done');
+    await user.click(screen.getByRole('radio', { name: 'Bravo' }));
+    await user.click(screen.getByRole('button', { name: 'Check answer' }));
+    expect(region).toHaveClass('done');
+  });
+
+  it('styles the settled explanation with its own readable class', async () => {
+    const { user } = renderPanel(choice);
+    await user.click(screen.getByRole('radio', { name: 'Bravo' }));
+    await user.click(screen.getByRole('button', { name: 'Check answer' }));
+    expect(screen.getByText('Because bravo.')).toHaveClass('explanation');
+  });
+
+  it('renders an Order Check as a plain info card, not a Your turn region', () => {
+    renderPanel(order);
+    expect(screen.queryByRole('region', { name: 'Your turn' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Your turn · Check')).not.toBeInTheDocument();
+    expect(screen.getByText('Which one?')).toBeInTheDocument();
   });
 });

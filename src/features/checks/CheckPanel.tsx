@@ -6,6 +6,7 @@ import { Button } from '@/ui';
 import { useMessages } from '../locale';
 import { checkText } from './check-text';
 import type { CheckText } from './check-text';
+import { formatTemplate } from './format-template';
 import { OrderCheckCard } from './OrderCheckCard';
 import { ChoiceOptions } from './ChoiceOptions';
 import type { CheckSession } from './use-check-session';
@@ -19,8 +20,8 @@ function feedbackOf(session: CheckSession, text: CheckText, empty: boolean): str
 }
 
 function headerOf(session: CheckSession, text: CheckText): string {
-  if (session.state.status === 'passed') return `${text.header} · ${text.doneCorrect}`;
-  if (session.state.status === 'revealed') return `${text.header} · ${text.doneRevealed}`;
+  if (session.state.status === 'passed') return `${text.region} · ${text.doneCorrect}`;
+  if (session.state.status === 'revealed') return `${text.region} · ${text.doneRevealed}`;
   return text.header;
 }
 
@@ -30,9 +31,10 @@ function panelClass(session: CheckSession): string {
 
 function missesOf(session: CheckSession, text: CheckText): string | null {
   if (session.state.status !== 'open' || session.state.misses === 0) return null;
-  return text.misses
-    .replace('{count}', String(session.state.misses))
-    .replace('{max}', String(missesBeforeReveal));
+  return formatTemplate(text.misses, {
+    count: String(session.state.misses),
+    max: String(missesBeforeReveal),
+  });
 }
 
 export function CheckPanel(props: {
@@ -46,7 +48,7 @@ export function CheckPanel(props: {
   const actedOn = useRef<string | null>(null);
 
   if (session.check.kind === 'order') {
-    return <OrderCheckCard messages={messages} text={text} />;
+    return <OrderCheckCard messages={messages} />;
   }
 
   const misses = missesOf(session, text);

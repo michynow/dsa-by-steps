@@ -1,14 +1,12 @@
-import { readFileSync } from 'node:fs';
-
-const css = readFileSync('src/ui/tokens/tokens.css', 'utf8');
+import tokensCss from './tokens.css?raw';
 
 const names = ['turn', 'term'].flatMap((family) =>
   ['', '-ink', '-surface', '-border'].map((suffix) => `--color-${family}${suffix}`),
 );
 
 function blockAfter(marker: string): string {
-  const start = css.indexOf(marker);
-  return start === -1 ? '' : css.slice(start, css.indexOf('}', start));
+  const start = tokensCss.indexOf(marker);
+  return start === -1 ? '' : tokensCss.slice(start, tokensCss.indexOf('}', start));
 }
 
 const blocks = {
@@ -19,8 +17,10 @@ const blocks = {
 
 describe('turn and term tokens', () => {
   for (const [label, block] of Object.entries(blocks)) {
-    it(`defines every turn and term token in the ${label}`, () => {
-      expect(names.filter((name) => !block.includes(`${name}:`))).toEqual([]);
+    it(`gives every turn and term token a colour value in the ${label}`, () => {
+      expect(
+        names.filter((name) => !new RegExp(`${name}:\\s*#[0-9a-fA-F]{6};`).test(block)),
+      ).toEqual([]);
     });
   }
 });
