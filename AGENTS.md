@@ -88,6 +88,7 @@ Keyboard-complete: every Step, Check (including Order Checks) and Exercise actio
 - **Content tests** run every Lesson's Reference Solution against all its Tests, assert every Locale defines every message key, and assert every Step's Step Events reduce to a valid Scene.
 - A behaviour change without a test that fails before it and passes after is unfinished.
 - Assert whole values: `toEqual` on the full Result, Scene or error, never only `.ok`, a length or an occurrence count. Type tests prove types with annotations and `expectTypeOf`, not casts.
+- Tests outside `src/content` never hard-code Lesson wording, Step numbers or Check positions; derive them from the registered content.
 - Test builders shared by several test files live in `src/test/`. Only `*.test.ts(x)` files may import them; production source never contains test helpers.
 
 ## Workflow
