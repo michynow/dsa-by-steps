@@ -87,6 +87,10 @@ export default defineConfig(
               allow: { to: { element: { type: 'domain', ...publicSurface } } },
             },
             {
+              from: { element: { type: 'content' }, file: { categories: 'test' } },
+              allow: { to: { element: { type: 'runner', ...publicSurface } } },
+            },
+            {
               from: { element: { type: 'test-support' } },
               allow: { to: { element: { type: 'domain', ...publicSurface } } },
             },
@@ -156,6 +160,10 @@ export default defineConfig(
       'max-lines-per-function': 'off',
       'no-restricted-syntax': 'off',
     },
+  },
+  {
+    files: ['src/runner/**/*.ts'],
+    rules: { '@typescript-eslint/no-implied-eval': 'off' },
   },
   {
     files: ['*.config.ts', 'eslint/**'],
