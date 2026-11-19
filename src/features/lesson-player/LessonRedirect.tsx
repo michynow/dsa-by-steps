@@ -12,5 +12,5 @@ export function LessonRedirect({
   const { locale = '', module = '', lesson = '' } = useParams();
   const content = findLesson(modules, module, lesson);
   if (content === undefined) return <Navigate to={`/${locale}`} replace />;
-  return <Navigate to={`/${locale}/${module}/${lesson}/${segmentOf(content.lesson, 0)}`} replace />;
+  return <Navigate to={`/${locale}/${module}/${lesson}/${segmentOf(0)}`} replace />;
 }

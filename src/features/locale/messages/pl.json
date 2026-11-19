@@ -1,6 +1,7 @@
 {
   "course": {
     "title": "DSA krok po kroku",
+    "noSteps": "Brak kroków",
     "tagline": "Zobacz, jak struktury danych i algorytmy działają krok po kroku, a potem zbuduj je sam w TypeScript."
   },
   "locale": {

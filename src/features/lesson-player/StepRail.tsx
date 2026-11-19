@@ -1,13 +1,13 @@
 import type { ReactElement } from 'react';
 import type { LessonContent, LessonMessages } from '@/content';
-import { exerciseProgressOf, lessonKey, stepsSeenIn } from '@/domain';
+import { lessonKey, stepsSeenIn } from '@/domain';
 import type { Locale } from '@/domain';
 import { useProgress } from '@/features/progress';
 import type { LessonPlayerMessages } from './messages';
 import styles from './StepRail.module.css';
 import { StepRailEntry } from './StepRailEntry';
 import type { RailStatus } from './StepRailEntry';
-import { exerciseSegment, segmentOf } from './step-route';
+import { segmentOf } from './step-route';
 
 export interface StepRailProps {
   readonly content: LessonContent;
@@ -32,8 +32,6 @@ export function StepRail({
   const { lesson } = content;
   const key = lessonKey(content.module, lesson.slug);
   const seen = useProgress((progress) => stepsSeenIn(progress, key));
-  const exercisePassed = useProgress((progress) => exerciseProgressOf(progress, key).passed);
-  const exerciseStatus = statusOf(lesson.steps.length, current, exercisePassed);
   const base = `/${locale}/${content.module}/${lesson.slug}`;
   return (
     <nav aria-label={messages.rail.label} className={styles.rail}>
@@ -43,23 +41,16 @@ export function StepRail({
           return (
             <StepRailEntry
               key={step.id}
-              to={`${base}/${segmentOf(lesson, index)}`}
+              to={`${base}/${segmentOf(index)}`}
               label={String(index + 1)}
               title={lessonMessages.steps[step.id]?.title ?? ''}
               status={status}
               statusText={messages.rail[status]}
               problemText={step.kind === 'problem' ? messages.rail.problem : undefined}
+              turnText={step.check === undefined ? undefined : messages.rail.turn}
             />
           );
         })}
-        <StepRailEntry
-          to={`${base}/${exerciseSegment}`}
-          label=""
-          title={messages.rail.exercise}
-          status={exerciseStatus}
-          statusText={messages.rail[exerciseStatus]}
-          problemText={undefined}
-        />
       </ol>
     </nav>
   );

@@ -3,8 +3,8 @@ import type { LessonContent } from '@/content';
 import { lessonKey } from '@/domain';
 import type { Course, Locale } from '@/domain';
 import { useMessages } from '@/features/locale';
+import { practicePath } from '@/features/practice';
 import { CaptionStrip } from './CaptionStrip';
-import { ExercisePlaceholder } from './ExercisePlaceholder';
 import styles from './LessonLayout.module.css';
 import { lessonPlayerMessages } from './messages';
 import { LessonPanels } from './LessonPanels';
@@ -26,6 +26,13 @@ export interface LessonLayoutProps {
   readonly useStepCheck: UseStepCheck;
 }
 
+function practiceLinkOf(content: LessonContent, locale: Locale, step: number): string | undefined {
+  const { lesson } = content;
+  return step === lesson.steps.length - 1
+    ? practicePath(locale, content.module, lesson.slug)
+    : undefined;
+}
+
 export function LessonLayout({
   course,
   content,
@@ -39,6 +46,7 @@ export function LessonLayout({
   const key = lessonKey(content.module, lesson.slug);
   const binding = useBoundCheck(useStepCheck, content, locale, step);
   const current = lesson.steps[step];
+  const practiceLink = practiceLinkOf(content, locale, step);
   const gated = current?.check !== undefined && !binding.settled;
   const scenes = useLessonScenes(lesson, key);
   const navigation = useStepNavigation({
@@ -66,19 +74,18 @@ export function LessonLayout({
             scene={displayedScene(lesson, scenes, step, gated)}
             messages={messages}
             selection={binding.selection}
+            turn={gated}
+            stepId={current?.id ?? ''}
           />
-          {current === undefined ? (
-            <ExercisePlaceholder messages={messages} navigation={navigation} />
-          ) : (
-            <CaptionStrip
-              step={lessonMessages.steps[current.id]}
-              problem={current.kind === 'problem'}
-              showCaption={!gated}
-              panel={binding.panel}
-              messages={messages}
-              navigation={navigation}
-            />
-          )}
+          <CaptionStrip
+            step={current === undefined ? undefined : lessonMessages.steps[current.id]}
+            problem={current?.kind === 'problem'}
+            showCaption={!gated}
+            panel={binding.panel}
+            practice={practiceLink}
+            messages={messages}
+            navigation={navigation}
+          />
           <LessonPanels content={content} lessonMessages={lessonMessages} messages={messages} />
         </div>
       </div>

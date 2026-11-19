@@ -11,6 +11,7 @@ export interface StepRailEntryProps {
   readonly status: RailStatus;
   readonly statusText: string;
   readonly problemText: string | undefined;
+  readonly turnText: string | undefined;
 }
 
 export function StepRailEntry({
@@ -20,6 +21,7 @@ export function StepRailEntry({
   status,
   statusText,
   problemText,
+  turnText,
 }: StepRailEntryProps): ReactElement {
   return (
     <li className={styles.entry} data-status={status}>
@@ -33,6 +35,11 @@ export function StepRailEntry({
         {problemText === undefined ? null : (
           <>
             <span className={styles.problem}>{problemText}</span>{' '}
+          </>
+        )}
+        {turnText === undefined ? null : (
+          <>
+            <span className={styles.turn}>{turnText}</span>{' '}
           </>
         )}
         <span className={styles.hidden}>{statusText}</span>
