@@ -56,5 +56,11 @@
     "position": "Lekcja {number} z {count}",
     "passed": "zaliczona",
     "notPassed": "niezaliczona"
+  },
+  "playback": {
+    "controls": "Odtwarzanie",
+    "replay": "Odtwórz ponownie",
+    "pause": "Wstrzymaj",
+    "play": "Odtwórz"
   }
 }

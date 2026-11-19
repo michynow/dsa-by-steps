@@ -43,6 +43,7 @@ export function LinkLayer({ structures }: LinkLayerProps): ReactElement {
               className={styles.link}
               data-link={linkKey(structure, link)}
               d={d}
+              pathLength={1}
               style={{ d: `path("${d}")` }}
               markerEnd={link.to === null ? undefined : `url(#${arrowId})`}
             />

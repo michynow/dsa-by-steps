@@ -333,6 +333,24 @@ describe('SceneView', () => {
     expect(after).toHaveAttribute('d', 'M168 48 L200 48');
   });
 
+  it('normalises link length so it can draw in', () => {
+    const { container } = renderScene(sceneOf([listOf('list', 'a', node('a', 'b'), node('b'))]));
+    const link = byAttribute(container, 'data-link', JSON.stringify(['list', 'a', 'b']));
+    expect(link).toHaveAttribute('pathLength', '1');
+  });
+
+  it('replaces the value text when the value changes so the change can fade in', () => {
+    const withValue = (value: string) => sceneOf([listOf('list', 'a', node('a', null, value))]);
+    const { container, rerender } = renderScene(withValue('x'));
+    const before = elementNode(container, 'list', 'a')?.querySelector('text');
+    rerender(viewOf(withValue('y')));
+    const after = elementNode(container, 'list', 'a')?.querySelector('text');
+    expect({ same: after === before, text: after?.textContent }).toEqual({
+      same: false,
+      text: 'y',
+    });
+  });
+
   it('fills its container up to twice natural size and shrinks below natural size', () => {
     const { container } = renderScene(sceneOf([arrayOf('arr', 'a', 'b')]));
     expect(container.querySelector('svg')).toHaveAttribute('viewBox', '0 0 160 76');

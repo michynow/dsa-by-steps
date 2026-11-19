@@ -101,6 +101,16 @@ const railNames = () =>
     .getAllByRole('link')
     .map((link) => link.textContent.replace(/\s+/g, ' ').trim());
 
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    matches: query === '(prefers-reduced-motion: reduce)',
+  }));
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 describe('LessonPage', () => {
   it('redirects the Lesson URL to Step 1', async () => {
     const { router } = renderAt('/en/basics/stacks');
