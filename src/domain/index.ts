@@ -6,3 +6,4 @@ export * from './scene';
 export * from './check';
 export * from './course';
 export * from './progress';
+export * from './exercise';

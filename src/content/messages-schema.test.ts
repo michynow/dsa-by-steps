@@ -1,7 +1,7 @@
 import type { z } from 'zod';
 import { templateContent } from './_template';
-import { lessonMessagesSchema } from './messages-schema';
-import type { LessonMessages } from './types';
+import { exerciseMessagesSchema, lessonMessagesSchema } from './messages-schema';
+import type { ExerciseMessages, LessonMessages } from './types';
 
 const valid = templateContent.messages.en;
 
@@ -84,5 +84,47 @@ describe('lessonMessagesSchema', () => {
     const asSchemaType: z.infer<typeof lessonMessagesSchema> = valid;
     const asMessages: LessonMessages = lessonMessagesSchema.parse(valid);
     expect([asSchemaType, asMessages]).toEqual([valid, valid]);
+  });
+});
+
+describe('exerciseMessagesSchema', () => {
+  const exercise = { title: 'Second number', task: 'Return it.', hints: ['One', 'Two'] };
+
+  it('accepts exercise messages unchanged', () => {
+    expect(exerciseMessagesSchema.parse(exercise)).toEqual(exercise);
+  });
+
+  it('accepts lesson messages carrying an exercise', () => {
+    expect(lessonMessagesSchema.parse({ ...valid, exercise })).toEqual({ ...valid, exercise });
+  });
+
+  it('rejects an unknown key', () => {
+    expect(
+      exerciseMessagesSchema
+        .safeParse({ ...exercise, extra: 'x' })
+        .error?.issues.map(({ code, path }) => ({ code, path })),
+    ).toEqual([{ code: 'unrecognized_keys', path: [] }]);
+  });
+
+  it('rejects an empty title, task and hint', () => {
+    const result = exerciseMessagesSchema.safeParse({ title: '', task: '', hints: [''] });
+    expect(result.error?.issues.map(({ code, path }) => ({ code, path }))).toEqual([
+      { code: 'too_small', path: ['title'] },
+      { code: 'too_small', path: ['task'] },
+      { code: 'too_small', path: ['hints', 0] },
+    ]);
+  });
+
+  it('rejects hints that are not an array', () => {
+    const result = exerciseMessagesSchema.safeParse({ ...exercise, hints: 'One' });
+    expect(result.error?.issues.map(({ code, path }) => ({ code, path }))).toEqual([
+      { code: 'invalid_type', path: ['hints'] },
+    ]);
+  });
+
+  it('stays in step with ExerciseMessages', () => {
+    const asSchemaType: z.infer<typeof exerciseMessagesSchema> = exercise;
+    const asMessages: ExerciseMessages = exerciseMessagesSchema.parse(exercise);
+    expect([asSchemaType, asMessages]).toEqual([exercise, exercise]);
   });
 });
