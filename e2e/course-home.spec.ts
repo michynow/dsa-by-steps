@@ -11,3 +11,12 @@ test('opens the Course home and switches Locale', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveURL(/\/pl$/);
 });
+
+test('keeps the Locale when switching to Practice and back to Learn', async ({ page }) => {
+  await page.goto('/pl');
+  const modes = page.getByRole('navigation', { name: 'Tryb' });
+  await modes.getByRole('link', { name: 'Ćwicz' }).click();
+  await expect(page).toHaveURL(/\/pl\/practice$/);
+  await modes.getByRole('link', { name: 'Ucz się' }).click();
+  await expect(page).toHaveURL(/\/pl$/);
+});

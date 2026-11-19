@@ -29,7 +29,7 @@ test('steps through the Linked lists Lesson, remembers seen Steps and keeps the 
   await page.getByRole('main').getByRole('link', { name: 'Linked lists' }).click();
   await expect(page).toHaveURL(/\/en\/foundations\/linked-lists\/1$/);
   const rail = page.getByRole('navigation', { name: 'Steps' });
-  await expect(rail.getByRole('link')).toHaveCount(stepCount + 1);
+  await expect(rail.getByRole('link')).toHaveCount(stepCount);
 
   if (testInfo.project.name === 'mobile') {
     await expect(rail.getByText('1', { exact: true })).toBeVisible();
@@ -43,10 +43,8 @@ test('steps through the Linked lists Lesson, remembers seen Steps and keeps the 
     await page.getByRole('button', { name: 'Next' }).click();
     await expect(page).toHaveURL(new RegExp(`/${String(step)}$`));
   }
-  await page.getByRole('button', { name: 'Next' }).click();
-  await expect(page).toHaveURL(/\/code$/);
-  await expect(page.getByText('The Exercise arrives soon.')).toBeVisible();
-  await expect(rail.getByRole('link', { name: /seen$/ })).toHaveCount(stepCount);
+  await expect(page.getByRole('button', { name: 'Next' })).toBeDisabled();
+  await expect(rail.getByRole('link', { name: /seen$/ })).toHaveCount(stepCount - 1);
 
   await rail.getByRole('link').first().click();
   await expect(page).toHaveURL(/\/1$/);
@@ -55,9 +53,9 @@ test('steps through the Linked lists Lesson, remembers seen Steps and keeps the 
     await expect(page).toHaveURL(new RegExp(`/${String(step)}$`));
   }
   await page.keyboard.press('ArrowRight');
-  await expect(page).toHaveURL(/\/code$/);
-  await page.keyboard.press('ArrowLeft');
   await expect(page).toHaveURL(new RegExp(`/${String(stepCount)}$`));
+  await page.keyboard.press('ArrowLeft');
+  await expect(page).toHaveURL(new RegExp(`/${String(stepCount - 1)}$`));
 
   await rail.getByRole('link').nth(1).click();
   await expect(page).toHaveURL(/\/2$/);
@@ -72,6 +70,15 @@ test('steps through the Linked lists Lesson, remembers seen Steps and keeps the 
   );
 
   await polishRail.getByRole('link').last().click();
-  await expect(page).toHaveURL(/\/pl\/foundations\/linked-lists\/code$/);
-  await expect(page.getByText('Ćwiczenie pojawi się wkrótce.')).toBeVisible();
+  await expect(page).toHaveURL(/\/pl\/foundations\/linked-lists\/12$/);
+  await page.getByRole('link', { name: 'Przećwicz to' }).click();
+  await expect(page).toHaveURL(/\/pl\/practice\/foundations\/linked-lists$/);
+  await expect(page.getByText('Wkrótce')).toBeVisible();
+});
+
+test('redirects the old Exercise URL to the Practice detail in the same Locale', async ({
+  page,
+}) => {
+  await page.goto('/pl/foundations/linked-lists/code');
+  await expect(page).toHaveURL(/\/pl\/practice\/foundations\/linked-lists$/);
 });

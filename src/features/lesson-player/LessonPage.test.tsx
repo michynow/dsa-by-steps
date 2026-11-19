@@ -108,10 +108,10 @@ describe('LessonPage', () => {
     expect(router.state.location.pathname).toBe('/en/basics/stacks/1');
   });
 
-  it('redirects a Lesson without Steps to its Exercise', async () => {
+  it('redirects a Lesson without Steps to the Course home', async () => {
     const { router } = renderAt('/en/solo/bare');
-    await screen.findByRole('heading', { level: 2, name: 'Exercise' });
-    expect(router.state.location.pathname).toBe('/en/solo/bare/code');
+    await screen.findByText('course home');
+    expect(router.state.location.pathname).toBe('/en');
   });
 
   it('redirects an unknown Lesson URL to the Course home', async () => {
@@ -134,22 +134,7 @@ describe('LessonPage', () => {
     expect(sceneLines()).toEqual(['Stack: j2 (top), j1, i0']);
   });
 
-  it('shows the last Scene in the Exercise', () => {
-    renderAt('/en/basics/queues/code');
-    expect(sceneLines()).toEqual(['Stack: j2 (top), j1, i0']);
-  });
-
-  it('shows the Exercise placeholder and keeps the Rail', () => {
-    renderAt('/en/basics/stacks/code');
-    expect(screen.getByRole('heading', { level: 2, name: 'Exercise' })).toBeVisible();
-    expect(screen.getByText('The Exercise arrives soon.')).toBeVisible();
-    expect(screen.getByRole('link', { name: /^Exercise current$/ })).toHaveAttribute(
-      'aria-current',
-      'step',
-    );
-  });
-
-  it.each(['0', '-1', '1.5', 'abc', '4', '01', 'CODE'])(
+  it.each(['0', '-1', '1.5', 'abc', '4', '01', 'CODE', 'code'])(
     'redirects the invalid step %s to the Course home',
     async (step) => {
       const { router } = renderAt(`/en/basics/stacks/${step}`);
@@ -164,38 +149,25 @@ describe('LessonPage', () => {
     expect(router.state.location.pathname).toBe('/en');
   });
 
-  it('renders a Lesson with zero Steps as only the Exercise', () => {
-    renderAt('/en/solo/bare/code');
-    expect(railNames()).toEqual(['Exercise current']);
-    expect(sceneLines()).toEqual(['Stack: i0 (top)']);
-  });
-
-  it('lists every Step and the Exercise in the Rail with their state', async () => {
+  it('lists every Step in the Rail with their state', async () => {
     const user = userEvent.setup();
     renderAt('/en/basics/stacks/1');
     expect(railNames()).toEqual([
       '1 Why stacks Problem current',
-      '2 Push one not seen yet',
+      '2 Push one Your turn not seen yet',
       '3 Pop one not seen yet',
-      'Exercise not seen yet',
     ]);
     await user.click(screen.getByRole('link', { name: /^3 Pop one/ }));
     expect(railNames()).toEqual([
       '1 Why stacks Problem seen',
-      '2 Push one not seen yet',
+      '2 Push one Your turn not seen yet',
       '3 Pop one current',
-      'Exercise not seen yet',
     ]);
   });
 
   it('marks a Step seen once it is viewed', () => {
     const { store } = renderAt('/en/basics/stacks/1');
     expect(store.getState().progress.stepsSeen).toEqual({ 'basics/stacks': ['why'] });
-  });
-
-  it('does not mark the Exercise as a Step seen', () => {
-    const { store } = renderAt('/en/basics/stacks/code');
-    expect(store.getState().progress.stepsSeen).toEqual({});
   });
 
   it('updates the document title with the Lesson and Course title', async () => {
@@ -230,9 +202,8 @@ describe('LessonPage', () => {
     renderAt('/en/basics/stacks/2', { repository: createBrowserProgressRepository(storage) });
     expect(railNames()).toEqual([
       '1 Why stacks Problem not seen yet',
-      '2 Push one current',
+      '2 Push one Your turn current',
       '3 Pop one not seen yet',
-      'Exercise not seen yet',
     ]);
   });
 
@@ -247,15 +218,6 @@ describe('LessonPage', () => {
     });
     expect(spy.mock.calls).toEqual([]);
     expect(store.getState().progress.stepsSeen).toEqual({ 'basics/stacks': ['why'] });
-  });
-
-  it('shows the Exercise as seen once it has a Pass', () => {
-    const { store } = renderAt('/en/basics/stacks/1');
-    expect(railNames().at(-1)).toBe('Exercise not seen yet');
-    act(() => {
-      store.getState().actions.recordSubmit('basics/stacks', 'pass');
-    });
-    expect(railNames().at(-1)).toBe('Exercise seen');
   });
 
   it('keeps focus on Next and the same Stage when moving into a checked Step', async () => {
@@ -281,20 +243,26 @@ describe('LessonPage navigation', () => {
     expect(router.state.location.pathname).toBe('/en/basics/stacks/1');
   });
 
-  it('crosses into the next Lesson and back', async () => {
+  it('crosses into the next Lesson and back without an Exercise position', async () => {
     const user = userEvent.setup();
-    const { router } = renderAt('/en/basics/stacks/code');
+    const { router } = renderAt('/en/basics/stacks/3');
     await user.click(screen.getByRole('button', { name: 'Next' }));
     expect(router.state.location.pathname).toBe('/en/basics/queues/1');
     await user.click(screen.getByRole('button', { name: 'Previous' }));
-    expect(router.state.location.pathname).toBe('/en/basics/stacks/code');
+    expect(router.state.location.pathname).toBe('/en/basics/stacks/3');
   });
 
-  it('crosses into the next Module and ends at the last Lesson', async () => {
+  it('skips the Exercise with the arrow keys in both directions', async () => {
     const user = userEvent.setup();
-    const { router } = renderAt('/en/basics/queues/code');
-    await user.click(screen.getByRole('button', { name: 'Next' }));
-    expect(router.state.location.pathname).toBe('/en/solo/bare/code');
+    const { router } = renderAt('/en/basics/stacks/3');
+    await user.keyboard('{ArrowRight}');
+    expect(router.state.location.pathname).toBe('/en/basics/queues/1');
+    await user.keyboard('{ArrowLeft}');
+    expect(router.state.location.pathname).toBe('/en/basics/stacks/3');
+  });
+
+  it('ends at the last Step of the last Lesson with Steps', () => {
+    renderAt('/en/basics/queues/2');
     expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
   });
 
@@ -436,7 +404,7 @@ describe('LessonPage checks', () => {
     const user = userEvent.setup();
     const { store } = renderAt('/en/basics/stacks/2', { useStepCheck: fakeCheck(false) });
     expect(store.getState().progress.stepsSeen).toEqual({});
-    expect(railNames()).toContain('2 Push one current');
+    expect(railNames()).toContain('2 Push one Your turn current');
     await user.click(screen.getByRole('button', { name: 'settle' }));
     expect(store.getState().progress.stepsSeen).toEqual({ 'basics/stacks': ['push'] });
   });
@@ -446,6 +414,63 @@ describe('LessonPage checks', () => {
     expect(sceneLines()).toEqual(['Stack: i1 (top), i0']);
     expect(screen.getByText('Why stacks caption')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Next' })).toHaveAttribute('aria-disabled', 'false');
+  });
+});
+
+describe('LessonPage Practice and Your turn', () => {
+  const frame = () => document.querySelector('[data-stage]');
+
+  it('links the last Step to its Practice detail', () => {
+    renderAt('/en/basics/stacks/3');
+    expect(screen.getByRole('link', { name: 'Practice this' })).toHaveAttribute(
+      'href',
+      '/en/practice/basics/stacks',
+    );
+  });
+
+  it('keeps the Practice link in the Locale of the page', () => {
+    renderAt('/pl/basics/stacks/3', { locale: 'pl' });
+    expect(screen.getByRole('link', { name: 'Przećwicz to' })).toHaveAttribute(
+      'href',
+      '/pl/practice/basics/stacks',
+    );
+  });
+
+  it('shows no Practice link before the last Step', () => {
+    renderAt('/en/basics/stacks/2');
+    expect(screen.queryByRole('link', { name: 'Practice this' })).toBeNull();
+  });
+
+  it('frames the Stage and shows the banner while the Check is unsettled', () => {
+    renderAt('/en/basics/stacks/2', { useStepCheck: fakeCheck(false) });
+    expect(frame()).toHaveAttribute('data-turn', 'true');
+    expect(screen.getByText('Your turn — predict what happens')).toBeVisible();
+  });
+
+  it('announces the banner politely', () => {
+    renderAt('/en/basics/stacks/2', { useStepCheck: fakeCheck(false) });
+    expect(
+      screen.getByText('Your turn — predict what happens').closest('[aria-live]'),
+    ).toHaveAttribute('aria-live', 'polite');
+  });
+
+  it('drops the frame and the banner once the Check settles', async () => {
+    const user = userEvent.setup();
+    renderAt('/en/basics/stacks/2', { useStepCheck: fakeCheck(false) });
+    await user.click(screen.getByRole('button', { name: 'settle' }));
+    expect(frame()).toHaveAttribute('data-turn', 'false');
+    expect(screen.queryByText('Your turn — predict what happens')).toBeNull();
+  });
+
+  it('shows neither on a settled or unchecked Step', () => {
+    renderAt('/en/basics/stacks/2', { useStepCheck: fakeCheck(true) });
+    expect(frame()).toHaveAttribute('data-turn', 'false');
+    expect(screen.queryByText('Your turn — predict what happens')).toBeNull();
+  });
+
+  it('shows neither on a Step without a Check under an unsettled binding', () => {
+    renderAt('/en/basics/stacks/1', { useStepCheck: fakeCheck(false) });
+    expect(frame()).toHaveAttribute('data-turn', 'false');
   });
 });
 

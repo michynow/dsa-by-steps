@@ -60,6 +60,15 @@
   border-radius: var(--radius-control);
 }
 
+.turn {
+  padding: 0 var(--space-1);
+  font-size: var(--font-size-caption);
+  color: var(--color-turn-ink, var(--color-ink));
+  background: var(--color-turn-soft, var(--color-surface));
+  border: var(--border-width) solid var(--color-turn, var(--color-success));
+  border-radius: var(--radius-control);
+}
+
 .hidden {
   position: absolute;
   width: 1px;

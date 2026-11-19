@@ -5,3 +5,18 @@
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-hard);
 }
+
+.stage[data-turn='true'] {
+  border-color: var(--color-turn, var(--color-success));
+  outline: var(--border-width) solid var(--color-turn, var(--color-success));
+}
+
+.banner {
+  padding: var(--space-1) var(--space-3);
+  margin: 0 0 var(--space-3);
+  font-weight: 600;
+  color: var(--color-turn-ink, var(--color-ink));
+  background: var(--color-turn-soft, var(--color-surface));
+  border: var(--border-width) solid var(--color-turn, var(--color-success));
+  border-radius: var(--radius-control);
+}

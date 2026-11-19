@@ -32,9 +32,7 @@ export function CourseHome({
             <ul className={styles.lessons}>
               {module.lessons.map((lesson) => (
                 <li key={lesson.lesson.slug}>
-                  <Link
-                    to={`/${path}/${module.slug}/${lesson.lesson.slug}/${segmentOf(lesson.lesson, 0)}`}
-                  >
+                  <Link to={`/${path}/${module.slug}/${lesson.lesson.slug}/${segmentOf(0)}`}>
                     {lesson.messages[locale].title}
                   </Link>
                 </li>

@@ -5,6 +5,7 @@
     "body": "Its content is broken. Please report it."
   },
   "stage": {
+    "turn": "Your turn — predict what happens",
     "figure": "Scene",
     "select": "Select",
     "structure": {
@@ -31,7 +32,7 @@
   },
   "rail": {
     "label": "Steps",
-    "exercise": "Exercise",
+    "turn": "Your turn",
     "problem": "Problem",
     "seen": "seen",
     "current": "current",
@@ -41,15 +42,12 @@
     "navigation": "Step navigation",
     "previous": "Previous",
     "next": "Next",
+    "practice": "Practice this",
     "nextBlocked": "Answer the question to continue."
   },
   "panels": {
     "outcomes": "Outcomes",
     "terms": "Terms"
-  },
-  "exercise": {
-    "title": "Exercise",
-    "soon": "The Exercise arrives soon."
   },
   "progress": {
     "segment": "{lesson}, {status}",

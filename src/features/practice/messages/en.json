@@ -1,0 +1,14 @@
+{
+  "modes": {
+    "label": "Mode",
+    "learn": "Learn",
+    "practice": "Practice"
+  },
+  "page": {
+    "title": "Practice"
+  },
+  "exercise": {
+    "status": "Coming soon",
+    "backToLesson": "Back to the Lesson"
+  }
+}

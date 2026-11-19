@@ -78,7 +78,7 @@ describe('App', () => {
       ).toEqual([
         ['Stacks', '/en/basics/stacks/1'],
         ['Queues', '/en/basics/queues/1'],
-        ['Bare', '/en/solo/bare/code'],
+        ['Bare', '/en/solo/bare/1'],
       ]);
     });
 
