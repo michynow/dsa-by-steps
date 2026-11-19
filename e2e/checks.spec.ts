@@ -29,7 +29,6 @@ test('answers a Choice Check and a Predict Check, unblocks next and keeps them s
   await expect(next).not.toHaveAttribute('aria-disabled', 'true');
 
   await page.goto(`${base}/${String(predict.number)}`);
-  await page.reload();
   await expect(next).toHaveAttribute('aria-disabled', 'true');
 
   await page.getByRole('button', { name: predict.wrong }).click();
