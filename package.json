@@ -8,7 +8,9 @@
     "node": ">=24"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "i18next": "^27.1.5",
+    "monaco-editor": "^0.57.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-i18next": "^18.0.2",

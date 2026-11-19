@@ -9,6 +9,7 @@ import {
   localeFromPath,
 } from '@/features/locale';
 import { createBrowserProgressRepository, createProgressStore } from '@/features/progress';
+import { createWorkerExerciseRunner } from '@/runner';
 import '@/ui';
 import { App } from './App';
 import { createRoutes } from './routes';
@@ -27,6 +28,7 @@ createRoot(container).render(
       i18n={createI18n(initialLocale)}
       router={createBrowserRouter(createRoutes({ modules }))}
       progress={createProgressStore(createBrowserProgressRepository(window.localStorage))}
+      runner={createWorkerExerciseRunner()}
     />
   </StrictMode>,
 );

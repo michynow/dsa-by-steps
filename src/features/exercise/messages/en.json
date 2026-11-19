@@ -1,0 +1,77 @@
+{
+  "editor": {
+    "label": "Solution code editor",
+    "hint": "Press Escape to leave the editor. Press Ctrl+M to switch Tab between indenting and moving focus. Run: Ctrl or Cmd+Enter. Submit: Ctrl or Cmd+Shift+Enter."
+  },
+  "task": {
+    "title": "Task"
+  },
+  "run": "Run",
+  "submit": "Submit",
+  "running": "Running…",
+  "status": {
+    "passed": "passed",
+    "failed": "failed",
+    "errored": "errored",
+    "timed-out": "timed out",
+    "too-slow": "correct but too slow",
+    "skipped": "skipped"
+  },
+  "results": {
+    "title": "Tests",
+    "empty": "Run your code to see the results here.",
+    "hiddenTest": "Hidden test",
+    "input": "Input",
+    "expected": "Expected",
+    "actual": "Actual",
+    "tooSlow": "Your answer is correct but too slow for long inputs. It took {ms} ms against a budget of {budget} ms. Expected complexity: {complexity}.",
+    "timedOut": "The test did not finish within {ms} ms.",
+    "skipped": "Skipped because an earlier test did not pass.",
+    "stackOverflow": "Deep recursion runs out of stack on long queues. A loop avoids it.",
+    "compileError": "Compile error at {line}:{column}: {message}",
+    "internalError": "The checker failed. Your code was not judged. Try again.",
+    "allPassed": "All tests passed.",
+    "someFailed": "Some tests did not pass.",
+    "emptyList": "empty list"
+  },
+  "hints": {
+    "title": "Hints",
+    "show": "Show hint {number} of {count}",
+    "none": "No more hints.",
+    "item": "Hint {number}"
+  },
+  "solution": {
+    "title": "Reference Solution",
+    "locked": "Locked until you have 3 rejected Submits or a Pass.",
+    "show": "Show solution",
+    "hide": "Hide solution",
+    "label": "Reference Solution code"
+  },
+  "narrow": "This Exercise works best on a wider screen. You can still solve it here.",
+  "loadingEditor": "Loading the editor…",
+  "scene": {
+    "sceneDescription": "Scene",
+    "selectElement": "Select",
+    "structure": {
+      "array": "Array",
+      "linked-list": "Linked list",
+      "stack": "Stack",
+      "queue": "Queue",
+      "hash-map": "Hash map"
+    },
+    "tone": {
+      "focus": "focused",
+      "compare": "being compared",
+      "done": "done",
+      "error": "error"
+    },
+    "head": "head",
+    "top": "top",
+    "front": "front",
+    "back": "back",
+    "nullLink": "null",
+    "empty": "empty",
+    "bucket": "Bucket",
+    "index": "Index"
+  }
+}

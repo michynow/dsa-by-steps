@@ -17,9 +17,11 @@ test('switches between Learn and Practice, opens an Exercise and returns through
   );
   await expect(modes.getByRole('link', { name: 'Learn' })).not.toHaveAttribute('aria-current');
 
-  await page.getByRole('link', { name: 'Linked lists Coming soon' }).click();
+  await page.getByRole('link', { name: 'Linked lists Available' }).click();
   await expect(page).toHaveURL(/\/en\/practice\/foundations\/linked-lists$/);
-  await expect(page.getByText('Coming soon')).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Play the queue backwards' }),
+  ).toBeVisible();
 
   await page.getByRole('link', { name: 'Back to the Lesson' }).click();
   await expect(page).toHaveURL(/\/en\/foundations\/linked-lists\/1$/);
@@ -30,7 +32,9 @@ test('opens the Practice detail from the Practice this link on the last Step', a
   await page.goto('/en/foundations/linked-lists/12');
   await page.getByRole('link', { name: 'Practice this' }).click();
   await expect(page).toHaveURL(/\/en\/practice\/foundations\/linked-lists$/);
-  await expect(page.getByText('Coming soon')).toBeVisible();
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Play the queue backwards' }),
+  ).toBeVisible();
 });
 
 test('sends an unknown Practice detail to the Practice page', async ({ page }) => {
