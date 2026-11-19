@@ -1,0 +1,15 @@
+export const intrinsics = Object.freeze({
+  entries: Object.entries,
+  keys: Object.keys,
+  getPrototypeOf: Object.getPrototypeOf,
+  objectPrototype: Object.prototype,
+  isArray: Array.isArray,
+  isFinite: Number.isFinite,
+  clone: structuredClone,
+  now: performance.now.bind(performance),
+  apply: Reflect.apply,
+  stringify: JSON.stringify,
+  max: Math.max,
+  Map,
+  Set,
+});

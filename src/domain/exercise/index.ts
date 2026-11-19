@@ -1,5 +1,6 @@
 export type {
   ComplexityTest,
+  ErroredReason,
   Exercise,
   InputGenerator,
   JsonValue,

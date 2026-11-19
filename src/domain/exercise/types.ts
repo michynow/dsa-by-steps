@@ -36,6 +36,8 @@ export interface Exercise {
   readonly hintCount: number;
 }
 
+export type ErroredReason = 'stack-overflow';
+
 export type TestOutcome =
   | { readonly kind: 'passed'; readonly testId: string; readonly durationMs: number }
   | {
@@ -45,7 +47,13 @@ export type TestOutcome =
       readonly expected: ShapedValue;
       readonly actual: ShapedValue;
     }
-  | { readonly kind: 'errored'; readonly testId: string; readonly message: string }
+  | {
+      readonly kind: 'errored';
+      readonly testId: string;
+      readonly message: string;
+      readonly reason?: ErroredReason | undefined;
+    }
+  | { readonly kind: 'skipped'; readonly testId: string }
   | { readonly kind: 'timed-out'; readonly testId: string; readonly limitMs: number }
   | {
       readonly kind: 'too-slow';
