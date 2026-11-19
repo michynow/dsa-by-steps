@@ -45,8 +45,38 @@ describe('lessonMessagesSchema', () => {
   });
 
   it('rejects a missing top-level field', () => {
-    expect(issuesOf({ title: 't', outcomes: {}, steps: {}, checks: {} })).toEqual([
+    expect(issuesOf({ ...valid, terms: undefined })).toEqual([
       { code: 'invalid_type', path: ['terms'] },
+    ]);
+  });
+
+  it('rejects a missing story', () => {
+    expect(issuesOf({ ...valid, story: undefined })).toEqual([
+      { code: 'invalid_type', path: ['story'] },
+    ]);
+  });
+
+  it('rejects two uses', () => {
+    expect(issuesOf({ ...valid, uses: valid.uses.slice(0, 2) })).toEqual([
+      { code: 'too_small', path: ['uses'] },
+    ]);
+  });
+
+  it('rejects five uses', () => {
+    expect(issuesOf({ ...valid, uses: [...valid.uses, ...valid.uses].slice(0, 5) })).toEqual([
+      { code: 'too_big', path: ['uses'] },
+    ]);
+  });
+
+  it('rejects an empty whenNot', () => {
+    expect(issuesOf({ ...valid, whenNot: '' })).toEqual([{ code: 'too_small', path: ['whenNot'] }]);
+  });
+
+  it('accepts a Step without a keyIdea and rejects an empty one', () => {
+    const step = { title: 't', caption: 'c' };
+    expect(issuesOf({ ...valid, steps: { 'the-problem': step } })).toEqual([]);
+    expect(issuesOf({ ...valid, steps: { 'the-problem': { ...step, keyIdea: '' } } })).toEqual([
+      { code: 'too_small', path: ['steps', 'the-problem', 'keyIdea'] },
     ]);
   });
 

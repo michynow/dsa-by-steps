@@ -1,16 +1,36 @@
 {
   "title": "Template lesson",
+  "story": {
+    "title": "A shelf of numbers",
+    "summary": "You read numbers off a row, one by index."
+  },
+  "uses": [
+    {
+      "title": "Spreadsheets",
+      "body": "Rows of cells are read by position."
+    },
+    {
+      "title": "Image pixels",
+      "body": "A picture is a grid read by coordinates."
+    },
+    {
+      "title": "Game boards",
+      "body": "Squares are looked up by index."
+    }
+  ],
+  "whenNot": "Skip it when the row must grow or shrink often.",
   "outcomes": {
     "read-an-array": "Read an element of an array by its index"
   },
   "steps": {
     "the-problem": {
       "title": "Finding one number",
-      "caption": "You have a row of numbers and need the second one. Scanning from the start feels slow."
+      "caption": "You have a row of numbers, an [[array]], and need the second one. Scanning from the start feels slow."
     },
     "how-it-works": {
       "title": "Jump straight to it",
-      "caption": "An array stores its cells side by side, so the index tells you exactly where to look."
+      "caption": "An array stores its cells side by side, so the index tells you exactly where to look.",
+      "keyIdea": "The index tells you exactly where to look."
     }
   },
   "checks": {
