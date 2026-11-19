@@ -33,37 +33,37 @@ function highlightLabels(scene: Scene): readonly string[] {
   );
 }
 
-type Queue = Extract<Scene['structures'][number], { kind: 'linked-list' }>;
+type Trail = Extract<Scene['structures'][number], { kind: 'linked-list' }>;
 
-function queueOf(scene: Scene): Queue | undefined {
-  const found = scene.structures.find((structure) => structure.id === 'queue');
+function trailOf(scene: Scene): Trail | undefined {
+  const found = scene.structures.find((structure) => structure.id === 'trail');
   return found?.kind === 'linked-list' ? found : undefined;
 }
 
 function cellsOf(scene: Scene): readonly string[] {
-  const found = scene.structures.find((structure) => structure.id === 'queue-array');
+  const found = scene.structures.find((structure) => structure.id === 'sheet');
   return found?.kind === 'array' ? found.cells.map((cell) => String(cell.value)) : [];
 }
 
-function songsFromHead(queue: Queue | undefined): readonly string[] {
-  if (queue === undefined) return [];
-  const valueOf = new Map(queue.nodes.map((node) => [node.id, String(node.value)]));
-  const next = new Map(queue.nodes.map((node) => [node.id, node.next]));
+function cluesFromHead(trail: Trail | undefined): readonly string[] {
+  if (trail === undefined) return [];
+  const valueOf = new Map(trail.nodes.map((node) => [node.id, String(node.value)]));
+  const next = new Map(trail.nodes.map((node) => [node.id, node.next]));
   const order: string[] = [];
-  for (let at = queue.head; at !== null; at = next.get(at) ?? null) {
+  for (let at = trail.head; at !== null; at = next.get(at) ?? null) {
     order.push(valueOf.get(at) ?? at);
   }
   return order;
 }
 
 function summarise(scene: Scene): Summary {
-  const queue = queueOf(scene);
-  const order = songsFromHead(queue);
+  const trail = trailOf(scene);
+  const order = cluesFromHead(trail);
   return {
     structures: scene.structures.map((structure) => structure.id),
     head: order[0] ?? null,
     order,
-    nodes: queue === undefined ? [] : queue.nodes.map((node) => String(node.value)),
+    nodes: trail === undefined ? [] : trail.nodes.map((node) => String(node.value)),
     cells: cellsOf(scene),
     pointers: pointerLabels(scene),
   };
@@ -78,11 +78,14 @@ function sceneBefore(stepId: string): Scene {
   return scene;
 }
 
-const firstFour = ['Intro', 'Echo', 'Drift', 'Pulse'] as const;
-const afterPlayNext = ['Intro', 'Glow', 'Echo', 'Drift', 'Pulse'] as const;
-const afterRemoval = ['Intro', 'Glow', 'Drift', 'Pulse'] as const;
-const afterRemovalNodes = ['Intro', 'Drift', 'Pulse', 'Glow'] as const;
-const nowPlaying = ['now-playing:intro'] as const;
+const firstFour = ['Mat', 'Mail', 'Oven', 'Shed'] as const;
+const overviewTrail = ['Mat', 'Mail', 'Shed'] as const;
+const afterAddedStop = ['Mat', 'Mail', 'Clock', 'Oven', 'Shed'] as const;
+const afterRemoval = ['Mat', 'Mail', 'Clock', 'Shed'] as const;
+const afterRemovalNodes = ['Mat', 'Mail', 'Shed', 'Clock'] as const;
+const atMat = ['here:mat'] as const;
+const atMail = ['here:mail'] as const;
+const atShed = ['here:shed'] as const;
 
 describe('linked lists Lesson', () => {
   it('is registered under foundations', () => {
@@ -91,41 +94,55 @@ describe('linked lists Lesson', () => {
 
   it('lists its Steps in teaching order', () => {
     expect(lesson.steps.map((step) => step.id)).toEqual([
+      'overview',
       'the-problem',
-      'a-node',
-      'linking-songs',
-      'the-head',
-      'now-playing-pointer',
-      'traversal',
-      'play-next',
-      'remove-from-queue',
-      'jump-to-song',
-      'arrays-vs-lists',
+      'a-clue',
+      'chaining-clues',
+      'the-first-clue',
+      'finger-on-a-clue',
+      'following-the-trail',
+      'add-a-stop',
+      'remove-a-stop',
+      'jump-to-a-clue',
+      'sheet-vs-trail',
       'reverse-preview',
       'where-you-meet-it',
     ]);
   });
 
-  it('opens with the only Problem Step', () => {
+  it('opens with the Overview, then the only Problem Step', () => {
     expect(lesson.steps.map((step) => step.kind)).toEqual([
+      'explain',
       'problem',
-      ...lesson.steps.slice(1).map(() => 'explain'),
+      ...lesson.steps.slice(2).map(() => 'explain'),
     ]);
   });
 
-  it('reduces every Step to the expected Structures, head, song order and Pointers', () => {
+  it('gives the Overview no Check', () => {
+    expect(lesson.steps[0]?.check).toBeUndefined();
+  });
+
+  it('reduces every Step to the expected Structures, head, clue order and Pointers', () => {
     expect(scenes.map(summarise)).toEqual([
       {
-        structures: ['queue-array'],
+        structures: ['trail'],
+        head: 'Mat',
+        order: [...overviewTrail],
+        nodes: [...overviewTrail],
+        cells: [],
+        pointers: [],
+      },
+      {
+        structures: ['sheet'],
         head: null,
         order: [],
         nodes: [],
-        cells: [...afterPlayNext],
+        cells: [...afterAddedStop],
         pointers: [],
       },
-      { structures: ['queue'], head: null, order: [], nodes: ['Intro'], cells: [], pointers: [] },
+      { structures: ['trail'], head: null, order: [], nodes: ['Mat'], cells: [], pointers: [] },
       {
-        structures: ['queue'],
+        structures: ['trail'],
         head: null,
         order: [],
         nodes: [...firstFour],
@@ -133,72 +150,72 @@ describe('linked lists Lesson', () => {
         pointers: [],
       },
       {
-        structures: ['queue'],
-        head: 'Intro',
+        structures: ['trail'],
+        head: 'Mat',
         order: [...firstFour],
         nodes: [...firstFour],
         cells: [],
         pointers: [],
       },
       {
-        structures: ['queue'],
-        head: 'Intro',
+        structures: ['trail'],
+        head: 'Mat',
         order: [...firstFour],
         nodes: [...firstFour],
         cells: [],
-        pointers: [...nowPlaying],
+        pointers: [...atMat],
       },
       {
-        structures: ['queue'],
-        head: 'Intro',
+        structures: ['trail'],
+        head: 'Mat',
         order: [...firstFour],
         nodes: [...firstFour],
         cells: [],
-        pointers: [...nowPlaying],
+        pointers: [...atShed],
       },
       {
-        structures: ['queue'],
-        head: 'Intro',
-        order: [...afterPlayNext],
-        nodes: [...firstFour, 'Glow'],
+        structures: ['trail'],
+        head: 'Mat',
+        order: [...afterAddedStop],
+        nodes: [...firstFour, 'Clock'],
         cells: [],
-        pointers: [...nowPlaying],
+        pointers: [...atMail],
       },
       {
-        structures: ['queue'],
-        head: 'Intro',
+        structures: ['trail'],
+        head: 'Mat',
         order: [...afterRemoval],
         nodes: [...afterRemovalNodes],
         cells: [],
-        pointers: [...nowPlaying],
+        pointers: [...atMail],
       },
       {
-        structures: ['queue'],
-        head: 'Intro',
+        structures: ['trail'],
+        head: 'Mat',
         order: [...afterRemoval],
         nodes: [...afterRemovalNodes],
         cells: [],
-        pointers: [...nowPlaying],
+        pointers: [...atShed],
       },
       {
-        structures: ['queue', 'queue-array'],
-        head: 'Intro',
+        structures: ['trail', 'sheet'],
+        head: 'Mat',
         order: [...afterRemoval],
         nodes: [...afterRemovalNodes],
         cells: [...afterRemoval],
-        pointers: [...nowPlaying],
+        pointers: [...atShed],
       },
       {
-        structures: ['queue'],
-        head: 'Intro',
+        structures: ['trail'],
+        head: 'Mat',
         order: [...afterRemoval],
         nodes: [...afterRemovalNodes],
         cells: [],
-        pointers: ['prev:null', 'current:intro', 'next:glow'],
+        pointers: ['prev:null', 'current:mat', 'next:mail'],
       },
       {
-        structures: ['queue'],
-        head: 'Intro',
+        structures: ['trail'],
+        head: 'Mat',
         order: [...afterRemoval],
         nodes: [...afterRemovalNodes],
         cells: [],
@@ -213,13 +230,13 @@ describe('linked lists Lesson', () => {
         step.check === undefined ? [] : [[step.id, step.check.id, step.check.kind]],
       ),
     ).toEqual([
-      ['linking-songs', 'what-a-node-links-to', 'choice'],
-      ['the-head', 'which-song-is-head', 'predict'],
-      ['traversal', 'where-the-walk-lands', 'predict'],
-      ['play-next', 'first-link-for-play-next', 'choice'],
-      ['remove-from-queue', 'song-before-the-removed', 'predict'],
-      ['jump-to-song', 'cost-of-reaching-index-k', 'choice'],
-      ['arrays-vs-lists', 'cheaper-on-a-list', 'choice'],
+      ['chaining-clues', 'what-a-clue-holds', 'choice'],
+      ['the-first-clue', 'which-clue-is-first', 'predict'],
+      ['following-the-trail', 'where-the-walk-lands', 'predict'],
+      ['add-a-stop', 'first-rewrite-for-new-stop', 'choice'],
+      ['remove-a-stop', 'clue-before-the-removed', 'predict'],
+      ['jump-to-a-clue', 'cost-of-reaching-clue-k', 'choice'],
+      ['sheet-vs-trail', 'cheaper-on-a-trail', 'choice'],
     ]);
   });
 
@@ -230,13 +247,13 @@ describe('linked lists Lesson', () => {
         : [],
     );
     expect(answers).toEqual([
-      { step: 'the-head', element: 'intro' },
-      { step: 'traversal', element: 'drift' },
-      { step: 'remove-from-queue', element: 'glow' },
+      { step: 'the-first-clue', element: 'mat' },
+      { step: 'following-the-trail', element: 'oven' },
+      { step: 'remove-a-stop', element: 'clock' },
     ]);
     expect(
       answers.map(({ step, element }) => {
-        const list = sceneBefore(step).structures.find((s) => s.id === 'queue');
+        const list = sceneBefore(step).structures.find((s) => s.id === 'trail');
         return list?.kind === 'linked-list' && list.nodes.some((n) => n.id === element);
       }),
     ).toEqual([true, true, true]);
@@ -251,13 +268,13 @@ describe('linked lists Lesson', () => {
         highlights: highlightLabels(sceneBefore(step.id)),
       })),
     ).toEqual([
-      { step: 'linking-songs', pointers: [], highlights: [] },
-      { step: 'the-head', pointers: [], highlights: [] },
-      { step: 'traversal', pointers: [...nowPlaying], highlights: [] },
-      { step: 'play-next', pointers: [...nowPlaying], highlights: [] },
-      { step: 'remove-from-queue', pointers: [...nowPlaying], highlights: [] },
-      { step: 'jump-to-song', pointers: [...nowPlaying], highlights: [] },
-      { step: 'arrays-vs-lists', pointers: [...nowPlaying], highlights: [] },
+      { step: 'chaining-clues', pointers: [], highlights: [] },
+      { step: 'the-first-clue', pointers: [], highlights: [] },
+      { step: 'following-the-trail', pointers: [...atMat], highlights: [] },
+      { step: 'add-a-stop', pointers: [...atShed], highlights: [] },
+      { step: 'remove-a-stop', pointers: [...atMail], highlights: [] },
+      { step: 'jump-to-a-clue', pointers: [...atMail], highlights: [] },
+      { step: 'sheet-vs-trail', pointers: [...atShed], highlights: [] },
     ]);
   });
 
@@ -275,17 +292,17 @@ describe('linked lists Lesson', () => {
       ];
     });
     expect(marked).toEqual([
-      { step: 'the-head', pointed: false, highlighted: false },
-      { step: 'traversal', pointed: false, highlighted: false },
-      { step: 'remove-from-queue', pointed: false, highlighted: false },
+      { step: 'the-first-clue', pointed: false, highlighted: false },
+      { step: 'following-the-trail', pointed: false, highlighted: false },
+      { step: 'remove-a-stop', pointed: false, highlighted: false },
     ]);
   });
 
   it('previews the reversal with the prev, current and next Pointers', () => {
     expect(sceneBefore('where-you-meet-it').pointers).toEqual([
       { id: 'prev', label: 'prev', target: null },
-      { id: 'current', label: 'current', target: { structureId: 'queue', elementId: 'intro' } },
-      { id: 'next', label: 'next', target: { structureId: 'queue', elementId: 'glow' } },
+      { id: 'current', label: 'current', target: { structureId: 'trail', elementId: 'mat' } },
+      { id: 'next', label: 'next', target: { structureId: 'trail', elementId: 'mail' } },
     ]);
   });
 });

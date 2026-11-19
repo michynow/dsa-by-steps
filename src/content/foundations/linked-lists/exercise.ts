@@ -2,15 +2,15 @@ import type { Exercise, TestCase } from '@/domain';
 
 const reverseOf = (
   id: string,
-  songs: readonly string[] | null,
+  spots: readonly string[] | null,
   reversed: readonly string[] | null,
 ): TestCase => ({
   id,
-  args: [{ shape: 'linked-list', value: songs }],
+  args: [{ shape: 'linked-list', value: spots }],
   expected: { shape: 'linked-list', value: reversed },
 });
 
-const longQueue = Array.from({ length: 60 }, (_, index) => `Song ${String(index + 1)}`);
+const longHunt = Array.from({ length: 60 }, (_, index) => `Stop ${String(index + 1)}`);
 
 export const reverseListExercise: Exercise = {
   functionName: 'reverseList',
@@ -29,36 +29,28 @@ export const reverseListExercise: Exercise = {
 }
 `,
   visibleTests: [
-    reverseOf('three-songs', ['Intro', 'Echo', 'Drift'], ['Drift', 'Echo', 'Intro']),
-    reverseOf('single-song', ['Intro'], ['Intro']),
-    reverseOf('empty-queue', null, null),
+    reverseOf('three-spots', ['Mat', 'Mail', 'Clock'], ['Clock', 'Mail', 'Mat']),
+    reverseOf('single-spot', ['Mat'], ['Mat']),
+    reverseOf('empty-hunt', null, null),
   ],
   hiddenTests: [
-    reverseOf('two-songs', ['Intro', 'Echo'], ['Echo', 'Intro']),
+    reverseOf('two-spots', ['Mat', 'Mail'], ['Mail', 'Mat']),
     reverseOf(
-      'five-songs',
-      ['Intro', 'Echo', 'Drift', 'Pulse', 'Glow'],
-      ['Glow', 'Pulse', 'Drift', 'Echo', 'Intro'],
+      'five-spots',
+      ['Mat', 'Mail', 'Clock', 'Oven', 'Shed'],
+      ['Shed', 'Oven', 'Clock', 'Mail', 'Mat'],
     ),
+    reverseOf('repeated-spots', ['Oven', 'Oven', 'Shed', 'Oven'], ['Oven', 'Shed', 'Oven', 'Oven']),
+    reverseOf('long-hunt', longHunt, [...longHunt].reverse()),
     reverseOf(
-      'repeated-songs',
-      ['Echo', 'Echo', 'Drift', 'Echo'],
-      ['Echo', 'Drift', 'Echo', 'Echo'],
+      'last-spot-named-like-first',
+      ['Mat', 'Mail', 'Clock', 'Mat'],
+      ['Mat', 'Clock', 'Mail', 'Mat'],
     ),
-    reverseOf('long-queue', longQueue, [...longQueue].reverse()),
-    reverseOf(
-      'last-song-named-like-first',
-      ['Intro', 'Echo', 'Drift', 'Intro'],
-      ['Intro', 'Drift', 'Echo', 'Intro'],
-    ),
-    reverseOf(
-      'spaces-and-accents',
-      ['Café del Mar', 'Zażółć gęślą', 'Echo'],
-      ['Echo', 'Zażółć gęślą', 'Café del Mar'],
-    ),
+    reverseOf('spaces-and-accents', ['Café', 'Old oak', 'Shed'], ['Shed', 'Old oak', 'Café']),
   ],
   complexityTest: {
-    id: 'long-queue-complexity',
+    id: 'long-hunt-complexity',
     generator: { kind: 'linked-list-range', size: 100000 },
     expected: 'reference',
     budgetMultiple: 8,

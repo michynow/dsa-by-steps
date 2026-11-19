@@ -70,7 +70,7 @@ describe('reverseList Exercise', () => {
     }).toEqual({
       functionName: 'reverseList',
       complexityTest: {
-        id: 'long-queue-complexity',
+        id: 'long-hunt-complexity',
         generator: { kind: 'linked-list-range', size: 100000 },
         expected: 'reference',
         budgetMultiple: 8,
