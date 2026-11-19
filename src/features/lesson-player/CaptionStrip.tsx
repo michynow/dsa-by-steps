@@ -1,6 +1,10 @@
 import type { ReactElement, ReactNode } from 'react';
 import { Link } from 'react-router';
 import type { StepMessages } from '@/content';
+import { StoryCard, UsesSection } from '@/features/story';
+import type { LessonFraming } from '@/features/story';
+import { CaptionText, KeyIdea } from '@/features/terms';
+import type { CaptionGlossary } from '@/features/terms';
 import type { LessonPlayerMessages } from './messages';
 import styles from './CaptionStrip.module.css';
 import { StepControls } from './StepControls';
@@ -8,6 +12,8 @@ import type { StepNavigation } from './step-navigation';
 
 export interface CaptionStripProps {
   readonly step: StepMessages | undefined;
+  readonly glossary: CaptionGlossary;
+  readonly framing: LessonFraming;
   readonly problem: boolean;
   readonly showCaption: boolean;
   readonly panel: ReactNode;
@@ -18,6 +24,8 @@ export interface CaptionStripProps {
 
 export function CaptionStrip({
   step,
+  glossary,
+  framing,
   problem,
   showCaption,
   panel,
@@ -30,10 +38,19 @@ export function CaptionStrip({
       {showCaption && step !== undefined ? (
         <>
           {problem ? <p className={styles.problem}>{messages.rail.problem}</p> : null}
+          {framing.story === undefined ? null : (
+            <StoryCard story={framing.story} glossary={glossary} />
+          )}
           <h2 id="step-title" className={styles.title}>
             {step.title}
           </h2>
-          <p className={styles.caption}>{step.caption}</p>
+          <p className={styles.caption}>
+            <CaptionText text={step.caption} glossary={glossary} />
+          </p>
+          {step.keyIdea === undefined ? null : <KeyIdea text={step.keyIdea} glossary={glossary} />}
+          {framing.outro === undefined ? null : (
+            <UsesSection outro={framing.outro} glossary={glossary} />
+          )}
         </>
       ) : null}
       {panel}

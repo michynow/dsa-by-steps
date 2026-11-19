@@ -46,12 +46,10 @@
     "nextBlocked": "Odpowiedz na pytanie, aby przejść dalej."
   },
   "panels": {
-    "outcomes": "Efekty",
-    "terms": "Terminy"
+    "outcomes": "Efekty"
   },
   "progress": {
     "segment": "{lesson}, {status}",
-
     "label": "Postęp w module",
     "position": "Lekcja {number} z {count}",
     "passed": "zaliczona",

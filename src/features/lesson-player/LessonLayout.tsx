@@ -3,6 +3,8 @@ import type { LessonContent } from '@/content';
 import { lessonKey } from '@/domain';
 import type { Course, Locale } from '@/domain';
 import { useMessages } from '@/features/locale';
+import { lessonFraming } from '@/features/story';
+import { captionGlossary } from '@/features/terms';
 import { practicePath } from '@/features/practice';
 import { CaptionStrip } from './CaptionStrip';
 import styles from './LessonLayout.module.css';
@@ -46,7 +48,6 @@ export function LessonLayout({
   const key = lessonKey(content.module, lesson.slug);
   const binding = useBoundCheck(useStepCheck, content, locale, step);
   const current = lesson.steps[step];
-  const practiceLink = practiceLinkOf(content, locale, step);
   const gated = current?.check !== undefined && !binding.settled;
   const scenes = useLessonScenes(lesson, key);
   const navigation = useStepNavigation({
@@ -79,14 +80,16 @@ export function LessonLayout({
           />
           <CaptionStrip
             step={current === undefined ? undefined : lessonMessages.steps[current.id]}
+            glossary={captionGlossary(content, locale, step)}
+            framing={lessonFraming(lessonMessages, step, lesson.steps.length)}
             problem={current?.kind === 'problem'}
             showCaption={!gated}
             panel={binding.panel}
-            practice={practiceLink}
+            practice={practiceLinkOf(content, locale, step)}
             messages={messages}
             navigation={navigation}
           />
-          <LessonPanels content={content} lessonMessages={lessonMessages} messages={messages} />
+          <LessonPanels content={content} locale={locale} messages={messages} step={step} />
         </div>
       </div>
     </div>
