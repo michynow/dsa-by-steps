@@ -38,10 +38,20 @@ const queues: Lesson = {
 
 const bare: Lesson = { slug: 'bare', outcomes: [], initialScene, steps: [] };
 
+const lessonFrame = (prefix: string) => ({
+  story: { title: `${prefix}Story`, summary: `${prefix}Story summary` },
+  uses: [1, 2, 3].map((n) => ({
+    title: `${prefix}Use ${String(n)}`,
+    body: `${prefix}Use body ${String(n)}`,
+  })),
+  whenNot: `${prefix}When not`,
+});
+
 const stepMessages = (title: string) => ({ title, caption: `${title} caption` });
 
 const stackMessages = (prefix: string) => ({
   title: `${prefix}Stacks`,
+  ...lessonFrame(prefix),
   outcomes: { o1: `${prefix}Push and pop` },
   steps: {
     why: stepMessages(`${prefix}Why stacks`),
@@ -60,6 +70,7 @@ const stackMessages = (prefix: string) => ({
 
 const queueMessages = (prefix: string) => ({
   title: `${prefix}Queues`,
+  ...lessonFrame(prefix),
   outcomes: {},
   steps: {
     'q-one': stepMessages(`${prefix}Enqueue`),
@@ -77,6 +88,7 @@ const queueMessages = (prefix: string) => ({
 
 const bareMessages = (prefix: string) => ({
   title: `${prefix}Bare`,
+  ...lessonFrame(prefix),
   outcomes: {},
   steps: {},
   checks: {},

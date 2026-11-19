@@ -5,6 +5,7 @@ export type TermId = string;
 export interface StepMessages {
   readonly title: string;
   readonly caption: string;
+  readonly keyIdea?: string;
 }
 
 export interface CheckMessages {
@@ -18,8 +19,21 @@ export interface TermMessages {
   readonly gloss: string;
 }
 
+export interface StoryMessages {
+  readonly title: string;
+  readonly summary: string;
+}
+
+export interface UseMessages {
+  readonly title: string;
+  readonly body: string;
+}
+
 export interface LessonMessages {
   readonly title: string;
+  readonly story: StoryMessages;
+  readonly uses: readonly UseMessages[];
+  readonly whenNot: string;
   readonly outcomes: Readonly<Record<OutcomeId, string>>;
   readonly steps: Readonly<Record<StepId, StepMessages>>;
   readonly checks: Readonly<Record<CheckId, CheckMessages>>;
