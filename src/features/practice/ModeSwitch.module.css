@@ -1,0 +1,22 @@
+.switch {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.mode {
+  padding: var(--space-1) var(--space-3);
+  color: var(--color-ink);
+  text-decoration: none;
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-control);
+}
+
+.mode:hover {
+  border-color: var(--color-line);
+}
+
+.mode[aria-current='page'] {
+  color: var(--color-highlight-ink);
+  background: var(--color-highlight);
+  border-color: var(--color-line);
+}

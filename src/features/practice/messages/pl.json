@@ -1,0 +1,14 @@
+{
+  "modes": {
+    "label": "Tryb",
+    "learn": "Ucz się",
+    "practice": "Ćwicz"
+  },
+  "page": {
+    "title": "Ćwiczenia"
+  },
+  "exercise": {
+    "status": "Wkrótce",
+    "backToLesson": "Wróć do lekcji"
+  }
+}

@@ -1,4 +1,4 @@
-import { nextPosition, previousPosition } from '@/domain';
+import { locate, nextPosition, previousPosition } from '@/domain';
 import type { Check, Course, CoursePosition, Locale } from '@/domain';
 import { segmentOf, stepIndexOf } from './step-route';
 
@@ -16,17 +16,34 @@ export function pathOf(
     .find((module) => module.slug === position.module)
     ?.lessons.find((candidate) => candidate.slug === position.lesson);
   if (lesson === undefined) return undefined;
-  return `/${locale}/${position.module}/${position.lesson}/${segmentOf(lesson, position.step)}`;
+  return `/${locale}/${position.module}/${position.lesson}/${segmentOf(position.step)}`;
 }
 
-function found(result: ReturnType<typeof nextPosition>): CoursePosition | undefined {
-  return result.ok ? (result.value ?? undefined) : undefined;
+type Move = typeof nextPosition;
+
+function isExercise(course: Course, position: CoursePosition): boolean {
+  const located = locate(course, position);
+  return located.ok && located.value.isExercise;
+}
+
+function stepFrom(
+  course: Course,
+  position: CoursePosition,
+  move: Move,
+): CoursePosition | undefined {
+  let candidate = position;
+  for (;;) {
+    const result = move(course, candidate);
+    if (!result.ok || result.value === null) return undefined;
+    if (!isExercise(course, result.value)) return result.value;
+    candidate = result.value;
+  }
 }
 
 export function neighboursOf(course: Course, position: CoursePosition): Neighbours {
   return {
-    previous: found(previousPosition(course, position)),
-    next: found(nextPosition(course, position)),
+    previous: stepFrom(course, position, previousPosition),
+    next: stepFrom(course, position, nextPosition),
   };
 }
 

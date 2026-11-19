@@ -24,6 +24,11 @@
   font-size: var(--font-size-heading);
 }
 
+.practice {
+  align-self: flex-start;
+  font-weight: 600;
+}
+
 .caption {
   margin: 0;
 }

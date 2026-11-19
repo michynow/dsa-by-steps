@@ -8,7 +8,7 @@ describe('step route segments', () => {
   it.each([
     ['1', 0],
     ['3', 2],
-    ['code', 3],
+    ['code', undefined],
     ['0', undefined],
     ['-1', undefined],
     ['1.5', undefined],
@@ -21,14 +21,13 @@ describe('step route segments', () => {
   });
 
   it('treats step 1 of a Lesson without Steps as out of range', () => {
-    expect(bare && [stepIndexOf('1', bare), stepIndexOf('code', bare)]).toEqual([undefined, 0]);
+    expect(bare && [stepIndexOf('1', bare), stepIndexOf('code', bare)]).toEqual([
+      undefined,
+      undefined,
+    ]);
   });
 
-  it('writes the Exercise as code and Steps as 1-based numbers', () => {
-    expect(lesson && [segmentOf(lesson, 0), segmentOf(lesson, 2), segmentOf(lesson, 3)]).toEqual([
-      '1',
-      '3',
-      'code',
-    ]);
+  it('writes Steps as 1-based numbers', () => {
+    expect([segmentOf(0), segmentOf(2)]).toEqual(['1', '3']);
   });
 });

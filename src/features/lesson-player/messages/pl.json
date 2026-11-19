@@ -5,6 +5,7 @@
     "body": "Jej treść jest uszkodzona. Zgłoś ten problem."
   },
   "stage": {
+    "turn": "Twoja kolej — odpowiedz, zanim krok się odegra",
     "figure": "Scena",
     "select": "Wybierz",
     "structure": {
@@ -31,7 +32,7 @@
   },
   "rail": {
     "label": "Kroki",
-    "exercise": "Ćwiczenie",
+    "turn": "Twoja kolej",
     "problem": "Problem",
     "seen": "obejrzany",
     "current": "bieżący",
@@ -41,15 +42,12 @@
     "navigation": "Nawigacja po krokach",
     "previous": "Wstecz",
     "next": "Dalej",
+    "practice": "Przećwicz to",
     "nextBlocked": "Odpowiedz na pytanie, aby przejść dalej."
   },
   "panels": {
     "outcomes": "Efekty",
     "terms": "Terminy"
-  },
-  "exercise": {
-    "title": "Ćwiczenie",
-    "soon": "Ćwiczenie pojawi się wkrótce."
   },
   "progress": {
     "segment": "{lesson}, {status}",

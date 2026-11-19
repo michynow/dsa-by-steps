@@ -1,4 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
+import { Link } from 'react-router';
 import type { StepMessages } from '@/content';
 import type { LessonPlayerMessages } from './messages';
 import styles from './CaptionStrip.module.css';
@@ -10,6 +11,7 @@ export interface CaptionStripProps {
   readonly problem: boolean;
   readonly showCaption: boolean;
   readonly panel: ReactNode;
+  readonly practice: string | undefined;
   readonly messages: LessonPlayerMessages;
   readonly navigation: StepNavigation;
 }
@@ -19,6 +21,7 @@ export function CaptionStrip({
   problem,
   showCaption,
   panel,
+  practice,
   messages,
   navigation,
 }: CaptionStripProps): ReactElement {
@@ -34,6 +37,11 @@ export function CaptionStrip({
         </>
       ) : null}
       {panel}
+      {practice === undefined ? null : (
+        <Link to={practice} className={styles.practice}>
+          {messages.caption.practice}
+        </Link>
+      )}
       <StepControls navigation={navigation} messages={messages} />
     </section>
   );
