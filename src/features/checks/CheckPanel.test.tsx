@@ -254,3 +254,56 @@ describe('useStepCheckBinding', () => {
     expect(screen.getByText('Which one?')).toBeInTheDocument();
   });
 });
+
+describe('CheckPanel Your turn card', () => {
+  it('is a labelled region headed by the prompt with a Your turn header', () => {
+    renderPanel(choice);
+    const region = screen.getByRole('region', { name: 'Your turn' });
+    expect(region).toHaveTextContent('Your turn · Check');
+    expect(screen.getByRole('heading', { name: 'Which one?' })).toBeInTheDocument();
+  });
+
+  it('hides the Miss counter at zero Misses', () => {
+    renderPanel(choice);
+    expect(screen.queryByText(/Misses/)).not.toBeInTheDocument();
+  });
+
+  it('shows the Miss counter while open with Misses', async () => {
+    const { user } = renderPanel(choice);
+    await user.click(screen.getByRole('radio', { name: 'Alpha' }));
+    await user.click(screen.getByRole('button', { name: 'Check answer' }));
+    expect(screen.getByText('Misses 1 of 3')).toBeInTheDocument();
+  });
+
+  it('hides the Miss counter once passed after a Miss', async () => {
+    const { user } = renderPanel(choice);
+    await user.click(screen.getByRole('radio', { name: 'Alpha' }));
+    await user.click(screen.getByRole('button', { name: 'Check answer' }));
+    await user.click(screen.getByRole('radio', { name: 'Bravo' }));
+    await user.click(screen.getByRole('button', { name: 'Check answer' }));
+    expect(screen.queryByText(/Misses/)).not.toBeInTheDocument();
+  });
+
+  it('hides the Miss counter once revealed', async () => {
+    const { user } = renderPanel(choice);
+    await missTwiceChoice(user);
+    await user.click(screen.getByRole('radio', { name: 'Alpha' }));
+    await user.click(screen.getByRole('button', { name: 'Check answer' }));
+    await user.click(screen.getByRole('button', { name: 'Show me' }));
+    expect(screen.queryByText(/Misses/)).not.toBeInTheDocument();
+  });
+
+  it('says Correct when passed and Answer shown when revealed', async () => {
+    const first = renderPanel(choice);
+    await first.user.click(screen.getByRole('radio', { name: 'Bravo' }));
+    await first.user.click(screen.getByRole('button', { name: 'Check answer' }));
+    expect(screen.getByRole('region', { name: 'Your turn' })).toHaveTextContent('Correct');
+    first.unmount();
+    const second = renderPanel(choice);
+    await missTwiceChoice(second.user);
+    await second.user.click(screen.getByRole('radio', { name: 'Alpha' }));
+    await second.user.click(screen.getByRole('button', { name: 'Check answer' }));
+    await second.user.click(screen.getByRole('button', { name: 'Show me' }));
+    expect(screen.getByRole('region', { name: 'Your turn' })).toHaveTextContent('Answer shown');
+  });
+});
