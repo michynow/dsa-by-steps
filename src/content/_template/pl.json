@@ -48,5 +48,10 @@
       "term": "array",
       "gloss": "tablica: rząd komórek trzymanych obok siebie i odczytywanych po indeksie."
     }
+  },
+  "exercise": {
+    "title": "Druga liczba",
+    "task": "Zwróć drugą liczbę z [[array]] liczb.",
+    "hints": ["Pod którym indeksem jest druga komórka?", "Odczytaj tablicę pod tym indeksem."]
   }
 }

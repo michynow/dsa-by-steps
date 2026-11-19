@@ -82,14 +82,11 @@ Keyboard-complete: every Step, Check (including Order Checks) and Exercise actio
 
 ## Testing
 
-- **Vitest** for `domain`, `runner`, `renderer` and `content`.
-- **React Testing Library** for feature components, queried by role and accessible name.
-- **Playwright** for end-to-end flows: complete a Lesson, answer each Check type, Pass an Exercise, switch Locale, export and import Progress.
-- **Content tests** run every Lesson's Reference Solution against all its Tests, assert every Locale defines every message key, and assert every Step's Step Events reduce to a valid Scene.
-- A behaviour change without a test that fails before it and passes after is unfinished.
-- Assert whole values: `toEqual` on the full Result, Scene or error, never only `.ok`, a length or an occurrence count. Type tests prove types with annotations and `expectTypeOf`, not casts.
+- **No new tests.** Writing tests costs more than it returns for this project. Do not add test files or test cases for new work.
+- **The existing suite is the gate.** `pnpm check` (Vitest, content tests) and `pnpm test:e2e` still run before work is declared done, and stay green.
+- When a change breaks an existing test because the behaviour intentionally changed, update or delete that test, with the smallest edit that keeps the gate meaningful. Never weaken an assertion just to go green on an unintended change: fix the code instead.
+- Verify new behaviour by running it: in the browser for UI, through the existing content and gate checks for content.
 - Tests outside `src/content` never hard-code Lesson wording, Step numbers or Check positions; derive them from the registered content.
-- Test builders shared by several test files live in `src/test/`. Only `*.test.ts(x)` files may import them; production source never contains test helpers.
 
 ## Workflow
 

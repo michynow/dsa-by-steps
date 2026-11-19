@@ -9,6 +9,8 @@
   },
   "exercise": {
     "status": "Wkrótce",
-    "backToLesson": "Wróć do lekcji"
+    "backToLesson": "Wróć do lekcji",
+    "available": "Dostępne",
+    "passed": "Zaliczone"
   }
 }

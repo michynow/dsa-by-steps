@@ -160,5 +160,14 @@
       "term": "traversal",
       "gloss": "przejście po liście: odwiedzanie węzłów jeden po drugim przez ich połączenia."
     }
+  },
+  "exercise": {
+    "title": "Odtwarzanie kolejki od końca",
+    "task": "Słuchacz klika Odtwórz od końca, a aplikacja ma zagrać kolejkę od ostatniego utworu do pierwszego. Napisz funkcję reverseList, która przyjmuje [[head]] listy [[linked-list]] i zwraca nowy head po odwróceniu jej w miejscu. Przepinaj istniejące [[node]] zamiast budować nową listę i obsłuż też pustą kolejkę.",
+    "hints": [
+      "Musisz zapamiętać node poprzedzający bieżący, bo node nie ma połączenia wstecz.",
+      "W każdym kroku zapisz next, zanim zmienisz jakiekolwiek połączenie, bo inaczej stracisz resztę kolejki.",
+      "Idź z prev ustawionym na null i current na head. Przepnij current.next na prev, a potem przesuń oba dalej. Gdy current jest null, prev jest nowym head."
+    ]
   }
 }

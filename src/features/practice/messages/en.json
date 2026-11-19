@@ -9,6 +9,8 @@
   },
   "exercise": {
     "status": "Coming soon",
-    "backToLesson": "Back to the Lesson"
+    "backToLesson": "Back to the Lesson",
+    "available": "Available",
+    "passed": "Passed"
   }
 }

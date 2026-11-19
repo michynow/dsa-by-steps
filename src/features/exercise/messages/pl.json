@@ -1,0 +1,77 @@
+{
+  "editor": {
+    "label": "Edytor kodu rozwiązania",
+    "hint": "Naciśnij Escape, aby opuścić edytor. Ctrl+M przełącza Tab między wcinaniem a przenoszeniem fokusu. Uruchom: Ctrl lub Cmd+Enter. Wyślij: Ctrl lub Cmd+Shift+Enter."
+  },
+  "task": {
+    "title": "Zadanie"
+  },
+  "run": "Uruchom",
+  "submit": "Wyślij",
+  "running": "Trwa uruchamianie…",
+  "status": {
+    "passed": "zaliczony",
+    "failed": "niezaliczony",
+    "errored": "błąd",
+    "timed-out": "przekroczony czas",
+    "too-slow": "poprawnie, ale za wolno",
+    "skipped": "pominięty"
+  },
+  "results": {
+    "title": "Testy",
+    "empty": "Uruchom kod, aby zobaczyć wyniki.",
+    "hiddenTest": "Ukryty test",
+    "input": "Wejście",
+    "expected": "Oczekiwane",
+    "actual": "Otrzymane",
+    "tooSlow": "Odpowiedź jest poprawna, ale za wolna dla długich danych. Zajęła {ms} ms przy limicie {budget} ms. Oczekiwana złożoność: {complexity}.",
+    "timedOut": "Test nie zakończył się w {ms} ms.",
+    "skipped": "Pominięty, bo wcześniejszy test nie przeszedł.",
+    "stackOverflow": "Głęboka rekurencja wyczerpuje stos przy długich kolejkach. Pętla tego unika.",
+    "compileError": "Błąd kompilacji w {line}:{column}: {message}",
+    "internalError": "Sprawdzarka zawiodła. Twój kod nie został oceniony. Spróbuj ponownie.",
+    "allPassed": "Wszystkie testy zaliczone.",
+    "someFailed": "Niektóre testy nie przeszły.",
+    "emptyList": "pusta lista"
+  },
+  "hints": {
+    "title": "Podpowiedzi",
+    "show": "Pokaż podpowiedź {number} z {count}",
+    "none": "Nie ma więcej podpowiedzi.",
+    "item": "Podpowiedź {number}"
+  },
+  "solution": {
+    "title": "Rozwiązanie wzorcowe",
+    "locked": "Zablokowane do 3 odrzuconych zgłoszeń lub zaliczenia.",
+    "show": "Pokaż rozwiązanie",
+    "hide": "Ukryj rozwiązanie",
+    "label": "Kod rozwiązania wzorcowego"
+  },
+  "narrow": "To zadanie najlepiej rozwiązywać na szerszym ekranie. Nadal możesz je tu rozwiązać.",
+  "loadingEditor": "Wczytywanie edytora…",
+  "scene": {
+    "sceneDescription": "Scena",
+    "selectElement": "Wybierz",
+    "structure": {
+      "array": "Tablica",
+      "linked-list": "Lista powiązana",
+      "stack": "Stos",
+      "queue": "Kolejka",
+      "hash-map": "Mapa haszująca"
+    },
+    "tone": {
+      "focus": "wyróżniony",
+      "compare": "porównywany",
+      "done": "gotowy",
+      "error": "błąd"
+    },
+    "head": "head",
+    "top": "szczyt",
+    "front": "początek",
+    "back": "koniec",
+    "nullLink": "null",
+    "empty": "pusty",
+    "bucket": "Kubełek",
+    "index": "Indeks"
+  }
+}
