@@ -10,4 +10,13 @@ export type {
   TestOutcome,
   ValueShape,
 } from './types';
-export { isShapedValue, reportPassed, testsFor, timeBudget, timeBudgetFloorMs } from './helpers';
+export {
+  complexityFor,
+  hasValidShape,
+  isJsonValue,
+  isShapedValue,
+  reportPassed,
+  testsFor,
+  timeBudget,
+  timeBudgetFloorMs,
+} from './helpers';

@@ -94,6 +94,14 @@ describe('exerciseMessagesSchema', () => {
     expect(exerciseMessagesSchema.parse(exercise)).toEqual(exercise);
   });
 
+  it('rejects lesson messages whose exercise is present but undefined', () => {
+    expect(
+      lessonMessagesSchema
+        .safeParse({ ...valid, exercise: undefined })
+        .error?.issues.map(({ code, path }) => ({ code, path })),
+    ).toEqual([{ code: 'invalid_type', path: ['exercise'] }]);
+  });
+
   it('accepts lesson messages carrying an exercise', () => {
     expect(lessonMessagesSchema.parse({ ...valid, exercise })).toEqual({ ...valid, exercise });
   });

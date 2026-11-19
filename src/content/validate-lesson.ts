@@ -12,7 +12,7 @@ import type {
 } from '@/domain';
 import { hasMarker, malformedMarkers, stepTerms } from './caption';
 import type { LessonContent, TermId } from './types';
-import { exerciseIssues, testIdsOf } from './validate-exercise';
+import { exerciseIssues, exerciseTaskTerms, testIdsOf } from './validate-exercise';
 import type { ExerciseIssue } from './validate-exercise';
 
 export type IdKind =
@@ -456,11 +456,12 @@ function markerPlacementIssues(content: LessonContent): readonly ContentIssue[] 
 }
 
 function unusedTermIssues(content: LessonContent): readonly ContentIssue[] {
-  const marked = new Set(
-    contentLocales.flatMap((locale) =>
+  const marked = new Set([
+    ...contentLocales.flatMap((locale) =>
       content.lesson.steps.flatMap((step) => stepTerms(content.messages[locale], step.id)),
     ),
-  );
+    ...exerciseTaskTerms(content),
+  ]);
   return content.terms
     .filter((term) => !marked.has(term))
     .map((term): ContentIssue => ({ code: 'unused-term', term }));

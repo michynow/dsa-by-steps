@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { isShapedValue, reportPassed, testsFor, timeBudget, timeBudgetFloorMs } from './helpers';
-import type { Exercise, TestCase, TestOutcome } from './types';
+import {
+  complexityFor,
+  isJsonValue,
+  isShapedValue,
+  reportPassed,
+  testsFor,
+  timeBudget,
+  timeBudgetFloorMs,
+} from './helpers';
+import type { ComplexityTest, Exercise, TestCase, TestOutcome } from './types';
 
 const testCase = (id: string): TestCase => ({
   id,
@@ -39,6 +47,57 @@ describe('testsFor', () => {
 
   it('returns visible tests then hidden tests for a submit', () => {
     expect(testsFor(exercise, 'submit')).toEqual([testCase('v1'), testCase('v2'), testCase('h1')]);
+  });
+});
+
+const complexityTest: ComplexityTest = {
+  id: 'big',
+  generator: { kind: 'range', size: 1000 },
+  expected: 'reference',
+  budgetMultiple: 5,
+  complexity: 'O(n)',
+};
+
+describe('complexityFor', () => {
+  it('returns the Complexity Test for a submit', () => {
+    expect(complexityFor({ ...exercise, complexityTest }, 'submit')).toEqual(complexityTest);
+  });
+
+  it('returns nothing for a run', () => {
+    expect(complexityFor({ ...exercise, complexityTest }, 'run')).toBeUndefined();
+  });
+
+  it('returns nothing when the exercise has none', () => {
+    expect(complexityFor(exercise, 'submit')).toBeUndefined();
+  });
+});
+
+describe('isJsonValue', () => {
+  class Point {
+    x = 1;
+  }
+  const sparse: unknown[] = [];
+  sparse[2] = 1;
+
+  it.each([null, true, 'x', 0, -1.5, [], [1, [2]], { a: { b: [null] } }, Object.create(null)])(
+    'accepts %j',
+    (value) => {
+      expect(isJsonValue(value)).toBe(true);
+    },
+  );
+
+  it.each([
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+    undefined,
+    new Point(),
+    new Date(0),
+    sparse,
+    [Number.NaN],
+    { a: Number.NEGATIVE_INFINITY },
+    () => 1,
+  ])('rejects %s', (value) => {
+    expect(isJsonValue(value)).toBe(false);
   });
 });
 
@@ -92,6 +151,10 @@ describe('isShapedValue', () => {
     { shape: 'value', value: () => 1 },
     { shape: 'value', value: [undefined] },
     { shape: 'value', value: 1, extra: 1 },
+    { shape: 'linked-list', value: { a: 1 } },
+    { shape: 'linked-list', value: 3 },
+    { shape: 'linked-list', value: 'x' },
+    { shape: 'value', value: Number.NaN },
   ])('rejects %j', (value) => {
     expect(isShapedValue(value)).toBe(false);
   });
