@@ -58,9 +58,6 @@ export const hashMapsLesson: Lesson = {
             ],
           },
         },
-        { type: 'highlight', highlight: { target: signup('slot-ada'), tone: 'compare' } },
-        { type: 'highlight', highlight: { target: signup('slot-linus'), tone: 'compare' } },
-        { type: 'highlight', highlight: { target: signup('slot-grace'), tone: 'compare' } },
       ],
     },
     {
@@ -92,6 +89,7 @@ export const hashMapsLesson: Lesson = {
           entry: { id: 'ada', key: 'ada', value: 1 },
         },
         { type: 'highlight', highlight: { target: account('ada'), tone: 'focus' } },
+        { type: 'clear-highlights' },
       ],
     },
     {
@@ -106,6 +104,7 @@ export const hashMapsLesson: Lesson = {
           entry: { id: 'linus', key: 'linus', value: 2 },
         },
         { type: 'highlight', highlight: { target: account('linus'), tone: 'focus' } },
+        { type: 'clear-highlights' },
       ],
       check: {
         kind: 'choice',
@@ -127,6 +126,7 @@ export const hashMapsLesson: Lesson = {
         },
         { type: 'highlight', highlight: { target: account('grace'), tone: 'focus' } },
         { type: 'highlight', highlight: { target: account('linus'), tone: 'compare' } },
+        { type: 'clear-highlights' },
       ],
       check: { kind: 'predict', id: 'who-shares-a-bucket', correct: account('linus') },
     },
@@ -137,6 +137,7 @@ export const hashMapsLesson: Lesson = {
         { type: 'clear-highlights' },
         { type: 'highlight', highlight: { target: account('linus'), tone: 'compare' } },
         { type: 'highlight', highlight: { target: account('grace'), tone: 'done' } },
+        { type: 'clear-highlights' },
       ],
       check: { kind: 'predict', id: 'first-compared-in-bucket', correct: account('linus') },
     },
@@ -157,7 +158,7 @@ export const hashMapsLesson: Lesson = {
       check: {
         kind: 'choice',
         id: 'is-tim-taken',
-        options: ['compare-keys', 'bucket-occupied', 'same-hash', 'scan-everything'],
+        options: ['compare-keys', 'bucket-occupied', 'same-hash', 'bucket-has-room'],
         correct: 'compare-keys',
       },
     },
@@ -167,6 +168,7 @@ export const hashMapsLesson: Lesson = {
       events: [
         { type: 'clear-highlights' },
         { type: 'highlight', highlight: { target: account('ada'), tone: 'error' } },
+        { type: 'clear-highlights' },
       ],
     },
     {
@@ -178,6 +180,17 @@ export const hashMapsLesson: Lesson = {
         id: 'cost-of-lookup',
         options: ['a-few', 'every-account', 'halving', 'exactly-one'],
         correct: 'a-few',
+      },
+    },
+    {
+      id: 'crowded-bucket',
+      kind: 'explain',
+      events: [{ type: 'clear-highlights' }],
+      check: {
+        kind: 'choice',
+        id: 'worst-case-lookup',
+        options: ['walk-the-bucket', 'still-direct', 'halving-the-bucket'],
+        correct: 'walk-the-bucket',
       },
     },
     {

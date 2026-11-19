@@ -15,14 +15,14 @@
     },
     {
       "title": "Cache klucz-wartość",
-      "body": "Magazyny takie jak Redis i Memcached trzymają klucze w tablicy mieszającej, więc pobranie strony lub sesji z cache po kluczu nie zależy od liczby przechowywanych kluczy."
+      "body": "Magazyny takie jak Redis i Memcached trzymają klucze w tablicy mieszającej, więc pobranie strony lub sesji z cache po kluczu to średnio O(1)."
     },
     {
       "title": "Tablice symboli w kompilatorach",
       "body": "Kompilator zapisuje każdą nazwę z Twojego kodu, na przykład zmienne i funkcje, w tablicy z nazwą jako kluczem, więc znajduje deklarację za każdym razem, gdy nazwa się pojawia."
     }
   ],
-  "whenNot": "Hash map nie trzyma użytecznego porządku, więc nie wypisze kluczy alfabetycznie ani nie znajdzie klucza najbliższego danemu. Do tego użyj posortowanej tablicy albo drzewa. Przy kilku elementach zwykłe przejście po tablicy jest prostsze i równie szybkie. Gdy wiele kluczy ma kolizje, wyszukiwanie zbliża się do O(n), więc hash function musi dobrze rozrzucać klucze.",
+  "whenNot": "Hash map nie ma posortowanej kolejności, więc nie wypisze kluczy alfabetycznie ani nie znajdzie klucza najbliższego danemu. (Map i Set w JavaScripcie oraz dict w Pythonie zachowują kolejność wstawiania, a to nie jest porządek posortowany.) Do tego użyj posortowanej tablicy albo drzewa. Przy kilku elementach zwykłe przejście po tablicy jest prostsze i mniej więcej równie szybkie. Gdy wiele kluczy ma kolizje, wyszukiwanie zbliża się do O(n), więc hash function musi dobrze rozrzucać klucze.",
   "outcomes": {
     "explain-scan-cost": "Wyjaśnisz, dlaczego szukanie klucza w liście kosztuje O(n)",
     "place-by-hash-function": "Znajdziesz bucket (koszyk) klucza za pomocą hash function (funkcji mieszającej)",
@@ -33,11 +33,11 @@
   "steps": {
     "overview": {
       "title": "Czym jest hash map",
-      "caption": "[[hash-map]] przechowuje wpisy, z których każdy to klucz z wartością, i znajduje wpis bezpośrednio po kluczu, bez przeglądania pozostałych. Tu kluczami są nazwy użytkowników, a wartościami numery kont. Wpisy leżą w ponumerowanych koszykach ([[bucket]]), a klucz zawsze należy do tego samego koszyka. Reszta Lekcji pokazuje, jak to działa."
+      "caption": "[[hash-map]] (tablica mieszająca) przechowuje wpisy, z których każdy to klucz z wartością, i znajduje wpis bezpośrednio po kluczu, bez przeglądania pozostałych. Tu kluczami są nazwy użytkowników, a wartościami numery kont. Wpisy leżą w ponumerowanych [[bucket]] (koszykach), a klucz zawsze należy do tego samego koszyka. Reszta Lekcji pokazuje, jak to działa."
     },
     "the-problem": {
       "title": "Sprawdzenie nazwy oznacza czytanie całej listy",
-      "caption": "Formularz trzyma zarejestrowane nazwy w tablicy: na razie ada, linus i grace. Ktoś wpisuje tim. Żeby powiedzieć, że tim jest wolny, aplikacja porównuje go po kolei z każdą nazwą. Przy 300 000 kont to 300 000 porównań przy każdym sprawdzeniu. Chcesz, żeby koszt sprawdzenia nie rósł razem z liczbą kont.",
+      "caption": "Formularz trzyma zarejestrowane nazwy w tablicy: na razie ada, linus i grace. Ktoś wpisuje tim. Żeby powiedzieć, że tim jest wolny, aplikacja porównuje go po kolei z każdą nazwą. Przy 300 000 kont to nawet 300 000 porównań przy każdym sprawdzeniu. Chcesz, żeby koszt sprawdzenia nie rósł razem z liczbą kont.",
       "keyIdea": "Szukanie klucza w liście oznacza porównywanie go z elementami po kolei."
     },
     "buckets": {
@@ -47,7 +47,7 @@
     },
     "hash-function": {
       "title": "Hash function wybiera koszyk",
-      "caption": "[[hash-function]] zamienia klucz na numer koszyka. Twoja jest zabawkowa: liczysz litery w nazwie i bierzesz resztę z dzielenia przez 4. Nazwa ada ma 3 litery, więc trafia do koszyka 3. Prawdziwe hash function mieszają każdy znak klucza, ale działają tak samo.",
+      "caption": "[[hash-function]] (funkcja mieszająca) zamienia klucz na numer koszyka. Twoja jest zabawkowa: liczysz litery w nazwie i bierzesz resztę z dzielenia przez 4. Nazwa ada ma 3 litery, więc trafia do koszyka 3. Prawdziwe funkcje mieszające uwzględniają każdy znak klucza, ale działają tak samo.",
       "keyIdea": "Ten sam klucz zawsze daje ten sam koszyk."
     },
     "second-account": {
@@ -56,7 +56,7 @@
     },
     "collision": {
       "title": "Dwie nazwy w jednym koszyku",
-      "caption": "Nazwa grace też ma 5 liter, więc też należy do koszyka 1, w którym jest już linus. Dwa różne klucze w jednym koszyku to [[collision]] (kolizja). Nic nie ginie: koszyk trzyma oba wpisy jako krótką listę, jak łańcuch powiązanych node, z grace za linus.",
+      "caption": "Nazwa grace też ma 5 liter, więc też należy do koszyka 1, w którym jest już linus. Dwa różne klucze w jednym koszyku to [[collision]] (kolizja). Nic nie ginie: koszyk trzyma oba wpisy jako krótką listę, jak łańcuch powiązanych węzłów, z grace za linus.",
       "keyIdea": "Kolizja nie gubi danych: koszyk trzyma każdy wpis, który do niego trafia."
     },
     "lookup": {
@@ -65,7 +65,7 @@
     },
     "free-name": {
       "title": "Zajęty koszyk nie znaczy zajętej nazwy",
-      "caption": "Ktoś wpisuje tim, które ma 3 litery, więc wyszukiwanie idzie do koszyka 3, gdzie jest ada. Klucz ada to nie tim, a w koszyku nie ma nic więcej, więc tim jest wolny. Rejestrujesz go, dodając tim do tego samego koszyka, za ada."
+      "caption": "Ktoś wpisuje nazwę tim, która ma 3 litery, więc wyszukiwanie idzie do koszyka 3, gdzie jest ada. Klucz ada to nie tim, a w koszyku nie ma nic więcej, więc tim jest wolny. Rejestrujesz go, dodając tim do tego samego koszyka, za ada."
     },
     "duplicate-signup": {
       "title": "Ta sama nazwa zostaje znaleziona",
@@ -73,12 +73,17 @@
     },
     "average-cost": {
       "title": "Dlaczego wyszukiwanie pozostaje szybkie",
-      "caption": "Wyszukiwanie liczy hash klucza, co trwa tyle samo przy każdym rozmiarze mapy, a potem czyta jeden koszyk. Dobra hash function rozrzuca klucze równomiernie, a mapa dokłada koszyki, gdy się zapełnia, więc w koszyku jest tylko kilka wpisów. Dzięki temu wyszukiwanie to średnio O(1). Gdyby wszystkie klucze trafiły do jednego koszyka, wróciłbyś do O(n).",
-      "keyIdea": "Wyszukiwanie w hash map to średnio O(1), a w najgorszym przypadku O(n)."
+      "caption": "Wyszukiwanie liczy hash klucza, co trwa tyle samo przy każdym rozmiarze mapy, a potem czyta jeden koszyk. Dobra hash function rozrzuca klucze równomiernie, a mapa dokłada koszyki, gdy się zapełnia, więc w koszyku jest tylko kilka wpisów. Dzięki temu wyszukiwanie to średnio O(1).",
+      "keyIdea": "Wyszukiwanie w hash map to średnio O(1)."
+    },
+    "crowded-bucket": {
+      "title": "Gdy wszystkie klucze tłoczą się w jednym koszyku",
+      "caption": "Wyobraź sobie słabą hash function, która wysyła każdą nazwę użytkownika do tego samego koszyka. Mapa nadal od razu znajduje ten koszyk, ale trzyma on teraz wszystkie wpisy, a wyszukiwanie porównuje klucze jeden po drugim. Mapa zamieniła się w listę, a wyszukiwanie kosztuje O(n).",
+      "keyIdea": "W najgorszym przypadku wszystkie klucze trafiają do jednego koszyka, a wyszukiwanie to O(n)."
     },
     "duplicate-preview": {
       "title": "Dalej: znajdź pierwszy duplikat",
-      "caption": "W Practice aplikacja oznacza pierwszą nazwę użytkownika zarejestrowaną dwa razy. Kursor czyta rejestracje po kolei, a odpowiedzią jest nazwa, której druga rejestracja przychodzi pierwsza. Na tej liście to linus, bo jego druga rejestracja jest przed drugą ada. Zapamiętuj już widziane nazwy w strukturze, która od razu odpowiada tak lub nie."
+      "caption": "W trybie Ćwicz aplikacja oznacza pierwszą nazwę użytkownika zarejestrowaną dwa razy. Kursor czyta rejestracje po kolei, a odpowiedzią jest nazwa, której druga rejestracja przychodzi pierwsza. Na tej liście to linus, bo jego druga rejestracja jest przed drugą ada. Zapamiętuj już widziane nazwy w strukturze, która od razu odpowiada tak lub nie."
     },
     "where-you-meet-it": {
       "title": "Gdzie to spotkasz",
@@ -118,9 +123,9 @@
         "compare-keys": "Nie, bo mapa porównuje tim z kluczem ada, a te dwa klucze się różnią",
         "bucket-occupied": "Tak, bo ada zajmuje już ten koszyk, a koszyk trzyma jedną nazwę",
         "same-hash": "Tak, bo tim i ada mają hash do tego samego koszyka, więc to ta sama nazwa",
-        "scan-everything": "Nie, ale dopiero po porównaniu tim z każdą nazwą w każdym koszyku"
+        "bucket-has-room": "Nie, bo nazwa jest zajęta tylko wtedy, gdy jej koszyk jest pełny, a ten koszyk ma jeszcze miejsce"
       },
-      "explanation": "Tim jest wolny, bo mapa porównuje tim z kluczami w koszyku i żaden mu nie równa. Koszyk może trzymać kilka wpisów, więc zajęty koszyk nic nie mówi o jednej nazwie. Dwa różne klucze mogą trafić do jednego koszyka, czyli mieć kolizję, więc równe hashe nie oznaczają równych nazw. Mapa nigdy nie musi otwierać pozostałych koszyków."
+      "explanation": "Tim jest wolny, bo mapa porównuje tim z kluczami w koszyku i żaden mu nie równa. Koszyk może trzymać kilka wpisów, więc zajęty koszyk nic nie mówi o jednej nazwie. Dwa różne klucze mogą trafić do jednego koszyka, czyli mieć kolizję, więc równe hashe nie oznaczają równych nazw. Koszyk nie ma stałego rozmiaru, więc to, czy ma miejsce, nie mówi nic o tym, czy nazwa istnieje."
     },
     "cost-of-lookup": {
       "prompt": "Mapa trzyma 100 000 kont, ma dla nich dość koszyków i hash function, która rozrzuca nazwy równomiernie. Z iloma kluczami mniej więcej porównuje nazwę jedno wyszukiwanie?",
@@ -131,6 +136,15 @@
         "exactly-one": "Dokładnie z jednym, bo hash function zawsze wskazuje właściwy wpis: O(1)"
       },
       "explanation": "Wyszukiwanie porównuje kilka kluczy, bo równomiernie rozrzucone konta zostawiają w każdym koszyku tylko kilka wpisów. Nie sprawdza każdego konta, bo otwiera tylko jeden koszyk. Niczego nie dzieli na pół, bo hash map nie ma porządku do dzielenia. Dokładnie jedno porównanie nie jest gwarantowane, bo kolizje wkładają do koszyka kilka wpisów, więc koszt to średnio O(1)."
+    },
+    "worst-case-lookup": {
+      "prompt": "Załóżmy, że słaba hash function wysyła każdą z n nazw użytkowników do tego samego koszyka. Ile pracy wykonuje wyszukiwanie?",
+      "options": {
+        "walk-the-bucket": "Do n porównań, bo jeden koszyk trzyma wszystkie wpisy, a ich klucze porównuje się po kolei: O(n)",
+        "still-direct": "Jedno porównanie, bo hash function nadal wskazuje koszyk bezpośrednio: O(1)",
+        "halving-the-bucket": "Mniej więcej log n porównań, bo koszyk można dzielić na pół w każdym kroku: O(log n)"
+      },
+      "explanation": "Wyszukiwanie wykonuje do n porównań. Hash function nadal od razu znajduje koszyk, ale ten koszyk trzyma wszystkie wpisy, więc klucze porównuje się po kolei, a koszt to O(n). Szybkie znalezienie koszyka nie pomaga, gdy koszyk jest całą mapą. Koszyk to nieposortowana lista, więc nie ma czego dzielić na pół."
     }
   },
   "terms": {
@@ -153,11 +167,11 @@
   },
   "exercise": {
     "title": "Oznacz pierwszą powtórzoną nazwę użytkownika",
-    "task": "Aplikacja ma oznaczać pierwszą nazwę użytkownika zarejestrowaną dwa razy. Napisz funkcję firstDuplicate, która przyjmuje nazwy w kolejności rejestracji i zwraca nazwę, której druga rejestracja przychodzi pierwsza, albo null, gdy żadna nazwa nie występuje dwa razy. Nazwy porównujesz dokładnie, więc Ada i ada to różne nazwy. Użyj struktury opartej na [[hash-map]], żeby sprawdzanie pozostało O(n). Complexity Test wysyła liczby w miejsce nazw, więc porównuj nazwy przez === i nie używaj metod tylko dla tekstu.",
+    "task": "Aplikacja ma oznaczać pierwszą nazwę użytkownika zarejestrowaną dwa razy. Napisz funkcję firstDuplicate, która przyjmuje nazwy w kolejności rejestracji i zwraca nazwę, której druga rejestracja przychodzi pierwsza, albo null, gdy żadna nazwa nie występuje dwa razy. Nazwy porównujesz dokładnie, więc Ada i ada to różne nazwy. Użyj struktury opartej na [[hash-map]], żeby sprawdzanie pozostało O(n). Nazwy przychodzą jako teksty, a w Complexity Test jako liczby, więc porównuj je przez === i nie używaj metod tylko dla tekstu.",
     "hints": [
       "Dla każdej nazwy musisz wiedzieć, czy już ją widziałeś. Przeszukiwanie wszystkich wcześniejszych nazw za każdym razem sprawia, że kod jest wolny.",
       "Struktura oparta na hashu odpowiada, czy trzyma dany klucz, średnio w O(1). W TypeScripcie tak działają zarówno Set, jak i Map.",
-      "Idź po nazwach w kolejności z pustym Set. Jeśli bieżąca nazwa jest już w Set, zwróć ją. W przeciwnym razie dodaj ją. Gdy przejście się skończy, zwróć null."
+      "Sprawdź, czy bieżąca nazwa jest już w Set, zanim ją dodasz. Jeśli jest, to ta nazwa jest odpowiedzią."
     ]
   }
 }
