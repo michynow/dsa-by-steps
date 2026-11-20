@@ -31,9 +31,6 @@
 }
 
 .screen {
-  display: grid;
-  place-items: center;
-  min-height: 16rem;
   overflow: hidden;
 }
 
