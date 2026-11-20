@@ -1,0 +1,182 @@
+{
+  "title": "Recursion",
+  "story": {
+    "title": "Listing every file in nested folders",
+    "summary": "You build a photo app that lists every file in a folder, including the files inside its subfolders, and the subfolders of those. You do not know in advance how deep the folders go, so the code has to cope with any depth."
+  },
+  "uses": [
+    {
+      "title": "File system tools",
+      "body": "A tool that adds up the size of a folder, such as `du`, visits the folder, then every subfolder inside it, then every subfolder inside those. Tools that search or copy whole directory trees do the same walk, often written recursively."
+    },
+    {
+      "title": "Parsers for nested data",
+      "body": "JSON can hold objects inside objects inside arrays. A parser reads such data with a function that calls itself whenever it meets a nested object or array, and many compilers read nested expressions the same way."
+    },
+    {
+      "title": "Divide-and-conquer sorting",
+      "body": "Merge sort splits an array in half, sorts each half by calling itself, and merges the results. Quicksort follows the same pattern with a different split."
+    },
+    {
+      "title": "Component trees in user interfaces",
+      "body": "A page is built from elements nested inside elements. To draw it, a renderer draws an element, then calls itself on each child, so a tree of any depth needs no extra code."
+    }
+  ],
+  "whenNot": "Recursion has a cost: every call takes a frame on the call stack, and the stack has a limit that depends on the engine and the size of the frames. A loop over a list a hundred thousand items long can run in constant stack space, while the same loop written as recursion can overflow, because JavaScript engines do not reliably turn it into a loop. Prefer a loop when the work is plain repetition, and an explicit stack of your own when the nesting can run very deep. Take care with a function that calls itself twice on overlapping pieces, such as a naive Fibonacci: it repeats the same work and its cost grows exponentially.",
+  "outcomes": {
+    "name-base-and-recursive-case": "Name the base case and the recursive case of a recursive function",
+    "trace-the-call-stack": "Trace which calls are on the call stack at each moment",
+    "explain-stack-overflow": "Explain why a missing base case ends in a stack overflow",
+    "recurse-over-nested-data": "Write a recursive function over nested data"
+  },
+  "steps": {
+    "overview": {
+      "title": "A function that calls itself",
+      "caption": "[[recursion]] means a function solves a problem by calling itself on a smaller piece of it. Each call that has started and not yet finished is remembered on the [[call-stack]]. The drawing shows the finished example: the calls that list a photo folder, one frame per folder, and the files they found."
+    },
+    "the-problem": {
+      "title": "You do not know how deep the folders go",
+      "caption": "You build a photo app, and a user asks for a list of every file in the Photos folder. Photos holds files and folders, those folders hold more files and folders, and nobody knows how many levels there are. A fixed number of nested loops fits only one depth, so you need code that handles any depth.",
+      "keyIdea": "Nested data of unknown depth asks for a function that can call itself."
+    },
+    "first-call": {
+      "title": "The first call starts on Photos",
+      "caption": "You write `listFiles`, a function that lists everything inside one folder, and you call it on Photos. The call gets a frame on the call stack, labelled with its folder. The frame stays there until the call finishes."
+    },
+    "a-file-is-the-base-case": {
+      "title": "A file ends the search",
+      "caption": "The first entry in Photos is logo.png. A file holds nothing more to list, so the call adds it to the result and goes on. This is the [[base-case]]: the situation simple enough to answer directly, without another call.",
+      "keyIdea": "The base case answers directly, with no further call."
+    },
+    "a-folder-is-the-recursive-case": {
+      "title": "A folder calls the function again",
+      "caption": "The next entry is the folder Trip. It holds more entries, and listing them is the same job you are already doing, only on a smaller piece. This is the [[recursive-case]]: the function calls itself on that piece. The new call gets its own frame on top of Photos.",
+      "keyIdea": "The recursive case calls the function on a smaller piece of the same problem."
+    },
+    "going-deeper": {
+      "title": "Each folder adds a frame",
+      "caption": "Inside Trip the call finds beach.jpg and adds it to the result. Then it reaches Day two, a folder inside Trip, and calls itself again. Every call that has started and not finished keeps its frame."
+    },
+    "only-the-top-runs": {
+      "title": "Only the top call runs",
+      "caption": "The call on Day two lists its one file, hike.jpg, and adds it to the result. The calls for Photos and Trip wait underneath, each paused at the point where it made its call. Only the call on top of the stack is running.",
+      "keyIdea": "Only the top frame is running, and the frames under it are waiting."
+    },
+    "a-call-returns": {
+      "title": "A finished call is popped",
+      "caption": "Day two has no more entries, so its call returns and its frame is popped. The call underneath continues from the point where it paused. Returning is how the stack shrinks, and it is why each call can use the result of the call it made."
+    },
+    "back-in-photos": {
+      "title": "Trip returns to Photos",
+      "caption": "Trip has no entries left either, so its call returns and its frame is popped. Only the first call, on Photos, is left. It carries on with the next entry in its own folder."
+    },
+    "the-last-entry": {
+      "title": "The first call finishes last",
+      "caption": "The last entry in Photos is notes.txt, a file, so it goes into the result. Photos has no entries left and returns, which pops the last frame. The call that started first is the one that finishes last, and the stack is empty again."
+    },
+    "no-base-case": {
+      "title": "Without a base case the stack overflows",
+      "caption": "Suppose a folder contains a shortcut that leads back to Photos, and the function treats a shortcut as a folder. Photos calls the shortcut, which calls Photos again, and no call ever reaches a file that stops it. The frames pile up until the runtime hits its limit and raises a [[stack-overflow]]. In JavaScript this is a `RangeError`, and a legitimate folder tree that is nested very deeply can cause it too.",
+      "keyIdea": "Every chain of calls must reach a base case, or the stack overflows."
+    },
+    "total-size-preview": {
+      "title": "Next up: the total size of a folder",
+      "caption": "In Practice you write `totalSize`, which adds up the size of every file in a folder, however deeply nested. A file's size is the base case, and a folder's size is the sum of the sizes of its entries. The files drawn here are 12, 40, 35 and 3 KB, so Photos totals 90 KB."
+    },
+    "where-you-meet-it": {
+      "title": "Where you will meet it",
+      "caption": "Here is where you meet recursion outside this photo app. Each case has nested data, or a problem that splits into smaller copies of itself. The note under them says when to pick something else."
+    }
+  },
+  "checks": {
+    "what-to-do-with-a-file": {
+      "prompt": "The call on Photos reaches logo.png, a file. What should the function do with it?",
+      "options": {
+        "add-and-return": "Add it to the list and go on, because a file holds no entries, so there is nothing left to call on",
+        "open-it": "Call itself on logo.png, because every entry should be opened the same way",
+        "skip-it": "Leave it out of the list, because the list holds only folders",
+        "add-and-descend": "Add it to the list and then call itself on it, because every entry gets the same treatment"
+      },
+      "explanation": "The function adds logo.png and goes on, because a file has no entries inside and the answer is already known. This is the base case, and it stops the calls from going deeper. Calling itself on a file would look for entries that do not exist. The list holds files, not folders, so a file belongs in it."
+    },
+    "what-to-do-with-a-folder": {
+      "prompt": "The call on Photos reaches Trip, a folder. What should the function do with it?",
+      "options": {
+        "call-itself": "Call itself on Trip, because a folder holds entries that need the same listing",
+        "list-the-folder": "Add Trip to the list, because it is an entry like the others",
+        "skip-the-folder": "Skip Trip, because the function lists only the files directly inside Photos",
+        "stop-here": "Stop and return, because a folder ends the search"
+      },
+      "explanation": "The function calls itself on Trip, because listing what is inside Trip is the same job on a smaller piece. This is the recursive case. Adding Trip to the list would give you a folder, not the files inside it. Skipping it would lose beach.jpg and everything else in the folder, and stopping would lose even the entries that come after it in Photos."
+    },
+    "frames-when-entering-day-two": {
+      "prompt": "The stack holds the frames for Photos and Trip. The call on Trip reaches the folder Day two and calls itself. How many frames are on the stack once the new call starts?",
+      "options": {
+        "three-frames": "Three, because each call that has started and not returned keeps a frame: Photos, Trip and Day two",
+        "two-frames": "Two, because the new call replaces the frame of Trip",
+        "five-frames": "Five, because every file and folder seen so far gets a frame",
+        "one-frame": "One, because only the running call needs a frame"
+      },
+      "explanation": "Three frames are on the stack, because a call keeps its frame until it returns, and Photos and Trip have not returned. The new call is added on top and replaces nothing. Files do not get frames, because reaching a file does not start a call that waits. The paused calls are needed, because each one must continue where it stopped."
+    },
+    "which-call-is-running": {
+      "prompt": "The stack holds the frames for Photos, Trip and Day two. Select the frame of the call that is running now and adds hike.jpg.",
+      "explanation": "The call on Day two is running, because it is on top and only the top call runs. Trip and Photos are paused underneath, each waiting for the call above it to return. The call on Photos started first, but starting first does not make it the active one."
+    },
+    "which-call-continues": {
+      "prompt": "The call on Day two has no more entries and returns. Select the frame of the call that continues running afterwards.",
+      "explanation": "The call on Trip continues, because it becomes the top frame once Day two is popped. It resumes from the point where it made its call. Photos stays paused, because Trip is still above it and has not finished."
+    },
+    "state-after-the-first-call-returns": {
+      "prompt": "The call on Photos adds its last entry, notes.txt, and returns. What is left?",
+      "options": {
+        "empty-stack-four-files": "An empty stack and four files in the list, because every call has returned and each file was added once",
+        "photos-stays": "Photos still on the stack, because the first call stays until the program ends",
+        "only-direct-files": "An empty stack and two files, logo.png and notes.txt, because only files directly inside Photos are listed",
+        "frames-stay": "Three frames on the stack and four files, because frames stay as a record of the path"
+      },
+      "explanation": "The stack is empty and the list holds four files, because each call popped its frame on return and each file was added exactly once. The first call does not stay, because it finishes like every other call. The files in Trip and Day two are in the list too, because the calls on those folders added them before returning. Frames are not a record: a returned call leaves nothing behind."
+    },
+    "folder-that-contains-itself": {
+      "prompt": "A shortcut inside Photos leads back to Photos, and the function treats a shortcut as a folder. You call it on Photos. What happens?",
+      "options": {
+        "stack-overflow": "The stack grows until the runtime stops it with a stack overflow error, because no call ever reaches a base case",
+        "runtime-notices": "It finishes normally, because the runtime notices the repeated folder and stops",
+        "lists-twice": "It lists every file twice and then finishes, because the shortcut adds only one extra lap",
+        "small-stack": "The list grows but the stack stays small, because each call returns before the next one starts"
+      },
+      "explanation": "The stack grows until the runtime stops it with a stack overflow, because every call starts another before it can return and none ever reaches a file that ends the chain. The runtime does not detect repeats: it only enforces its stack limit. A second lap would reach the shortcut again, so the walk never ends on its own. The calls never return before the next one starts, so the stack grows with each lap."
+    }
+  },
+  "terms": {
+    "recursion": {
+      "term": "recursion",
+      "gloss": "Solving a problem with a function that calls itself on a smaller piece of the same problem."
+    },
+    "call-stack": {
+      "term": "call stack",
+      "gloss": "The stack of calls that have started and not yet returned, with one frame for each; the top frame is the running call."
+    },
+    "base-case": {
+      "term": "base case",
+      "gloss": "The input simple enough that a recursive function answers it directly, without calling itself."
+    },
+    "recursive-case": {
+      "term": "recursive case",
+      "gloss": "The input where a recursive function calls itself on a smaller piece of the problem."
+    },
+    "stack-overflow": {
+      "term": "stack overflow",
+      "gloss": "The error raised when the call stack grows past the runtime's limit, usually from a recursion that never reaches its base case."
+    }
+  },
+  "exercise": {
+    "title": "Add up the size of a folder",
+    "task": "The photo app shows how much space a folder takes. A folder is an object with a name and a list of entries, and a file is an object with a name and a size in KB. Write `totalSize`, which takes a folder or a file and returns the combined size of every file inside it, at any depth. An empty folder is 0, and a file is just its own size.",
+    "hints": [
+      "A folder can hold folders, which hold folders, so a fixed number of loops will not do. Think about which input gives the answer at once, and which input is the same problem on smaller pieces.",
+      "A file has a size and needs no further work, so that is where the calls stop. For a folder, think about what its total is made of, and which function already computes the total of one entry.",
+      "Do not look at the name of an entry to tell files from folders: tell them apart by what the object holds. Check that an empty folder gives 0 and that a folder holding only empty folders does too."
+    ]
+  }
+}

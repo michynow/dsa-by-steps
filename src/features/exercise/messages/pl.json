@@ -73,5 +73,9 @@
     "empty": "pusty",
     "bucket": "Kubełek",
     "index": "Indeks"
+  },
+  "examples": {
+    "title": "Przykłady",
+    "note": "Co Twoja funkcja powinna zwrócić dla kilku wejść:"
   }
 }

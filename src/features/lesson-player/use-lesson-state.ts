@@ -3,7 +3,8 @@ import { lessonKey } from '@/domain';
 import type { Course, LessonKey, Locale, Scene, Step } from '@/domain';
 import type { StepCheckBinding, UseStepCheck } from './step-check';
 import { useBoundCheck } from './use-bound-check';
-import { useLessonScenes, useStepFrames } from './use-lesson-scenes';
+import type { SceneBounds } from '@/renderer';
+import { useLessonBounds, useLessonScenes, useStepFrames } from './use-lesson-scenes';
 import { useMarkStepSeen } from './use-mark-step-seen';
 import { useStepNavigation } from './use-step-navigation';
 
@@ -13,6 +14,7 @@ export interface LessonState {
   readonly binding: StepCheckBinding;
   readonly gated: boolean;
   readonly frames: readonly Scene[];
+  readonly bounds: SceneBounds;
   readonly navigation: ReturnType<typeof useStepNavigation>;
 }
 
@@ -30,6 +32,7 @@ export function useLessonState(
   const gated = current?.check !== undefined && !binding.settled;
   const scenes = useLessonScenes(lesson, key);
   const frames = useStepFrames(lesson, scenes, step, gated);
+  const bounds = useLessonBounds(lesson, scenes);
   const navigation = useStepNavigation({
     course,
     locale,
@@ -37,5 +40,5 @@ export function useLessonState(
     settled: binding.settled,
   });
   useMarkStepSeen(key, current?.id, binding.settled);
-  return { key, current, binding, gated, frames, navigation };
+  return { key, current, binding, gated, frames, bounds, navigation };
 }

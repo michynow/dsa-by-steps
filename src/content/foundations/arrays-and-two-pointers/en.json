@@ -47,7 +47,7 @@
     },
     "one-pointer-at-each-end": {
       "title": "One pointer at each end",
-      "caption": "You put left on the cheapest price, index 0, and right on the dearest, index 5. The two pointers hold your first pair, 4 and 30, and every price between them is still in play.",
+      "caption": "You put `left` on the cheapest price, index 0, and `right` on the dearest, index 5. The two pointers hold your first pair, 4 and 30, and every price between them is still in play.",
       "keyIdea": "Start with one pointer at each end of the sorted array."
     },
     "add-the-two-prices": {
@@ -75,11 +75,11 @@
     "count-the-moves": {
       "title": "Each move drops one price",
       "caption": "The search took 4 moves, and each one threw a price away for good: 4, 30, 25 and 7 are out. The two pointers only move toward each other and stop when they meet, so they make at most one move per price. The work grows in step with the number of prices, which is O(n).",
-      "keyIdea": "Each move discards one price, so two pointers make at most n - 1 moves: O(n)."
+      "keyIdea": "Each move discards one price, so two pointers make at most `n - 1` moves: O(n)."
     },
     "return-the-positions": {
       "title": "Next: return the two positions",
-      "caption": "In Practice you write twoSumSorted. It takes the sorted prices and the balance, and returns the indices of two prices that add up to it, here 2 and 3, or null when no pair works. One pass with two pointers is enough."
+      "caption": "In Practice you write `twoSumSorted`. It takes the sorted prices and the balance, and returns the indices of two prices that add up to it, here 2 and 3, or `null` when no pair works. One pass with two pointers is enough."
     },
     "where-you-meet-it": {
       "title": "Where you will meet them",
@@ -149,11 +149,11 @@
   },
   "exercise": {
     "title": "Find two prices for the gift card",
-    "task": "Write twoSumSorted, which takes a list of prices sorted from cheapest to dearest and a gift card balance. Return the indices of two different prices that add up to exactly the balance, with the lower index first, or null when no such pair exists. Use [[two-pointers]] so one pass over the prices is enough.",
+    "task": "Write `twoSumSorted`, which takes a list of prices sorted from cheapest to dearest and a gift card balance. Return the indices of two different prices that add up to exactly the balance, with the lower index first, or `null` when no such pair exists. Use [[two-pointers]] so one pass over the prices is enough.",
     "hints": [
       "Prices grow from left to right. Which two positions give you the smallest sum, and which give the largest?",
       "Add the prices at your two positions and compare the sum with the balance. That comparison alone tells you which position has to move, and in which direction.",
-      "A price cannot be paired with itself, so stop when the two positions meet and return null. When the sum equals the balance, return both indices."
+      "A price cannot be paired with itself, so stop when the two positions meet and return `null`. When the sum equals the balance, return both indices."
     ]
   }
 }

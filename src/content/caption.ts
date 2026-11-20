@@ -3,13 +3,21 @@ import type { LessonContent, LessonMessages, TermId } from './types';
 
 export type CaptionSegment =
   | { readonly kind: 'text'; readonly text: string }
-  | { readonly kind: 'term'; readonly term: TermId };
+  | { readonly kind: 'term'; readonly term: TermId }
+  | { readonly kind: 'code'; readonly code: string };
 
 const termMarker = /\[\[([a-z0-9]+(?:-[a-z0-9]+)*)\]\]/;
 
+const codeSpan = /`([^`]+)`/;
+
+function textSegmentOf(piece: string, index: number): readonly CaptionSegment[] {
+  if (index % 2 === 1) return [{ kind: 'code', code: piece }];
+  return piece === '' ? [] : [{ kind: 'text', text: piece }];
+}
+
 function segmentOf(piece: string, index: number): readonly CaptionSegment[] {
   if (index % 2 === 1) return [{ kind: 'term', term: piece }];
-  return piece === '' ? [] : [{ kind: 'text', text: piece }];
+  return piece.split(codeSpan).flatMap(textSegmentOf);
 }
 
 export function parseCaption(text: string): readonly CaptionSegment[] {

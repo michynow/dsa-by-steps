@@ -40,7 +40,7 @@ export function LessonLayout({
   const messages = useMessages(lessonPlayerMessages);
   const lessonMessages = content.messages[locale];
   const { lesson } = content;
-  const { key, current, binding, gated, frames, navigation } = useLessonState(
+  const { key, current, binding, gated, frames, bounds, navigation } = useLessonState(
     course,
     content,
     locale,
@@ -63,6 +63,7 @@ export function LessonLayout({
         <div className={styles.main}>
           <Stage
             frames={frames}
+            bounds={bounds}
             messages={messages}
             selection={binding.selection}
             turn={gated}

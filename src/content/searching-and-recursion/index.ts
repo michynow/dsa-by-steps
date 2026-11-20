@@ -1,0 +1,13 @@
+import type { ModuleContent } from '../types';
+import { binarySearchContent } from './binary-search';
+import en from './en.json';
+import pl from './pl.json';
+import { prefixSumsContent } from './prefix-sums';
+import { recursionContent } from './recursion';
+import { slidingWindowContent } from './sliding-window';
+
+export const searchingAndRecursion: ModuleContent = {
+  slug: 'searching-and-recursion',
+  titles: { en: en.title, pl: pl.title },
+  lessons: [binarySearchContent, recursionContent, slidingWindowContent, prefixSumsContent],
+};

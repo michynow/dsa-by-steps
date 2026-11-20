@@ -47,7 +47,7 @@
     },
     "one-pointer-at-each-end": {
       "title": "Po wskaźniku na każdym końcu",
-      "caption": "Ustawiasz left na najtańszej cenie, indeks 0, a right na najdroższej, indeks 5. Dwa wskaźniki trzymają twoją pierwszą parę, 4 i 30, a każda cena między nimi nadal wchodzi w grę.",
+      "caption": "Ustawiasz `left` na najtańszej cenie, indeks 0, a `right` na najdroższej, indeks 5. Dwa wskaźniki trzymają twoją pierwszą parę, 4 i 30, a każda cena między nimi nadal wchodzi w grę.",
       "keyIdea": "Zacznij od jednego wskaźnika na każdym końcu posortowanej tablicy."
     },
     "add-the-two-prices": {
@@ -75,11 +75,11 @@
     "count-the-moves": {
       "title": "Każdy ruch odrzuca jedną cenę",
       "caption": "Wyszukiwanie zajęło 4 ruchy i każdy z nich odrzucił jedną cenę na zawsze: 4, 30, 25 i 7 odpadają. Dwa wskaźniki idą tylko ku sobie i zatrzymują się, gdy się spotkają, więc wykonują co najwyżej jeden ruch na cenę. Praca rośnie tak samo jak liczba cen, czyli O(n).",
-      "keyIdea": "Każdy ruch odrzuca jedną cenę, więc dwa wskaźniki wykonują co najwyżej n - 1 ruchów: O(n)."
+      "keyIdea": "Każdy ruch odrzuca jedną cenę, więc dwa wskaźniki wykonują co najwyżej `n - 1` ruchów: O(n)."
     },
     "return-the-positions": {
       "title": "Dalej: zwróć dwie pozycje",
-      "caption": "W Practice piszesz twoSumSorted. Funkcja dostaje posortowane ceny i saldo, a zwraca indeksy dwóch cen o sumie równej saldu, tutaj 2 i 3, albo null, gdy takiej pary nie ma. Wystarczy jeden przebieg dwoma wskaźnikami."
+      "caption": "W Practice piszesz `twoSumSorted`. Funkcja dostaje posortowane ceny i saldo, a zwraca indeksy dwóch cen o sumie równej saldu, tutaj 2 i 3, albo `null`, gdy takiej pary nie ma. Wystarczy jeden przebieg dwoma wskaźnikami."
     },
     "where-you-meet-it": {
       "title": "Gdzie to spotkasz",
@@ -149,11 +149,11 @@
   },
   "exercise": {
     "title": "Dwie ceny na kartę podarunkową",
-    "task": "Napisz funkcję twoSumSorted, która przyjmuje listę cen posortowaną od najtańszej do najdroższej oraz saldo karty podarunkowej. Zwróć indeksy dwóch różnych cen, które dają dokładnie saldo, z niższym indeksem na początku, albo null, gdy takiej pary nie ma. Użyj [[two-pointers]], żeby wystarczył jeden przebieg po cenach.",
+    "task": "Napisz funkcję `twoSumSorted`, która przyjmuje listę cen posortowaną od najtańszej do najdroższej oraz saldo karty podarunkowej. Zwróć indeksy dwóch różnych cen, które dają dokładnie saldo, z niższym indeksem na początku, albo `null`, gdy takiej pary nie ma. Użyj [[two-pointers]], żeby wystarczył jeden przebieg po cenach.",
     "hints": [
       "Ceny rosną od lewej do prawej. Które dwie pozycje dają najmniejszą sumę, a które największą?",
       "Dodaj ceny z dwóch pozycji i porównaj sumę z saldem. Samo to porównanie mówi, która pozycja musi się przesunąć i w którą stronę.",
-      "Cena nie może tworzyć pary sama ze sobą, więc zatrzymaj się, gdy pozycje się spotkają, i zwróć null. Gdy suma równa się saldu, zwróć oba indeksy."
+      "Cena nie może tworzyć pary sama ze sobą, więc zatrzymaj się, gdy pozycje się spotkają, i zwróć `null`. Gdy suma równa się saldu, zwróć oba indeksy."
     ]
   }
 }

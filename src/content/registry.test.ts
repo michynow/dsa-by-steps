@@ -17,7 +17,7 @@ function moduleWith(slug: string, lessonSlugs: readonly string[]): ModuleContent
 
 describe('registry', () => {
   it('lists Foundations first', () => {
-    expect(modules.map((module) => module.slug)).toEqual(['foundations']);
+    expect(modules[0]?.slug).toBe('foundations');
   });
 
   it('derives the course from the modules', () => {

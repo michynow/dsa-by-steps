@@ -1,8 +1,9 @@
 import type { Course, LessonSlug, ModuleSlug } from '@/domain';
 import { foundations } from './foundations';
+import { searchingAndRecursion } from './searching-and-recursion';
 import type { LessonContent, ModuleContent } from './types';
 
-export const modules: readonly ModuleContent[] = [foundations];
+export const modules: readonly ModuleContent[] = [foundations, searchingAndRecursion];
 
 export function courseOf(content: readonly ModuleContent[]): Course {
   return {

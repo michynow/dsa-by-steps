@@ -1,0 +1,175 @@
+{
+  "title": "Wyszukiwanie binarne",
+  "story": {
+    "title": "Commit, który zepsuł build",
+    "summary": "Wczoraj build przechodził, a dziś się wywala. Pomiędzy tymi dwoma momentami leżą setki commitów, a zbudowanie jednego trwa dziesięć minut. Chcesz znaleźć pierwszy commit, który się wywala, sprawdzając jak najmniej z nich."
+  },
+  "uses": [
+    {
+      "title": "git bisect",
+      "body": "Git ma dokładnie to wyszukiwanie wbudowane. Oznaczasz jeden commit jako zły, a starszy jako dobry, a `git bisect` wybiera dla ciebie commit leżący w połowie między nimi, żebyś go przetestował. Każda twoja odpowiedź zmniejsza zakres o połowę, aż wskaże pierwszy zły commit."
+    },
+    {
+      "title": "Posortowane listy w bibliotekach standardowych",
+      "body": "Moduł `bisect` w Pythonie i metoda `Arrays.binarySearch` w Javie przeszukują posortowaną listę, dzieląc ją na pół. `bisect` potrafi też podać miejsce, w którym należy nowa wartość, więc lista zostaje posortowana po każdym wstawieniu."
+    },
+    {
+      "title": "Indeksy w bazach danych",
+      "body": "Indeks bazy danych trzyma klucze posortowane, więc wyszukanie po kluczu nie czyta całej tabeli. B-drzewo, którego używa większość baz, dzieli zakres na wiele części zamiast dwóch, ale każdy krok nadal odrzuca większość tego, co zostało."
+    },
+    {
+      "title": "Najmniejsza wartość, która przechodzi test",
+      "body": "Możesz też szukać odpowiedzi zamiast elementu: najmniejszej pojemności serwera, która obsłuży ruch, albo najmniejszego rozmiaru, który się zmieści. Działa to zawsze, gdy każda wartość poniżej pewnego punktu zawodzi, a każda powyżej przechodzi, czyli tak jak historia zepsutego builda."
+    }
+  ],
+  "whenNot": "Wyszukiwanie binarne wymaga uporządkowanych danych albo przynajmniej testu tak-lub-nie, który po jednej stronie daje nie, a po drugiej tak. Posortowanie nieuporządkowanych danych kosztuje O(n log n), więc przy pojedynczym wyszukiwaniu tańszy jest zwykły przebieg, O(n). Potrzebuje też skoku do środka w O(1), więc nie pasuje do listy wiązanej. Jeśli szukasz tylko dokładnych wartości, a kolejność nie ma znaczenia, hash mapa odpowiada w O(1) średnio. A przy kilku elementach przebieg jest równie szybki i prostszy do napisania bez błędu.",
+  "outcomes": {
+    "pick-the-middle": "Wybierzesz środek zakresu, który jest nadal w grze",
+    "discard-half": "Odrzucisz tę połowę zakresu, która nie może zawierać odpowiedzi",
+    "keep-the-boundary": "Przesuniesz `lo` i `hi` tak, żeby nie zgubić odpowiedzi ani nie zapętlić się w nieskończoność",
+    "state-the-invariant": "Podasz, co pozostaje prawdą w każdym przebiegu wyszukiwania",
+    "count-the-builds": "Podasz koszt wyszukiwania binarnego: O(log n) kroków"
+  },
+  "steps": {
+    "overview": {
+      "title": "Znajdź miejsce, dzieląc na pół",
+      "caption": "[[binary-search]] (wyszukiwanie binarne) znajduje pozycję w posortowanej tablicy, patrząc na środek i odrzucając tę połowę, która nie może zawierać odpowiedzi, raz za razem. Śledzą to trzy wskaźniki: `lo` i `hi` wyznaczają zakres, który jest nadal w grze, a `mid` to komórka, na którą patrzysz. Rysunek pokazuje zakończone wyszukiwanie w ośmiu commitach: wszystkie trzy wskaźniki stanęły na `c6`, pierwszym commicie, który się wywala."
+    },
+    "the-problem": {
+      "title": "Który commit zepsuł build?",
+      "caption": "Wczoraj build przechodził, a dziś się wywala, a commity pomiędzy leżą po kolei, od najstarszego. Każdy commit przed winnym buduje się bez problemu, a winny i każdy późniejszy się wywalają. Test jednego commita trwa dziesięć minut, więc sprawdzanie 1000 commitów od najstarszego zajmuje prawie tydzień. Musisz znaleźć pierwszy zły commit przy znacznie mniejszej liczbie buildów.",
+      "keyIdea": "Gdy po jednej stronie każda odpowiedź to nie, a po drugiej tak, jeden test odrzuca połowę zakresu."
+    },
+    "the-two-ends": {
+      "title": "Zakresem jest cała historia",
+      "caption": "Ustawiasz `lo` na `c1`, najstarszym commicie, a `hi` na `c8`, najnowszym. Wiesz, że `c8` się wywala, więc pierwszy zły commit leży gdzieś od `lo` do `hi`, a na razie to wszystkie osiem commitów."
+    },
+    "pick-the-middle": {
+      "title": "Zbuduj środkowy commit",
+      "caption": "Budujesz commit leżący w połowie zakresu. Indeks środka to `(lo + hi) / 2`, zaokrąglone w dół: indeksy 0 i 7 dają 3, czyli `c4`. Wskaźnik `mid` go oznacza."
+    },
+    "test-the-middle": {
+      "title": "Dobry build odrzuca połowę",
+      "caption": "Build `c4` przechodzi. Historia jest uporządkowana, najpierw przechodzące commity, więc każdy commit starszy niż `c4` też przechodzi, a pierwszy zły commit musi leżeć po `c4`. Cztery commity odpadają jednym buildem.",
+      "keyIdea": "Jeden build środkowego commita odrzuca połowę zakresu."
+    },
+    "discard-half": {
+      "title": "Przesuń lo za środek",
+      "caption": "Skoro `c4` przeszedł, `lo` przeskakuje na następny commit, `c5`: `lo` staje się `mid + 1`. Nowy zakres to `c5` do `c8`, cztery commity. Nowy środek to indeks 4 plus 7 podzielone przez dwa, w dół, czyli indeks 5: `c6`."
+    },
+    "keep-the-boundary": {
+      "title": "Zły build zostawia środek w zakresie",
+      "caption": "Build `c6` się wywala. To może być pierwszy zły commit, ale może nim być też starszy commit z zakresu. Dlatego `hi` przesuwa się na sam `c6`, a nie przed niego: `hi` staje się `mid`. Zakres to teraz `c5` i `c6`.",
+      "keyIdea": "Po złym buildzie `hi` staje się `mid`, a po dobrym `lo` staje się `mid + 1`."
+    },
+    "the-range-of-two": {
+      "title": "Środek dwóch zaokrągla się w dół",
+      "caption": "Gdy `lo` stoi na `c5`, a `hi` na `c6`, indeksy 4 i 5 dają razem 9, a połowa z 9 to 4,5, czyli po zaokrągleniu w dół 4. Środkiem jest `c5`, commit, którego jeszcze nie zbudowałeś. Zaokrąglanie w dół sprawia też, że wyszukiwanie nie utknie na `c6`, bo `mid` leży zawsze ściśle przed `hi`, gdy zakres ma więcej niż jeden commit."
+    },
+    "the-pointers-meet": {
+      "title": "Zatrzymaj się, gdy lo spotka hi",
+      "caption": "Build `c5` przechodzi, więc `lo` staje się `mid + 1`: przesuwa się na `c6`, a `lo` i `hi` stoją na tym samym commicie. W zakresie jest jeden commit i `c6` jest odpowiedzią. Zajęło to 3 buildy, `c4`, `c6` i `c5`, zamiast 6 przy przeglądaniu od `c1`."
+    },
+    "the-invariant": {
+      "title": "Pierwszy zły commit zostaje w zakresie",
+      "caption": "W każdym przebiegu prawdziwe jest to samo: pierwszy zły commit leży gdzieś od `lo` do `hi`. To jest [[loop-invariant]] (niezmiennik pętli) tego wyszukiwania. Na początku jest prawdziwy, bo `hi` stoi na commicie, który się wywala. Każdy ruch zachowuje go, bo odrzucasz tylko commity, które nie mogą być odpowiedzią. A gdy `lo` spotka `hi`, w zakresie zostaje jeden commit, więc to on jest odpowiedzią.",
+      "keyIdea": "Loop invariant to fakt prawdziwy przed każdym przebiegiem pętli i po nim. Jeśli każdy ruch go zachowuje, odpowiedzi nie da się zgubić."
+    },
+    "count-the-builds": {
+      "title": "Każdy build zmniejsza zakres o połowę",
+      "caption": "Każdy build tnie zakres mniej więcej na pół, więc 1000 commitów to około 10 buildów, a 1 000 000 commitów około 20. Podwojenie historii dodaje tylko jeden build. Taki wzrost to [[logarithmic-time]] (czas logarytmiczny): O(log n). Dziesięciominutowe buildy tygodniowych poszukiwań kurczą się do niecałych dwóch godzin.",
+      "keyIdea": "Dzielenie zakresu na pół w każdym kroku kosztuje O(log n): podwojenie danych dodaje jeden krok."
+    },
+    "look-up-many-reports": {
+      "title": "Dalej: odpowiedz na wiele zgłoszeń naraz",
+      "caption": "W Practice piszesz `firstCommitAtOrAfter`. Historia to posortowana lista numerów buildów, a wiele zgłoszeń podaje po jednym numerze buildu. Dla każdego zgłoszenia zwracasz indeks pierwszego commita, którego numer builda jest co najmniej taki, albo długość historii, gdy żaden nie pasuje. To to samo wyszukiwanie z testem `builds[mid] >= report`, uruchomione raz na zgłoszenie."
+    },
+    "where-you-meet-it": {
+      "title": "Gdzie to spotkasz",
+      "caption": "Tutaj dzielenie na pół pojawia się poza serwerem buildów. Część zastosowań przeszukuje posortowane dane, a część szuka najmniejszej wartości, która przechodzi test. Uwaga pod nimi mówi, kiedy wybrać coś innego."
+    }
+  },
+  "checks": {
+    "where-the-middle-is": {
+      "prompt": "`lo` stoi na `c1`, indeks 0, a `hi` na `c8`, indeks 7. Indeks środka to `(lo + hi) / 2`, zaokrąglone w dół. Wskaż commit, który budujesz jako pierwszy.",
+      "explanation": "Środkiem jest `c4`. Indeksy 0 i 7 dają razem 7, połowa z 7 to 3,5, a po zaokrągleniu w dół jest to indeks 3, czyli `c4`. Wybranie `c5` oznaczałoby zaokrąglenie w górę, co psuje wyszukiwanie, gdy zakres skurczy się do dwóch commitów."
+    },
+    "where-the-break-can-be": {
+      "prompt": "Budujesz `c4` i przechodzi. Które commity mogą być jeszcze pierwszym złym?",
+      "options": {
+        "after-the-middle": "Tylko `c5` do `c8`, bo każdy commit starszy niż przechodzący też przechodzi",
+        "same-side": "Tylko `c1` do `c3`, bo awaria musi być po tej samej stronie co przetestowany commit",
+        "anywhere": "Dowolny z `c1` do `c8`, bo jeden przechodzący build nic nie mówi o pozostałych commitach",
+        "right-next-one": "Tylko `c5`, bo pierwszy commit po dobrym musi być tym złym"
+      },
+      "explanation": "Tylko `c5` do `c8`. Historia jest uporządkowana, więc jeśli `c4` przechodzi, to `c1`, `c2` i `c3` też, a pierwszy zły commit leży później. Jeden build mówi coś o pozostałych i na tym polega działanie podziału na pół. Nie wskazuje jednak `c5`: `c5` też może przejść, więc wyszukiwanie toczy się dalej w `c5` do `c8`."
+    },
+    "where-lo-lands": {
+      "prompt": "`c4` przeszedł, więc wszystko do `c4` odpada. `lo` nadal stoi na `c1`. Wskaż commit, na który przesuwa się `lo`.",
+      "explanation": "`lo` przesuwa się na `c5`, commit zaraz za środkiem: `lo` staje się `mid + 1`. Sam `c4` przeszedł, więc nie może być pierwszym złym commitem, a zostawienie `lo` na nim trzymałoby go w zakresie bez potrzeby."
+    },
+    "where-hi-lands": {
+      "prompt": "`lo` stoi na `c5`, a `mid` na `c6`. Build `c6` się wywala. Gdzie idzie `hi`?",
+      "options": {
+        "hi-on-the-middle": "Na sam `c6`, bo `c6` może być pierwszym złym commitem",
+        "hi-before-the-middle": "Na `c5`, bo `c6` jest już znany jako zły, więc nie jest już potrzebny",
+        "hi-stays": "Zostaje na `c8`, bo wywalający się build nic nie mówi o commitach po nim",
+        "hi-after-the-middle": "Na `c7`, bo commity po `c6` to te, które zostały do sprawdzenia"
+      },
+      "explanation": "`hi` idzie na `c6`. Wywalający się build nie mówi, że `c6` jest pierwszym złym commitem, tylko że pierwszy jest w `c6` albo przed nim, więc `c6` musi zostać w zakresie. Przesunięcie `hi` na `c5` wyrzuciłoby odpowiedź, gdy pierwszym złym jest `c6`. Zostawienie `hi` na `c8` marnuje build: wszystko po `c6` też się wywala, więc nic z tego nie może być pierwszym złym commitem. A `c7` leży po `c6`, więc odpada, a nie zostaje."
+    },
+    "which-commit-is-built-next": {
+      "prompt": "`lo` stoi na `c5`, a `hi` na `c6`. Który commit budujesz następny i dlaczego?",
+      "options": {
+        "rounds-down": "`c5`, bo środek indeksów 4 i 5 to 4,5, zaokrąglone w dół do 4",
+        "rounds-up": "`c6`, bo przy dwóch commitach środek zaokrągla się w górę do późniejszego",
+        "no-build": "Żaden, bo `c6` już się wywalił, więc musi być pierwszym złym commitem",
+        "past-the-end": "`c7`, bo trzeba spojrzeć o jeden commit za `hi`, żeby mieć pewność"
+      },
+      "explanation": "`c5`, bo środek zaokrągla się w dół. `c6` już się wywalił, ale to nie czyni go pierwszym złym commitem: `c5` też może się wywalić i tylko build `c5` to rozstrzygnie. Zaokrąglenie w górę postawiłoby `mid` na `c6`, czyli tam, gdzie `hi`, a zakres nigdy by się nie zmniejszył. A `c7` jest już poza zakresem."
+    },
+    "why-the-search-stops": {
+      "prompt": "`c5` buduje się dobrze, więc `lo` idzie na `c6`, gdzie już stoi `hi`. Dlaczego możesz przestać i wskazać pierwszy zły commit?",
+      "options": {
+        "one-candidate-left": "Bo `lo` i `hi` stoją na tym samym commicie, więc w zakresie został jeden commit",
+        "last-one-tested": "Bo `c5` był ostatnim przetestowanym commitem, więc to on jest odpowiedzią",
+        "confirm-with-a-build": "Bo przestajesz, ale potrzebujesz jeszcze jednego builda `c6`, żeby to potwierdzić",
+        "keep-halving": "Bo zakresu jednego commita nie da się podzielić na pół, więc trzeba się poddać"
+      },
+      "explanation": "W zakresie został jeden commit, więc `c6` jest odpowiedzią. Nie musisz budować `c6` ponownie: `hi` dotarł na niego tylko dlatego, że jego build się wywalił, a każdy commit przed nim odpadł. Ostatnio przetestowany commit nie jest odpowiedzią, bo `c5` przeszedł. A zakres jednego commita to nie porażka dzielenia: to moment, w którym niezmiennik wskazuje odpowiedź."
+    },
+    "builds-for-a-million-commits": {
+      "prompt": "Projekt ma 1 000 000 commitów po kolei, a najnowszy się wywala. Ile mniej więcej buildów potrzeba, żeby znaleźć pierwszy zły commit?",
+      "options": {
+        "about-twenty": "Około 20, bo każdy build zmniejsza zakres o połowę, a 1 000 000 podzielone 20 razy na pół daje jeden",
+        "about-a-thousand": "Około 1000, bo dzielenie na pół wymaga pierwiastka z liczby commitów",
+        "half-a-million": "Około 500 000, bo przeciętnie pierwszy zły commit leży w środku",
+        "a-million": "1 000 000, bo w najgorszym razie trzeba zbudować każdy commit"
+      },
+      "explanation": "Około 20, bo 2 do potęgi 20 to trochę ponad milion. Każdy build zmniejsza zakres o połowę, więc koszt to O(log n). To nie jest pierwiastek: dzielenie zmniejsza zakres znacznie szybciej. Położenie pierwszego złego commita nie ma znaczenia, bo każde wyszukiwanie dzieli tak samo. A build każdego commita to przebieg liniowy, który to wyszukiwanie zastępuje."
+    }
+  },
+  "terms": {
+    "binary-search": {
+      "term": "binary search",
+      "gloss": "wyszukiwanie binarne: znajdowanie pozycji w uporządkowanych danych przez sprawdzenie środka i odrzucenie połowy, która nie może zawierać odpowiedzi, aż zostanie jeden kandydat."
+    },
+    "loop-invariant": {
+      "term": "loop invariant",
+      "gloss": "niezmiennik pętli: fakt prawdziwy przed startem pętli i po każdym jej przebiegu, więc prawdziwy także po jej zakończeniu."
+    },
+    "logarithmic-time": {
+      "term": "logarithmic time",
+      "gloss": "czas logarytmiczny: koszt, który rośnie o jeden krok za każdym razem, gdy dane się podwajają, zapisywany jako O(log n)."
+    }
+  },
+  "exercise": {
+    "title": "Dopasuj zgłoszenia do commitów",
+    "task": "Napisz funkcję `firstCommitAtOrAfter`, która przyjmuje numery buildów historii, posortowane od najstarszego do najnowszego, oraz listę zgłoszeń, z których każde jest numerem builda. Dla każdego zgłoszenia zwróć indeks pierwszego commita, którego numer builda jest co najmniej równy zgłoszeniu, albo długość historii, gdy żaden commit nie pasuje. Użyj [[binary-search]], żeby każde zgłoszenie kosztowało O(log n) nawet przy długiej historii.",
+    "hints": [
+      "Numery buildów są posortowane, więc commity o numerze co najmniej równym zgłoszeniu leżą po prawej od tych, które go nie osiągają. Którego indeksu szukasz?",
+      "Trzymaj dwa indeksy, lo i hi, tak żeby odpowiedź zawsze leżała między nimi. Odpowiedzią może być pozycja tuż za ostatnim commitem, więc zastanów się, gdzie startuje hi. Spójrz na środek: czy odpowiedź ma zostać na nim, czy go minąć?",
+      "Gdy środkowy commit ma numer co najmniej równy zgłoszeniu, może być odpowiedzią, więc hi staje się mid. W przeciwnym razie lo staje się mid plus 1. Zatrzymaj się, gdy lo spotka hi, i zrób to raz na zgłoszenie."
+    ]
+  }
+}

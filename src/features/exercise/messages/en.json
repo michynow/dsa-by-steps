@@ -73,5 +73,9 @@
     "empty": "empty",
     "bucket": "Bucket",
     "index": "Index"
+  },
+  "examples": {
+    "title": "Examples",
+    "note": "What your function should return for a few inputs:"
   }
 }

@@ -82,7 +82,7 @@
     },
     "bracket-preview": {
       "title": "Dalej: sprawdzanie nawiasów",
-      "caption": "W Practice sprawdzasz, czy każdy (, [ i { w wierszu kodu jest zamknięty w dobrej kolejności. Stack nadaje się do tego, bo nawias otwarty ostatni musi zamknąć się pierwszy. Pokazane otwarte nawiasy to ( i [, więc [ musi się zamknąć, zanim zamknie się (."
+      "caption": "W Practice sprawdzasz, czy każdy `(`, `[` i `{` w wierszu kodu jest zamknięty w dobrej kolejności. Stack nadaje się do tego, bo nawias otwarty ostatni musi zamknąć się pierwszy. Pokazane otwarte nawiasy to `(` i `[`, więc `[` musi się zamknąć, zanim zamknie się `(`."
     },
     "where-you-meet-it": {
       "title": "Gdzie je spotkasz",
@@ -166,7 +166,7 @@
   },
   "exercise": {
     "title": "Sprawdzanie nawiasów w wierszu",
-    "task": "Edytor oznacza wiersz kodu, w którym nawiasy są błędne. Napisz funkcję isBalanced, która przyjmuje wiersz kodu i zwraca true, gdy każdy (, [ i { jest zamknięty przez pasujący ), ] lub } w dobrej kolejności. Pomiń wszystkie inne znaki i użyj [[stack]], żeby wystarczył jeden przebieg po wierszu.",
+    "task": "Edytor oznacza wiersz kodu, w którym nawiasy są błędne. Napisz funkcję `isBalanced`, która przyjmuje wiersz kodu i zwraca `true`, gdy każdy `(`, `[` i `{` jest zamknięty przez pasujący `)`, `]` lub `}` w dobrej kolejności. Pomiń wszystkie inne znaki i użyj [[stack]], żeby wystarczył jeden przebieg po wierszu.",
     "hints": [
       "Zobacz, w jakiej kolejności nawiasy muszą się zamykać: ten otwarty ostatni musi zamknąć się pierwszy. Która struktura oddaje najnowszy element jako pierwszy?",
       "Zapamiętywać trzeba tylko nawiasy otwierające, a każdy inny znak można pominąć. Zastanów się, z czym powinien być porównany nawias zamykający.",

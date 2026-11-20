@@ -6,6 +6,7 @@ import { useLocale, useMessages } from '@/features/locale';
 import { useProgress, useProgressActions } from '@/features/progress';
 import { CaptionText } from '@/features/terms';
 import { EditorColumn } from './EditorColumn';
+import { ExamplesPanel } from './ExamplesPanel';
 import { HintsPanel } from './HintsPanel';
 import { ResultsPanel } from './ResultsPanel';
 import { SolutionPanel } from './SolutionPanel';
@@ -41,6 +42,7 @@ export function ExerciseView({ content, exercise }: ExerciseViewProps): ReactEle
           glossary={{ terms: content.messages[locale].terms, introduced: [] }}
         />
       </p>
+      <ExamplesPanel exercise={exercise} messages={messages} />
       <p className={styles.narrow}>{messages.narrow}</p>
       <div className={styles.columns}>
         <EditorColumn exercise={exercise} code={code} run={run} messages={messages} />
