@@ -183,3 +183,19 @@
     display: block;
   }
 }
+
+.examplesNote {
+  margin: 0 0 var(--space-2);
+  color: var(--color-ink-muted);
+}
+
+.examples {
+  margin: 0;
+  padding: var(--space-3);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-caption);
+  background: var(--color-paper);
+  border: 1px solid var(--color-paper-dot);
+  border-radius: var(--radius-control);
+}
