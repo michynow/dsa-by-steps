@@ -2,9 +2,9 @@
 
 The full Course map. Module 1 is the first build target; later Modules are planned in order but not committed in detail. Each Lesson lists its core idea, the Structures it draws, the Check types it leans on, and its Exercise.
 
-Status: `building` · `planned`
+Status: `built` · `building` · `planned`
 
-## Module 1 — Foundations `building`
+## Module 1 — Foundations `built`
 
 | #   | Lesson                  | Core idea                                                        | Structures             | Checks          | Exercise                                                      | Expected |
 | --- | ----------------------- | ---------------------------------------------------------------- | ---------------------- | --------------- | ------------------------------------------------------------- | -------- |
@@ -22,7 +22,7 @@ Stories (one product situation per Lesson, values named after it):
 4. Stacks and queues: undo in a text editor; a print queue.
 5. Hash maps: checking whether a username is taken at sign-up.
 
-## Module 2 — Searching and recursion `planned`
+## Module 2 — Searching and recursion `built`
 
 1. Binary search: halving a sorted range; off-by-one boundaries. Story: finding the commit that broke the build.
 2. Recursion: the call stack as a Structure; base and recursive cases. Story: listing every file in nested folders.
