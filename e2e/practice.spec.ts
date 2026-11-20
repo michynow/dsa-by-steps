@@ -20,7 +20,7 @@ test('switches between Learn and Practice, opens an Exercise and returns through
   await page.getByRole('link', { name: 'Linked lists Available' }).click();
   await expect(page).toHaveURL(/\/en\/practice\/foundations\/linked-lists$/);
   await expect(
-    page.getByRole('heading', { level: 1, name: 'Play the queue backwards' }),
+    page.getByRole('heading', { level: 1, name: 'Run the hunt backwards' }),
   ).toBeVisible();
 
   await page.getByRole('link', { name: 'Back to the Lesson' }).click();
@@ -29,11 +29,11 @@ test('switches between Learn and Practice, opens an Exercise and returns through
 });
 
 test('opens the Practice detail from the Practice this link on the last Step', async ({ page }) => {
-  await page.goto('/en/foundations/linked-lists/12');
+  await page.goto('/en/foundations/linked-lists/13');
   await page.getByRole('link', { name: 'Practice this' }).click();
   await expect(page).toHaveURL(/\/en\/practice\/foundations\/linked-lists$/);
   await expect(
-    page.getByRole('heading', { level: 1, name: 'Play the queue backwards' }),
+    page.getByRole('heading', { level: 1, name: 'Run the hunt backwards' }),
   ).toBeVisible();
 });
 

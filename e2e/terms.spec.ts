@@ -20,7 +20,7 @@ test('opens a Term Chip with the keyboard, reads its gloss and closes it with Es
   await page.addInitScript(`
     window.localStorage.setItem('dsa-by-steps.progress', ${JSON.stringify(seededProgress)});
   `);
-  await page.goto('/en/foundations/linked-lists/2');
+  await page.goto('/en/foundations/linked-lists/3');
   const chip = page.getByRole('button', { name: 'node' });
   await chip.focus();
   await page.keyboard.press('Enter');

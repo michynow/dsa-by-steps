@@ -78,9 +78,7 @@ test('steps through the Linked lists Lesson, remembers seen Steps and keeps the 
   await expect(page).toHaveURL(new RegExp(`/pl/foundations/linked-lists/${String(stepCount)}$`));
   await page.getByRole('link', { name: 'Przećwicz to' }).click();
   await expect(page).toHaveURL(/\/pl\/practice\/foundations\/linked-lists$/);
-  await expect(
-    page.getByRole('heading', { level: 1, name: 'Odtwarzanie kolejki od końca' }),
-  ).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Podchody od końca' })).toBeVisible();
 });
 
 test('redirects the old Exercise URL to the Practice detail in the same Locale', async ({

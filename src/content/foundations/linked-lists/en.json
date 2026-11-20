@@ -1,8 +1,8 @@
 {
   "title": "Linked lists",
   "story": {
-    "title": "The play queue of a music app",
-    "summary": "You build the play queue of a music app. Listeners tap Play next, remove songs and jump around, and the queue has to stay fast when it holds thousands of songs."
+    "title": "A treasure hunt for your friends",
+    "summary": "You set up a treasure hunt. Each clue says where the next clue is hidden, so adding, dropping and rearranging stops has to stay easy however long the hunt gets."
   },
   "uses": [
     {
@@ -31,112 +31,116 @@
     "compare-with-arrays": "Compare the costs of linked lists and arrays"
   },
   "steps": {
+    "overview": {
+      "title": "A chain where each item knows the next",
+      "caption": "A [[linked-list]] is a chain of items where each item knows only where the next one is. A treasure hunt works the same way: each clue says where the next clue is hidden, you hand out the first clue, and the last clue says the treasure is here. You use a chain like this when you keep adding and removing items in the middle."
+    },
     "the-problem": {
-      "title": "Play next gets slower as the queue grows",
-      "caption": "Your play queue is an array, and a listener taps Play next on Glow. Glow goes right after Intro, so every song behind it, Echo, Drift and Pulse here, is copied one cell to the right. The work grows with the queue, and a service doing this constantly on long shared or radio queues pays for it. You want the cost of Play next not to depend on the queue's length.",
+      "title": "A new stop means renumbering the sheet",
+      "caption": "You write your clues in numbered order on one sheet, like an array. Now you add a new stop, Clock, after clue 2. Every clue behind it, Oven and Shed here, moves one place down and gets a new number. The longer the hunt, the more you renumber for every new stop. You want adding a stop not to depend on how long the hunt is.",
       "keyIdea": "Inserting in the middle of an array shifts every item behind it."
     },
-    "a-node": {
-      "title": "A song becomes a node",
-      "caption": "You store each song in its own box. A [[node]] holds two things: a value and a link called next. Here the node holds Intro, and its next points nowhere yet.",
-      "keyIdea": "Songs can live anywhere in memory; only the links give them an order."
+    "a-clue": {
+      "title": "A clue becomes a node",
+      "caption": "You write each clue on its own card and hide it under its own spot. A [[node]] holds two things: the spot it is hidden at and a link called next, where to look for the following clue. Here the node holds Mat, and its next points nowhere yet.",
+      "keyIdea": "Clues can be hidden anywhere; only the links give them an order."
     },
-    "linking-songs": {
-      "title": "Songs joined into a queue",
-      "caption": "You add Echo, Drift and Pulse, then link each node to the one after it. Following the links takes you from Intro to Pulse. The last node's next is null, which marks the end of the [[linked-list]]."
+    "chaining-clues": {
+      "title": "Clues chained into a hunt",
+      "caption": "You add Mail, Oven and Shed, then make each clue point at the one after it. Following the links takes you from Mat to Shed. The last clue's next is null, which marks the end of the chain: the treasure is there."
     },
-    "the-head": {
-      "title": "The head starts the queue",
-      "caption": "The queue needs one more thing: the [[head]], a reference to its first node. You set the head to Intro, the one node no other node links to. From the head, the links reach every other song."
+    "the-first-clue": {
+      "title": "The head is the clue you hand out",
+      "caption": "The hunt needs one more thing: the [[head]], a reference to its first clue. You set the head to Mat, the one clue no other clue points to, and hand it to your friends. From the head, the links reach every other clue."
     },
-    "now-playing-pointer": {
-      "title": "A pointer marks the playing song",
-      "caption": "A [[pointer]] is a labelled marker that refers to one node. You place now-playing on Intro, the song playing right now. When the song ends, the marker moves along its next link."
+    "finger-on-a-clue": {
+      "title": "A pointer marks the clue being read",
+      "caption": "A [[pointer]] is a labelled marker that refers to one node. You place here on Mat, the clue being read right now. When the clue is solved, the marker moves along its next link."
     },
-    "traversal": {
-      "title": "Walking the queue",
-      "caption": "To fill the Up next list, you walk the queue. A cursor starts on Intro and follows next to Echo, Drift and Pulse. Pulse's next is null, so the walk stops. Visiting the nodes one after another like this is [[traversal]]."
+    "following-the-trail": {
+      "title": "Following the trail",
+      "caption": "To check the whole hunt, you follow it. Here starts on Mat and follows next to Mail, Oven and Shed. Shed's next is null, so the trail ends. Visiting the nodes one after another like this is [[traversal]]."
     },
-    "play-next": {
-      "title": "Play next links a new song in",
-      "caption": "You create the node Glow and link its next to Echo, the song after the one playing. Only then do you link Intro's next to Glow. Two links change and no song moves, so the cost does not depend on the length of the queue.",
-      "keyIdea": "Link the new node forward first, then link the old node to it."
+    "add-a-stop": {
+      "title": "A new stop rewrites two clues",
+      "caption": "You stand at Mail and write a new clue, Clock. First its next points to Oven, the stop that follows it. Only then do you rewrite Mail's next to point to Clock. Two links change and no clue moves, so the cost does not depend on the length of the hunt.",
+      "keyIdea": "Point the new node forward first, then rewrite the old node to reach it."
     },
-    "remove-from-queue": {
-      "title": "Remove by relinking",
-      "caption": "The listener removes Echo. You point prev at Glow, the song before it, and link Glow's next to Drift. Nothing points at Echo any more, so you remove it. The other songs never move.",
-      "keyIdea": "To remove a node, relink the node before it past it."
+    "remove-a-stop": {
+      "title": "Skip a stop by rewriting the clue before it",
+      "caption": "Oven turns out too hard, so you drop it. You point prev at Clock, the clue before it, and rewrite Clock's next to Shed. Nothing points at Oven any more, so you remove it. The other clues never move.",
+      "keyIdea": "To remove a node, rewrite the node before it to skip it."
     },
-    "jump-to-song": {
-      "title": "Jumping to a song takes a walk",
-      "caption": "A linked list has no index to jump to. To reach index 3, which holds Pulse, the cursor starts at the head, index 0, and follows next three times. Song 500 sits at index 499, so reaching index k takes k moves.",
-      "keyIdea": "A linked list has no index: reaching position k means walking k links."
+    "jump-to-a-clue": {
+      "title": "Jumping to a clue takes a walk",
+      "caption": "A chain of clues has no numbers to jump by. To reach index 3, which holds Shed, you start at the first clue, index 0, and follow next three times. Clue 50 sits at index 49, so reaching it takes 49 links. Reaching index k takes k moves.",
+      "keyIdea": "A linked list has no index: reaching position k means following k links."
     },
-    "arrays-vs-lists": {
-      "title": "Arrays and linked lists side by side",
-      "caption": "The array reaches Pulse in one jump by index, while the list walks three links. The list plays a song next by changing two links, while the array shifts every song behind it. Showing Up next visits every song once on both.",
+    "sheet-vs-trail": {
+      "title": "The sheet and the trail side by side",
+      "caption": "The sheet reaches Shed in one jump by number, while the trail follows three links. The trail adds a stop by changing two links, while the sheet shifts every clue behind it. Reading out every clue visits each one once on both.",
       "keyIdea": "Pick the structure by the operation you repeat most."
     },
     "reverse-preview": {
-      "title": "Next up: play the queue backwards",
-      "caption": "In Practice you play the queue in reverse order, last song first, by reversing the list in place. You use three pointers: prev, current and next. Before the first move, prev is null, current sits on the head and next is one node ahead. You redirect each node's link, one node at a time."
+      "title": "Next up: run the hunt backwards",
+      "caption": "In Practice you lay the trail backwards, so the hunt ends where it began: the last clue becomes the first, by reversing the list in place. You use three pointers: prev, current and next. Before the first move, prev is null, current sits on the head and next is one node ahead. You redirect each clue's link, one at a time."
     },
     "where-you-meet-it": {
       "title": "Where you will meet it",
-      "caption": "Here is where you meet linked lists outside this app. Each keeps items in order and changes them at a spot it already holds. The note under them says when an array is the better pick."
+      "caption": "Here is where you meet linked lists outside this hunt. Each keeps items in order and changes them at a spot it already holds. The note under them says when an array is the better pick."
     }
   },
   "checks": {
-    "what-a-node-links-to": {
-      "prompt": "Intro is a single node, and a new song, Echo, will come after it. What must Intro hold besides its song name?",
+    "what-a-clue-holds": {
+      "prompt": "Mat is a single clue, and a next clue, Mail, will follow it. What must the Mat clue hold besides its own spot?",
       "options": {
-        "next-link": "A link to the next node, because the queue continues by following it",
-        "copy-of-next": "A copy of the next song's name, because the name tells you which song follows",
-        "position-number": "Its position number, because the queue finds each song by position",
-        "nothing-extra": "Nothing more, because nodes sit side by side like array cells"
+        "next-link": "A link to the next clue, because the hunt continues by following it",
+        "copy-of-next": "A copy of the next clue's text, because then you can read the next clue without going there",
+        "position-number": "Its number on the sheet, because the hunt finds each clue by its number",
+        "nothing-extra": "Nothing more, because the clues lie side by side like boxes on the sheet"
       },
-      "explanation": "Intro holds a link to the next node, called next, and the queue continues by following it. A copy of Echo's name says nothing about where Echo is, and two songs can share a name. Nodes have no position number, because a list finds a node by walking the links. Nodes do not sit side by side in memory, so without a link nothing connects Intro to Echo."
+      "explanation": "The Mat clue holds a link to the next clue, called next, and the hunt continues by following it. A copy of Mail's text says nothing about where Mail is hidden, and it goes stale if you rewrite that clue. Clues have no number, because a list finds a clue by following the links. Clues do not lie side by side in memory, so without a link nothing connects Mat to Mail."
     },
-    "which-song-is-head": {
-      "prompt": "The queue has no head yet. Select the song the head should refer to.",
-      "explanation": "The head is Intro, because no link leads into Intro, so only the head can lead you there. If the head referred to Drift, you would lose Intro and Echo. If it referred to Pulse, the last node, you could reach nothing else, since its next is null."
+    "which-clue-is-first": {
+      "prompt": "The hunt has no head yet. Select the clue the head should refer to.",
+      "explanation": "The head is Mat, because no link leads into Mat, so only the head can lead you there. If the head referred to Oven, you would lose Mat and Mail. If it referred to Shed, the last clue, you could reach nothing else, since its next is null."
     },
     "where-the-walk-lands": {
-      "prompt": "A cursor starts on the song now-playing marks and follows next one link at a time. After two moves, which song is it on?",
-      "explanation": "The cursor is on Drift: the first move reaches Echo and the second reaches Drift. It does not stop on Echo, because a move counts only when you follow a link. It does not reach Pulse either, since that takes a third move. Links only point forward, so the cursor never goes back."
+      "prompt": "Here starts on Mat and follows next one link at a time. After two moves, which clue is it on?",
+      "explanation": "It is on Oven: the first move reaches Mail and the second reaches Oven. It does not stop on Mail, because a move counts only when you follow a link. It does not reach Shed either, since that takes a third move. Links only point forward, so here never goes back."
     },
-    "first-link-for-play-next": {
-      "prompt": "A new song, Glow, is about to be added right after Intro, which is playing. Which link do you set first?",
+    "first-rewrite-for-new-stop": {
+      "prompt": "A new clue, Clock, is about to join the hunt right after Mail. Which link do you set first?",
       "options": {
-        "new-to-next": "Glow's next, set to Echo, because Glow must lead to the song that follows it before anything points at Glow",
-        "current-to-new": "Intro's next, set to Glow, because the playing song must lead to Glow",
-        "new-to-current": "Glow's next, set to Intro, because Glow's next should point back at the song before it",
+        "new-to-next": "Clock's next, set to Oven, because Clock must lead to the stop after it before anything points at Clock",
+        "previous-to-new": "Mail's next, set to Clock, because the clue before the new stop must lead to it",
+        "new-to-previous": "Clock's next, set to Mail, because Clock should point back at the stop before it",
         "either-order": "Either one first, because both links are set in the end"
       },
-      "explanation": "You set Glow's next to Echo first, because Glow's next must lead to the song that follows it. If you point it at Intro instead, Intro then links to Glow and Glow links back to Intro, so the queue loops and Echo, Drift and Pulse become unreachable. If you link Intro to Glow first, nothing points to Echo any more and it is lost. The order matters because Intro's old next is the only reference to the rest of the queue."
+      "explanation": "You set Clock's next to Oven first, because Clock must lead to the stop that follows it. If you point it at Mail instead, Mail then points to Clock and Clock back to Mail, so the hunt loops and Oven and Shed become unreachable. If you point Mail at Clock first, nothing points to Oven any more and the rest of the hunt is lost. The order matters because Mail's old next is the only reference to the rest of the trail."
     },
-    "song-before-the-removed": {
-      "prompt": "The listener removes Echo from the queue. Select the song whose next link must change.",
-      "explanation": "Glow's next must change, because Glow is the node that points at Echo. Intro's next already points at Glow and stays as it is. Drift's next points at Pulse, so it stays too. You link Glow straight to Drift, and Echo drops out."
+    "clue-before-the-removed": {
+      "prompt": "You drop Oven from the hunt. Select the clue whose next link must change.",
+      "explanation": "Clock's next must change, because Clock is the clue that points at Oven. Mail's next already points at Clock and stays as it is. Shed is the last clue and has no next to follow. You point Clock straight at Shed, and Oven drops out."
     },
-    "cost-of-reaching-index-k": {
-      "prompt": "The listener taps the song at index k, where the head is index 0. How much work does the app do to reach it, counting from the head?",
+    "cost-of-reaching-clue-k": {
+      "prompt": "A friend asks for the clue at index k, where the first clue is index 0. How much work does it take to reach it, counting from the first clue?",
       "options": {
-        "k-moves": "k moves, because the app follows k links from the head: O(n) at worst",
-        "one-move": "1 move, because the queue knows where each song is: O(1)",
-        "whole-queue": "n moves, because the app always walks the whole queue: O(n)",
-        "halving": "About log k moves, because the app can skip songs along the way"
+        "k-moves": "k moves, because you follow k links from the first clue: O(n) at worst",
+        "one-move": "1 move, because the hunt knows where each clue is: O(1)",
+        "whole-trail": "n moves, because you always follow the whole trail: O(n)",
+        "halving": "About log k moves, because you can skip clues along the way"
       },
-      "explanation": "The app follows k links from the head, so the cost grows with k and is O(n) in the worst case. A list cannot jump the way an array does, because nodes are not stored side by side. The walk stops at index k rather than at the end. A link only leads to the next node, so there is nothing to skip."
+      "explanation": "You follow k links from the first clue, so the cost grows with k and is O(n) in the worst case. A list cannot jump the way an array does, because clues are not stored side by side. The walk stops at index k rather than at the end. A link only leads to the next clue, so there is nothing to skip."
     },
-    "cheaper-on-a-list": {
-      "prompt": "Imagine the same queue stored as an array. Which job is cheaper on the linked list than on the array?",
+    "cheaper-on-a-trail": {
+      "prompt": "Imagine the same hunt written on one numbered sheet instead. Which job is cheaper with chained clues than with the sheet?",
       "options": {
-        "insert-after-current": "Playing a song next, because only two links change and no song moves",
-        "read-by-index": "Jumping to song 500, because the links lead straight to it",
-        "show-every-song": "Showing every song in Up next, because each link leads to the next song"
+        "insert-after-current": "Adding a stop right after a clue you hold, because only two links change and no clue moves",
+        "read-by-index": "Reaching clue 50, because the links lead straight to it",
+        "read-every-clue": "Reading out every clue, because each link leads to the next clue"
       },
-      "explanation": "Playing a song next is cheaper: two link changes on the list, O(1), while the array shifts every song behind it, O(n). Jumping to song 500 favours the array, with O(1) against a walk of 499 links. Showing every song costs O(n) on both, because each song is visited once either way."
+      "explanation": "Adding a stop is cheaper: two link changes on the trail, O(1), while the sheet shifts every clue behind it, O(n). Reaching clue 50 favours the sheet, with O(1) against a walk of 49 links. Reading out every clue costs O(n) on both, because each clue is visited once either way."
     }
   },
   "terms": {
@@ -154,7 +158,7 @@
     },
     "pointer": {
       "term": "pointer",
-      "gloss": "A labelled marker that refers to one node, like now-playing or prev."
+      "gloss": "A labelled marker that refers to one node, like here or prev."
     },
     "traversal": {
       "term": "traversal",
@@ -162,11 +166,11 @@
     }
   },
   "exercise": {
-    "title": "Play the queue backwards",
-    "task": "A listener taps Play backwards, and the app must play the queue from the last song to the first. Write reverseList, which takes the [[head]] of the [[linked-list]] and returns the new head after reversing it in place. Relink the existing [[node]] objects instead of building a new list, and handle an empty queue too.",
+    "title": "Run the hunt backwards",
+    "task": "Your friends want to run the hunt backwards, from the last clue to the first, so it ends where it began. Write reverseList, which takes the [[head]] of the [[linked-list]] and returns the new head after reversing it in place. Relink the existing [[node]] objects instead of building a new trail, and handle an empty hunt too.",
     "hints": [
-      "You need to remember the node before the current one, because a node has no link back to it.",
-      "At each step, save next before you change any link, or you lose the rest of the queue.",
+      "You need to remember the clue before the current one, because a node has no link back to it.",
+      "At each step, save next before you change any link, or you lose the rest of the hunt.",
       "Walk with prev set to null and current set to head. Flip current.next to prev, then move both forward. When current is null, prev is the new head."
     ]
   }

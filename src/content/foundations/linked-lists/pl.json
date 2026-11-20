@@ -1,8 +1,8 @@
 {
   "title": "Listy powiązane",
   "story": {
-    "title": "Kolejka odtwarzania w aplikacji muzycznej",
-    "summary": "Budujesz kolejkę odtwarzania aplikacji muzycznej. Słuchacze dodają utwory jako następne, usuwają je i przeskakują między nimi, a kolejka musi działać szybko, nawet gdy ma tysiące utworów."
+    "title": "Podchody dla przyjaciół",
+    "summary": "Organizujesz podchody. Każda wskazówka mówi, gdzie ukryta jest następna, więc dodawanie, pomijanie i przestawianie punktów musi być łatwe, jak długie by podchody nie były."
   },
   "uses": [
     {
@@ -31,112 +31,116 @@
     "compare-with-arrays": "Porównasz koszty linked list i tablic"
   },
   "steps": {
+    "overview": {
+      "title": "Łańcuch, w którym każdy element zna następny",
+      "caption": "[[linked-list]] (lista powiązana) to łańcuch elementów, w którym każdy element wie tylko, gdzie jest następny. Podchody działają tak samo: każda wskazówka mówi, gdzie ukryta jest następna, pierwszą wskazówkę wręczasz uczestnikom, a ostatnia mówi, że skarb jest tutaj. Taki łańcuch wybierasz, gdy często dodajesz i usuwasz elementy w środku."
+    },
     "the-problem": {
-      "title": "Play next zwalnia wraz ze wzrostem kolejki",
-      "caption": "Twoja kolejka to tablica, a słuchacz dotyka Play next przy utworze Glow. Glow trafia zaraz za Intro, więc każdy utwór za nim, tu Echo, Drift i Pulse, jest kopiowany o jedną komórkę w prawo. Ta praca rośnie razem z kolejką, a płaci za nią serwis, który robi to bez przerwy na długich kolejkach współdzielonych lub radiowych. Chcesz, żeby koszt Play next nie zależał od długości kolejki.",
+      "title": "Nowy punkt oznacza przenumerowanie kartki",
+      "caption": "Wskazówki zapisujesz po kolei na jednej ponumerowanej kartce, jak w tablicy. Teraz dodajesz nowy punkt, Clock, po wskazówce 2. Każda wskazówka za nim, tu Oven i Shed, przesuwa się o jedno miejsce w dół i dostaje nowy numer. Im dłuższe podchody, tym więcej przenumerowywania przy każdym nowym punkcie. Chcesz, żeby dodanie punktu nie zależało od długości podchodów.",
       "keyIdea": "Wstawienie w środek tablicy przesuwa każdy element za nim."
     },
-    "a-node": {
-      "title": "Utwór staje się node",
-      "caption": "Każdy utwór trzymasz w osobnym pudełku. [[node]] ma dwie rzeczy: wartość i połączenie o nazwie next. Tutaj node trzyma Intro, a jego next nie wskazuje jeszcze na nic.",
-      "keyIdea": "Utwory mogą leżeć w pamięci gdziekolwiek; porządek nadają im tylko połączenia."
+    "a-clue": {
+      "title": "Wskazówka staje się node",
+      "caption": "Każdą wskazówkę zapisujesz na osobnej karteczce i chowasz w jej miejscu. [[node]] (węzeł) ma dwie rzeczy: miejsce, w którym leży, i połączenie o nazwie next, czyli gdzie szukać następnej wskazówki. Tutaj node trzyma Mat, a jego next nie wskazuje jeszcze na nic.",
+      "keyIdea": "Wskazówki mogą leżeć gdziekolwiek; porządek nadają im tylko połączenia."
     },
-    "linking-songs": {
-      "title": "Utwory złączone w kolejkę",
-      "caption": "Dodajesz Echo, Drift i Pulse, a potem łączysz każdy node z następnym. Idąc za połączeniami, dojdziesz od Intro do Pulse. Next ostatniego node to null, co oznacza koniec listy ([[linked-list]])."
+    "chaining-clues": {
+      "title": "Wskazówki złączone w podchody",
+      "caption": "Dodajesz Mail, Oven i Shed, a potem każdą wskazówkę kierujesz na następną. Idąc za połączeniami, dojdziesz od Mat do Shed. Next ostatniej wskazówki to null, co oznacza koniec łańcucha: tam jest skarb."
     },
-    "the-head": {
-      "title": "Head zaczyna kolejkę",
-      "caption": "Kolejka potrzebuje jeszcze jednej rzeczy: [[head]], czyli odwołania do pierwszego node. Ustawiasz head na Intro, bo żaden node nie prowadzi do Intro. Od head połączenia docierają do wszystkich pozostałych utworów."
+    "the-first-clue": {
+      "title": "Head to wskazówka, którą wręczasz",
+      "caption": "Podchody potrzebują jeszcze jednej rzeczy: [[head]] (początku listy), czyli odwołania do pierwszej wskazówki. Ustawiasz head na Mat, bo żadna wskazówka nie prowadzi do Mat, i wręczasz ją uczestnikom. Od head połączenia docierają do wszystkich pozostałych wskazówek."
     },
-    "now-playing-pointer": {
-      "title": "Pointer wskazuje utwór, który gra",
-      "caption": "[[pointer]] to znacznik z nazwą, który wskazuje jeden node. Ustawiasz now-playing na Intro, czyli na utworze, który gra w tej chwili. Gdy utwór się kończy, znacznik idzie za połączeniem next."
+    "finger-on-a-clue": {
+      "title": "Pointer wskazuje czytaną wskazówkę",
+      "caption": "[[pointer]] (wskaźnik) to znacznik z nazwą, który wskazuje jeden node. Ustawiasz here na Mat, czyli na wskazówce czytanej w tej chwili. Gdy wskazówka jest rozwiązana, znacznik idzie za połączeniem next."
     },
-    "traversal": {
-      "title": "Przejście po kolejce",
-      "caption": "Żeby wypełnić listę Up next, przechodzisz po kolejce. Kursor startuje na Intro i idzie za next do Echo, Drift i Pulse. W Pulse next to null, więc przejście się kończy. Odwiedzanie node jeden po drugim w ten sposób to [[traversal]]."
+    "following-the-trail": {
+      "title": "Podążanie za śladem",
+      "caption": "Żeby sprawdzić całe podchody, idziesz za nimi. Here startuje na Mat i idzie za next do Mail, Oven i Shed. W Shed next to null, więc ślad się kończy. Odwiedzanie node jeden po drugim w ten sposób to [[traversal]] (przejście po liście)."
     },
-    "play-next": {
-      "title": "Play next wpina nowy utwór",
-      "caption": "Tworzysz node Glow i łączysz jego next z Echo, czyli z utworem po tym, który gra. Dopiero potem łączysz next w Intro z Glow. Zmieniają się dwa połączenia i żaden utwór się nie przesuwa, więc koszt nie zależy od długości kolejki.",
-      "keyIdea": "Najpierw połącz nowy node z następnym, potem poprzedni node z nowym."
+    "add-a-stop": {
+      "title": "Nowy punkt przepisuje dwie wskazówki",
+      "caption": "Stoisz przy Mail i piszesz nową wskazówkę, Clock. Najpierw jej next wskazuje na Oven, czyli punkt, który po niej następuje. Dopiero potem przepisujesz next w Mail, żeby wskazywał na Clock. Zmieniają się dwa połączenia i żadna wskazówka się nie przesuwa, więc koszt nie zależy od długości podchodów.",
+      "keyIdea": "Najpierw skieruj nowy node do przodu, potem przepisz stary node tak, by do niego prowadził."
     },
-    "remove-from-queue": {
-      "title": "Usuwanie przez przepięcie",
-      "caption": "Słuchacz usuwa Echo. Ustawiasz prev na Glow, czyli na utworze przed nim, i łączysz next w Glow z Drift. Nic już nie wskazuje na Echo, więc możesz je usunąć. Pozostałe utwory w ogóle się nie przesuwają.",
-      "keyIdea": "Żeby usunąć node, przepnij poprzedni node tak, by go ominął."
+    "remove-a-stop": {
+      "title": "Pomiń punkt, przepisując wskazówkę przed nim",
+      "caption": "Oven okazuje się za trudny, więc z niego rezygnujesz. Ustawiasz prev na Clock, czyli na wskazówce przed nim, i przepisujesz next w Clock na Shed. Nic już nie wskazuje na Oven, więc możesz go usunąć. Pozostałe wskazówki w ogóle się nie przesuwają.",
+      "keyIdea": "Żeby usunąć node, przepisz poprzedni node tak, by go ominął."
     },
-    "jump-to-song": {
-      "title": "Skok do utworu wymaga przejścia",
-      "caption": "Linked list nie ma indeksu, do którego można skoczyć. Żeby dotrzeć do indeksu 3, czyli do Pulse, kursor startuje od head, czyli indeksu 0, i trzy razy idzie za next. Utwór 500 leży pod indeksem 499, więc dojście do indeksu k kosztuje k ruchów.",
+    "jump-to-a-clue": {
+      "title": "Skok do wskazówki wymaga przejścia",
+      "caption": "Łańcuch wskazówek nie ma numerów, po których można skoczyć. Żeby dotrzeć do indeksu 3, czyli do Shed, zaczynasz od pierwszej wskazówki, indeksu 0, i trzy razy idziesz za next. Wskazówka 50 leży pod indeksem 49, więc dojście do niej to 49 połączeń. Dojście do indeksu k kosztuje k ruchów.",
       "keyIdea": "Linked list nie ma indeksu: dojście do pozycji k oznacza przejście k połączeń."
     },
-    "arrays-vs-lists": {
-      "title": "Tablica i linked list obok siebie",
-      "caption": "Tablica dociera do Pulse jednym skokiem po indeksie, a lista musi pójść za trzema połączeniami. Lista dodaje utwór jako następny, zmieniając dwa połączenia, a tablica przesuwa każdy utwór za nim. Pokazanie Up next odwiedza każdy utwór raz w obu strukturach.",
+    "sheet-vs-trail": {
+      "title": "Kartka i łańcuch obok siebie",
+      "caption": "Kartka dociera do Shed jednym skokiem po numerze, a łańcuch musi pójść za trzema połączeniami. Łańcuch dodaje punkt, zmieniając dwa połączenia, a kartka przesuwa każdą wskazówkę za nim. Odczytanie wszystkich wskazówek odwiedza każdą raz w obu strukturach.",
       "keyIdea": "Wybieraj strukturę pod operację, którą powtarzasz najczęściej."
     },
     "reverse-preview": {
-      "title": "Dalej: kolejka odtwarzana od tyłu",
-      "caption": "W Practice odtwarzasz kolejkę w odwrotnej kolejności, od ostatniego utworu, odwracając listę w miejscu. Używasz trzech pointerów: prev, current i next. Przed pierwszym ruchem prev to null, current stoi na head, a next jest o jeden node dalej. Przekierowujesz połączenie każdego node po kolei."
+      "title": "Dalej: podchody od tyłu",
+      "caption": "W Practice układasz ślad od tyłu, żeby podchody kończyły się tam, gdzie się zaczęły: ostatnia wskazówka staje się pierwszą, przez odwrócenie listy w miejscu. Używasz trzech pointerów: prev, current i next. Przed pierwszym ruchem prev to null, current stoi na head, a next jest o jeden node dalej. Przekierowujesz połączenie każdej wskazówki po kolei."
     },
     "where-you-meet-it": {
       "title": "Gdzie się z nią spotkasz",
-      "caption": "Tu spotkasz linked listy poza tą aplikacją. Każda z nich trzyma elementy po kolei i zmienia je w miejscu, które już ma pod ręką. Notatka pod nimi mówi, kiedy lepsza jest tablica."
+      "caption": "Tu spotkasz linked listy poza tymi podchodami. Każda z nich trzyma elementy po kolei i zmienia je w miejscu, które już ma pod ręką. Notatka pod nimi mówi, kiedy lepsza jest tablica."
     }
   },
   "checks": {
-    "what-a-node-links-to": {
-      "prompt": "Intro to pojedynczy node, a po nim pojawi się nowy utwór, Echo. Co musi trzymać Intro oprócz nazwy utworu?",
+    "what-a-clue-holds": {
+      "prompt": "Mat to pojedyncza wskazówka, a po niej pojawi się następna, Mail. Co musi trzymać wskazówka Mat oprócz własnego miejsca?",
       "options": {
-        "next-link": "Połączenie z następnym node, bo kolejka toczy się dalej, idąc za nim",
-        "copy-of-next": "Kopię nazwy następnego utworu, bo nazwa mówi, jaki utwór jest dalej",
-        "position-number": "Swój numer pozycji, bo kolejka znajduje każdy utwór po pozycji",
-        "nothing-extra": "Nic więcej, bo node leżą obok siebie jak komórki tablicy"
+        "next-link": "Połączenie z następną wskazówką, bo podchody toczą się dalej, idąc za nim",
+        "copy-of-next": "Kopię treści następnej wskazówki, bo wtedy możesz ją przeczytać bez chodzenia do niej",
+        "position-number": "Swój numer z kartki, bo podchody znajdują każdą wskazówkę po numerze",
+        "nothing-extra": "Nic więcej, bo wskazówki leżą obok siebie jak pola na kartce"
       },
-      "explanation": "Intro trzyma połączenie z następnym node, czyli next, i kolejka toczy się dalej, idąc za nim. Kopia nazwy Echo nie mówi, gdzie Echo jest, a dwa utwory mogą mieć tę samą nazwę. Node nie ma numeru pozycji, bo lista znajduje node, idąc za połączeniami. Node nie leżą w pamięci obok siebie, więc bez połączenia nic nie łączy Intro z Echo."
+      "explanation": "Wskazówka Mat trzyma połączenie z następną, czyli next, i podchody toczą się dalej, idąc za nim. Kopia treści Mail nie mówi, gdzie Mail jest ukryta, a po przepisaniu tej wskazówki robi się nieaktualna. Wskazówka nie ma numeru, bo lista znajduje ją, idąc za połączeniami. Wskazówki nie leżą w pamięci obok siebie, więc bez połączenia nic nie łączy Mat z Mail."
     },
-    "which-song-is-head": {
-      "prompt": "Kolejka nie ma jeszcze head. Zaznacz utwór, na który head powinien wskazywać.",
-      "explanation": "Head wskazuje na Intro, bo żadne połączenie nie prowadzi do Intro, więc tylko head może Cię tam zaprowadzić. Gdyby head wskazywał na Drift, zgubiłbyś Intro i Echo. Gdyby wskazywał na Pulse, czyli ostatni node, nie dotarłbyś do niczego więcej, bo jego next to null."
+    "which-clue-is-first": {
+      "prompt": "Podchody nie mają jeszcze head. Zaznacz wskazówkę, na którą head powinien wskazywać.",
+      "explanation": "Head wskazuje na Mat, bo żadne połączenie nie prowadzi do Mat, więc tylko head może Cię tam zaprowadzić. Gdyby head wskazywał na Oven, zgubiłbyś Mat i Mail. Gdyby wskazywał na Shed, czyli ostatnią wskazówkę, nie dotarłbyś do niczego więcej, bo jej next to null."
     },
     "where-the-walk-lands": {
-      "prompt": "Kursor startuje na utworze, który wskazuje now-playing, i idzie za next po jednym połączeniu naraz. Na którym utworze stoi po dwóch ruchach?",
-      "explanation": "Kursor stoi na Drift: pierwszy ruch prowadzi do Echo, a drugi do Drift. Nie zatrzymuje się na Echo, bo ruch liczy się dopiero wtedy, gdy pójdziesz za połączeniem. Nie dochodzi też do Pulse, bo to wymaga trzeciego ruchu. Połączenia wskazują tylko do przodu, więc kursor nigdy nie wraca."
+      "prompt": "Here startuje na Mat i idzie za next po jednym połączeniu naraz. Na której wskazówce stoi po dwóch ruchach?",
+      "explanation": "Stoi na Oven: pierwszy ruch prowadzi do Mail, a drugi do Oven. Nie zatrzymuje się na Mail, bo ruch liczy się dopiero wtedy, gdy pójdziesz za połączeniem. Nie dochodzi też do Shed, bo to wymaga trzeciego ruchu. Połączenia wskazują tylko do przodu, więc here nigdy nie wraca."
     },
-    "first-link-for-play-next": {
-      "prompt": "Nowy utwór, Glow, ma zaraz trafić za Intro, który właśnie gra. Które połączenie ustawiasz najpierw?",
+    "first-rewrite-for-new-stop": {
+      "prompt": "Nowa wskazówka, Clock, ma zaraz dołączyć do podchodów za Mail. Które połączenie ustawiasz najpierw?",
       "options": {
-        "new-to-next": "Next w Glow, na Echo, bo Glow musi prowadzić do utworu, który jest za nim, zanim cokolwiek wskaże na Glow",
-        "current-to-new": "Next w Intro, na Glow, bo grany utwór musi prowadzić do Glow",
-        "new-to-current": "Next w Glow, na Intro, bo next w Glow ma wskazywać utwór przed nim",
+        "new-to-next": "Next w Clock, na Oven, bo Clock musi prowadzić do punktu, który jest za nim, zanim cokolwiek wskaże na Clock",
+        "previous-to-new": "Next w Mail, na Clock, bo wskazówka przed nowym punktem musi do niego prowadzić",
+        "new-to-previous": "Next w Clock, na Mail, bo Clock ma wskazywać punkt przed nim",
         "either-order": "Któreś z nich, bo oba połączenia i tak zostaną ustawione"
       },
-      "explanation": "Najpierw ustawiasz next w Glow na Echo, bo next w Glow musi prowadzić do utworu, który jest za nim. Jeśli wskażesz nim Intro, to Intro prowadzi do Glow, a Glow z powrotem do Intro, więc kolejka zapętla się, a Echo, Drift i Pulse stają się nieosiągalne. Jeśli najpierw połączysz Intro z Glow, nic nie wskazuje już na Echo i przepada. Kolejność ma znaczenie, bo dawny next w Intro to jedyne odwołanie do reszty kolejki."
+      "explanation": "Najpierw ustawiasz next w Clock na Oven, bo Clock musi prowadzić do punktu, który jest za nim. Jeśli wskażesz nim Mail, to Mail prowadzi do Clock, a Clock z powrotem do Mail, więc podchody zapętlają się, a Oven i Shed stają się nieosiągalne. Jeśli najpierw skierujesz Mail na Clock, nic nie wskazuje już na Oven i reszta podchodów przepada. Kolejność ma znaczenie, bo dawny next w Mail to jedyne odwołanie do reszty śladu."
     },
-    "song-before-the-removed": {
-      "prompt": "Słuchacz usuwa Echo z kolejki. Zaznacz utwór, którego połączenie next musi się zmienić.",
-      "explanation": "Musi zmienić się next w Glow, bo to Glow wskazuje na Echo. Next w Intro już wskazuje na Glow i zostaje bez zmian. Next w Drift wskazuje na Pulse, więc też zostaje. Łączysz Glow prosto z Drift i Echo wypada z kolejki."
+    "clue-before-the-removed": {
+      "prompt": "Rezygnujesz z Oven w podchodach. Zaznacz wskazówkę, której połączenie next musi się zmienić.",
+      "explanation": "Musi zmienić się next w Clock, bo to Clock wskazuje na Oven. Next w Mail już wskazuje na Clock i zostaje bez zmian. Shed to ostatnia wskazówka i nie ma next, za którym można pójść. Kierujesz Clock prosto na Shed i Oven wypada z podchodów."
     },
-    "cost-of-reaching-index-k": {
-      "prompt": "Słuchacz dotyka utworu o indeksie k, gdzie head ma indeks 0. Ile pracy wykonuje aplikacja, żeby do niego dojść od head?",
+    "cost-of-reaching-clue-k": {
+      "prompt": "Uczestnik pyta o wskazówkę o indeksie k, gdzie pierwsza wskazówka ma indeks 0. Ile pracy kosztuje dojście do niej, licząc od pierwszej wskazówki?",
       "options": {
-        "k-moves": "k ruchów, bo aplikacja idzie za k połączeniami od head: w najgorszym razie O(n)",
-        "one-move": "1 ruch, bo kolejka wie, gdzie jest każdy utwór: O(1)",
-        "whole-queue": "n ruchów, bo aplikacja zawsze przechodzi całą kolejkę: O(n)",
-        "halving": "Około log k ruchów, bo aplikacja może po drodze pomijać utwory"
+        "k-moves": "k ruchów, bo idziesz za k połączeniami od pierwszej wskazówki: w najgorszym razie O(n)",
+        "one-move": "1 ruch, bo podchody wiedzą, gdzie jest każda wskazówka: O(1)",
+        "whole-trail": "n ruchów, bo zawsze idziesz za całym śladem: O(n)",
+        "halving": "Około log k ruchów, bo po drodze możesz pomijać wskazówki"
       },
-      "explanation": "Aplikacja idzie za k połączeniami od head, więc koszt rośnie wraz z k i w najgorszym razie wynosi O(n). Lista nie potrafi skakać jak tablica, bo node nie leżą obok siebie. Przejście kończy się na indeksie k, a nie na końcu kolejki. Połączenie prowadzi tylko do następnego node, więc nie ma czego pomijać."
+      "explanation": "Idziesz za k połączeniami od pierwszej wskazówki, więc koszt rośnie wraz z k i w najgorszym razie wynosi O(n). Lista nie potrafi skakać jak tablica, bo wskazówki nie leżą obok siebie. Przejście kończy się na indeksie k, a nie na końcu. Połączenie prowadzi tylko do następnej wskazówki, więc nie ma czego pomijać."
     },
-    "cheaper-on-a-list": {
-      "prompt": "Wyobraź sobie tę samą kolejkę zapisaną jako tablica. Które zadanie jest tańsze na linked list niż na tablicy?",
+    "cheaper-on-a-trail": {
+      "prompt": "Wyobraź sobie te same podchody zapisane na jednej ponumerowanej kartce. Które zadanie jest tańsze przy połączonych wskazówkach niż na kartce?",
       "options": {
-        "insert-after-current": "Dodanie utworu jako następnego, bo zmieniają się tylko dwa połączenia i żaden utwór się nie przesuwa",
-        "read-by-index": "Skok do utworu 500, bo połączenia prowadzą do niego prosto",
-        "show-every-song": "Pokazanie każdego utworu w Up next, bo każde połączenie prowadzi do następnego utworu"
+        "insert-after-current": "Dodanie punktu zaraz za wskazówką, którą trzymasz, bo zmieniają się tylko dwa połączenia i żadna wskazówka się nie przesuwa",
+        "read-by-index": "Dojście do wskazówki 50, bo połączenia prowadzą do niej prosto",
+        "read-every-clue": "Odczytanie wszystkich wskazówek, bo każde połączenie prowadzi do następnej"
       },
-      "explanation": "Taniej jest dodać utwór jako następny: dwie zmiany połączeń na liście, czyli O(1), a tablica przesuwa każdy utwór za nim, czyli O(n). Skok do utworu 500 wygrywa tablica: O(1) wobec przejścia 499 połączeń. Pokazanie wszystkich utworów kosztuje O(n) w obu strukturach, bo w każdej odwiedzasz każdy utwór raz."
+      "explanation": "Taniej jest dodać punkt: dwie zmiany połączeń w łańcuchu, czyli O(1), a kartka przesuwa każdą wskazówkę za nim, czyli O(n). Dojście do wskazówki 50 wygrywa kartka: O(1) wobec przejścia 49 połączeń. Odczytanie wszystkich wskazówek kosztuje O(n) w obu strukturach, bo w każdej odwiedzasz każdą raz."
     }
   },
   "terms": {
@@ -154,7 +158,7 @@
     },
     "pointer": {
       "term": "pointer",
-      "gloss": "wskaźnik: znacznik z nazwą, który wskazuje jeden węzeł, na przykład now-playing albo prev."
+      "gloss": "wskaźnik: znacznik z nazwą, który wskazuje jeden węzeł, na przykład here albo prev."
     },
     "traversal": {
       "term": "traversal",
@@ -162,11 +166,11 @@
     }
   },
   "exercise": {
-    "title": "Odtwarzanie kolejki od końca",
-    "task": "Słuchacz klika Odtwórz od końca, a aplikacja ma zagrać kolejkę od ostatniego utworu do pierwszego. Napisz funkcję reverseList, która przyjmuje [[head]] listy [[linked-list]] i zwraca nowy head po odwróceniu jej w miejscu. Przepinaj istniejące [[node]] zamiast budować nową listę i obsłuż też pustą kolejkę.",
+    "title": "Podchody od końca",
+    "task": "Uczestnicy chcą przejść podchody od końca, od ostatniej wskazówki do pierwszej, tak żeby skończyły się tam, gdzie się zaczęły. Napisz funkcję reverseList, która przyjmuje [[head]] listy [[linked-list]] i zwraca nowy head po odwróceniu jej w miejscu. Przepinaj istniejące [[node]] zamiast budować nowy ślad i obsłuż też puste podchody.",
     "hints": [
       "Musisz zapamiętać node poprzedzający bieżący, bo node nie ma połączenia wstecz.",
-      "W każdym kroku zapisz next, zanim zmienisz jakiekolwiek połączenie, bo inaczej stracisz resztę kolejki.",
+      "W każdym kroku zapisz next, zanim zmienisz jakiekolwiek połączenie, bo inaczej stracisz resztę podchodów.",
       "Idź z prev ustawionym na null i current na head. Przepnij current.next na prev, a potem przesuń oba dalej. Gdy current jest null, prev jest nowym head."
     ]
   }
