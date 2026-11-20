@@ -15,6 +15,8 @@ export const templateExercise: Exercise = {
     secondOf('two-numbers', [4, 7], 7),
     secondOf('three-numbers', [4, 7, 9], 7),
     secondOf('repeated-numbers', [5, 5, 5], 5),
+    secondOf('four-numbers', [4, 7, 9, 1], 7),
+    secondOf('long-numbers', [2, 6, 1, 8, 3], 6),
   ],
   hiddenTests: [secondOf('negative-numbers', [-3, -8, -1], -8)],
   hintCount: 2,

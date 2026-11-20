@@ -28,7 +28,9 @@ export const isBalancedExercise: Exercise = {
 `,
   visibleTests: [
     lineOf('balanced-call', 'print(items[0])', true),
+    lineOf('mixed-brackets', 'f(a[1], {b: 2})', true),
     lineOf('wrong-closer', 'total(a]', false),
+    lineOf('extra-closer', 'run(a))', false),
     lineOf('crossed-pairs', 'if ([a) b]', false),
   ],
   hiddenTests: [

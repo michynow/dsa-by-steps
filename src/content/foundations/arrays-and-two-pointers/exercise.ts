@@ -34,7 +34,9 @@ export const twoSumSortedExercise: Exercise = {
 `,
   visibleTests: [
     pairIn('gift-card', [4, 7, 12, 19, 25, 30], 31, [2, 3]),
+    pairIn('spend-it-all', [3, 8, 15, 21], 29, [1, 3]),
     pairIn('no-pair', [4, 7, 12], 5, null),
+    pairIn('balance-too-high', [4, 7, 12, 19], 100, null),
     pairIn('same-price-twice', [6, 6, 9, 14], 12, [0, 1]),
   ],
   hiddenTests: [

@@ -32,7 +32,9 @@ export const countPairsWithSumExercise: Exercise = {
 `,
   visibleTests: [
     countPairsOf('one-pair', [4, 6, 1, 2], 10, 1),
+    countPairsOf('nothing-adds-up', [2, 3, 9], 20, 0),
     countPairsOf('several-pairs', [1, 5, 3, 3, 7, 2], 8, 3),
+    countPairsOf('two-and-two', [4, 4, 6, 6], 10, 4),
     countPairsOf('same-price-three-times', [5, 5, 5], 10, 3),
   ],
   hiddenTests: [

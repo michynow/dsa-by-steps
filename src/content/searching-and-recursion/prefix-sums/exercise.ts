@@ -40,6 +40,15 @@ export const rangeTotalsExercise: Exercise = {
   visibleTests: [
     totalsOn('one-range', weekOfSales, [[2, 5]], [15]),
     totalsOn(
+      'first-and-last-days',
+      weekOfSales,
+      [
+        [0, 0],
+        [6, 6],
+      ],
+      [4, 4],
+    ),
+    totalsOn(
       'several-ranges',
       weekOfSales,
       [
@@ -48,6 +57,15 @@ export const rangeTotalsExercise: Exercise = {
         [3, 6],
       ],
       [14, 2, 14],
+    ),
+    totalsOn(
+      'back-to-back-ranges',
+      weekOfSales,
+      [
+        [0, 2],
+        [3, 6],
+      ],
+      [11, 14],
     ),
     totalsOn(
       'overlapping-and-repeated-ranges',
