@@ -1,0 +1,165 @@
+{
+  "title": "Prefix sums",
+  "story": {
+    "title": "Sales totals between any two dates",
+    "summary": "Your shop's dashboard lets a manager pick two dates and shows the sales between them. Thousands of such questions arrive every hour, and each one asks about a different range of days. You want to answer them all without adding up the same days again and again."
+  },
+  "uses": [
+    {
+      "title": "Running totals in data tools",
+      "body": "NumPy's `cumsum` and SQL window functions such as `SUM(amount) OVER (ORDER BY day)` compute running totals. Subtract the running total before a start date from the one at an end date and you get the sum between the two, which is the same trick as in the dashboard."
+    },
+    {
+      "title": "Rectangle sums in images",
+      "body": "A summed-area table, also called an integral image, is a prefix sum in two dimensions. With it the sum of the pixels in any rectangle takes four lookups, which is how the Viola-Jones face detector computes its features quickly."
+    },
+    {
+      "title": "Subarray sum problems",
+      "body": "To find a stretch of days whose sales add up to an exact target, you compute the running totals and keep the ones you have already seen in a hash map. A stretch ends at a day where the current total minus the target was seen before."
+    },
+    {
+      "title": "Histogram equalisation",
+      "body": "Image tools that improve contrast count how many pixels have each brightness and then take the running total of those counts. That cumulative histogram says what share of the pixels is at least as dark as each brightness, and the tool uses it to spread the brightness values out."
+    }
+  ],
+  "whenNot": "Prefix sums pay off when the data stays still while you ask many questions. If a value changes, every total after it is out of date, and fixing them takes O(n); a Fenwick tree or a segment tree answers queries and handles updates in O(log n). For a single query, adding the range directly is O(n), the same as building the totals, so you gain nothing. The trick also needs an operation you can undo: sums and counts subtract, but a maximum or a minimum does not, so a range maximum needs another structure. And for a handful of days a plain loop is simpler.",
+  "outcomes": {
+    "see-the-repeated-work": "Spot the repeated work in adding up each range from scratch",
+    "build-the-running-totals": "Build an array of running totals with a leading 0 in one pass",
+    "subtract-two-totals": "Answer a range of days with `totals[last + 1] - totals[first]`",
+    "state-the-cost": "State the cost: O(n) to build the totals, O(1) per query"
+  },
+  "steps": {
+    "overview": {
+      "title": "Running totals answer range sums",
+      "caption": "A [[prefix-sum]] array keeps a running total of a list, so the sum of any range of it takes one subtraction. The drawing shows a finished example: `sales` holds seven days of sales, counted from day 0, and `totals` holds the running totals. The pointers `before` and `through` mark the two totals that give days 2 to 5, shaded in `sales`: 21 - 6 = 15."
+    },
+    "the-problem": {
+      "title": "Sales between any two dates",
+      "caption": "Your shop's dashboard shows the sales between any two dates a manager picks. Each pick is a range of days, and the page answers thousands of them an hour. Adding up the days of a range one by one is fine for a single question, but it repeats the same additions for every question.",
+      "keyIdea": "When many queries add up overlapping ranges, the same days get added again and again."
+    },
+    "adding-again": {
+      "title": "Adding a range costs its length",
+      "caption": "To answer days 2 to 5, you add `5 + 3 + 6 + 1` and get 15: four additions. A range of 300 days takes 300 additions, and the next query starts again from zero. The work grows with the length of the range, and you pay it for every query."
+    },
+    "the-leading-zero": {
+      "title": "A second array that starts at 0",
+      "caption": "You keep a second array, `totals`, where `totals[k]` is the sum of the first `k` days. It starts with `totals[0]`, the sum of no days at all, which is 0. That leading 0 gives `totals` one cell more than `sales`: 8 cells for 7 days."
+    },
+    "the-first-totals": {
+      "title": "Each total adds one day",
+      "caption": "`totals[1]` is `totals[0] + sales[0]`, which is 0 + 4 = 4. `totals[2]` is `totals[1] + sales[1]`, which is 4 + 2 = 6. So every total is the previous total plus one day's sales.",
+      "keyIdea": "Each running total is the previous total plus one day: `totals[k] = totals[k - 1] + sales[k - 1]`."
+    },
+    "the-next-total": {
+      "title": "The next total adds the next day",
+      "caption": "`totals[3]` is `totals[2] + sales[2]`, which is 6 + 5 = 11. Note the shift by one: the total of the first 3 days adds `sales[2]`, the third day, because days are counted from 0."
+    },
+    "fill-the-totals": {
+      "title": "One pass fills them all",
+      "caption": "You repeat the same step for the remaining days and get 14, 20, 21 and 25. The last total, `totals[7]`, is the sum of the whole week. Building `totals` takes one pass with one addition per day, so O(n) for n days, and you do it once."
+    },
+    "subtract-two-totals": {
+      "title": "Subtract two totals",
+      "caption": "For days 2 to 5 you take `totals[6]`, the sum of the first 6 days, which are days 0 to 5. You subtract `totals[2]`, the sum of days 0 and 1. What remains is days 2 to 5: 21 - 6 = 15, the same answer as the four additions, with no loop over the range."
+    },
+    "from-the-first-day": {
+      "title": "The leading 0 covers day 0",
+      "caption": "For days 0 to 3 you subtract `totals[0]` from `totals[4]`: 14 - 0 = 14. The leading 0 is the total of no days, so a range that starts on the first day needs no special case. In general, days `first` to `last` give `totals[last + 1] - totals[first]`.",
+      "keyIdea": "The sales from day `first` to day `last`, both included, are `totals[last + 1] - totals[first]`."
+    },
+    "cost-per-query": {
+      "title": "Every query takes two lookups",
+      "caption": "A query reads two cells of `totals` and subtracts them, however long the range is. That is [[constant-time]]: O(1). A range of one week and a range of one year cost the same.",
+      "keyIdea": "Build the totals once in O(n); then every range query costs O(1)."
+    },
+    "answer-many-ranges": {
+      "title": "Next: answer many ranges at once",
+      "caption": "In Practice you write `rangeTotals`. It takes the daily sales and a list of ranges, each a pair of day indexes with both ends included, and returns the total of each range. Build `totals` once and answer each range with a subtraction: O(n + q) for n days and q ranges, instead of O(n × q) when every range is added up again."
+    },
+    "where-you-meet-it": {
+      "title": "Where you will meet it",
+      "caption": "Here is where running totals show up outside the dashboard. The note under the Uses says when to pick something else, mainly when the numbers change between questions."
+    }
+  },
+  "checks": {
+    "cost-of-adding-again": {
+      "prompt": "The dashboard receives 10,000 range queries over a year of 365 days, and each query covers about 300 days. You answer each one by adding up its days one by one. Roughly how many additions is that in total?",
+      "options": {
+        "every-query-adds-again": "About 3 million, because every query adds its 300 days again from scratch",
+        "each-day-once": "About 365, because each day's sales only need to be added once",
+        "one-step-per-query": "About 10,000, because answering a query is one step",
+        "overlap-is-shared": "About 300, because the queries overlap, so the same range is added only once"
+      },
+      "explanation": "About 3 million: 10,000 queries times about 300 days. Nothing is remembered from one query to the next, so the same days are added again each time. A day's sales are added once per query that covers it, not once overall. And a query is not one step, because it adds every day of its range."
+    },
+    "how-many-totals": {
+      "prompt": "You will keep running totals of the daily sales, where `totals[k]` holds the sum of the first `k` days. How many cells does `totals` need for a week of 7 days?",
+      "options": {
+        "one-per-day": "7, because there is one running total for each day",
+        "one-more-than-days": "8, because `k` runs from 0 days up to 7 days, and 0 days has a total too",
+        "one-fewer-than-days": "6, because the first day needs no total of its own",
+        "two-per-day": "14, because every day keeps both its sales and its total"
+      },
+      "explanation": "8 cells. `k` can be any number of days from none to all 7, which is 8 values, and `totals[0]`, the sum of no days, is 0. With only 7 cells there would be no way to say \"nothing before the first day\", and a range starting on day 0 would need a special case. The sales stay in their own array, so nothing is doubled."
+    },
+    "which-day-is-added": {
+      "prompt": "`totals[3]` is the sum of the first 3 days, and `totals[2]` already holds the sum of the first 2 days. Select the day whose sales `totals[3]` adds on top of `totals[2]`.",
+      "explanation": "Day 2, the cell `d2`. The first 3 days are days 0, 1 and 2, and `totals[2]` already covers days 0 and 1, so the new day is day 2. That is the shift by one: `totals[k]` adds `sales[k - 1]`, because days are counted from 0 and the totals count how many days are included."
+    },
+    "additions-to-build": {
+      "prompt": "You are filling `totals` for n days of sales. About how many additions does the whole pass take?",
+      "options": {
+        "all-days-each-time": "About n²/2, because each total adds up all of its days again",
+        "one-per-day": "n, because each total is the previous total plus one day",
+        "just-the-last": "1, because only the last total, which holds everything, has to be added",
+        "two-per-day": "2n, because each total needs one addition for the day and one for the earlier days"
+      },
+      "explanation": "n additions. Each total reuses the previous one, so it needs only one addition: the previous total plus one day. Adding all the days again for every total would cost about n²/2, which is the repeated work you are avoiding. Every total is needed, not only the last, and the earlier days are already inside the previous total, so they cost nothing extra."
+    },
+    "which-total-ends-the-range": {
+      "prompt": "A report asks for the sales from day 2 to day 5, both days included. The answer is one total minus another. Select the total that stops exactly after day 5.",
+      "explanation": "`totals[6]`, the cell `t6`. It is the sum of the first 6 days, which are days 0 to 5, so it ends exactly after day 5. `totals[5]` would stop before day 5, and `totals[7]` would include day 6 as well."
+    },
+    "range-from-the-first-day": {
+      "prompt": "The dashboard asks for the sales from day 0 to day 3, both days included. Which calculation gives it?",
+      "options": {
+        "end-at-the-last-day": "`totals[3] - totals[0]`, because the range ends at day 3, so `totals[3]` is the total that ends there",
+        "leading-zero-is-the-start": "`totals[4] - totals[0]`, because `totals[0]` is the leading 0 that stands for no days before day 0",
+        "skip-the-first-total": "`totals[4] - totals[1]`, because the first total belongs to day 0 and should not be counted",
+        "no-total-before": "It needs another method, because no total comes before day 0 to subtract"
+      },
+      "explanation": "`totals[4] - totals[0]`, which is 14 - 0. `totals[4]` is the sum of the first 4 days, days 0 to 3, and `totals[0]` is 0, the total of no days. `totals[3]` stops after day 2, so it misses day 3. Subtracting `totals[1]` would throw away day 0, which belongs to the range. And a total before day 0 does exist: that is what the leading 0 is for."
+    },
+    "cost-of-a-query": {
+      "prompt": "Once `totals` is built, how does the cost of one range query change as the range gets longer?",
+      "options": {
+        "grows-with-the-range": "It grows with the length of the range, because the days between the two totals still have to be added",
+        "same-for-every-query": "It stays the same, because it is two lookups and one subtraction",
+        "grows-with-the-year": "It grows with the number of days n, because both totals have to be found in `totals` first",
+        "log-of-days": "It takes about log n steps, because the two totals are found by halving"
+      },
+      "explanation": "It stays the same: O(1). The index of each total is computed from the day numbers, so a lookup goes straight to its cell with no searching. The days between the two totals are already folded into them, so a longer range adds no work. No halving is involved, because nothing needs to be searched."
+    }
+  },
+  "terms": {
+    "prefix-sum": {
+      "term": "prefix sum",
+      "gloss": "A running total of a list: entry k is the sum of the first k values. The sum of any range is the difference of two entries."
+    },
+    "constant-time": {
+      "term": "constant time",
+      "gloss": "A cost that does not grow with the input size, written O(1)."
+    }
+  },
+  "exercise": {
+    "title": "Total sales between two days",
+    "task": "Write `rangeTotals`, which takes the daily sales of a shop and a list of ranges, each a pair `[first, last]` of day indexes counted from 0, with both days included. Return the total sales of each range, in the same order. Build a [[prefix-sum]] array once, so that all the ranges together cost O(n + q) for n days and q ranges.",
+    "hints": [
+      "Adding up each range from scratch costs the length of the range for every query. Is there something you could compute once, from the sales alone, that makes every range cheap?",
+      "Keep a running total with one more cell than days: the first cell is 0, and each next cell is the previous one plus one day's sales. Then the first `k` days add up to the cell at index `k`.",
+      "A range from `first` to `last`, both included, is the total of the first `last + 1` days minus the total of the first `first` days. Build the running total once, then answer every range with one subtraction."
+    ]
+  }
+}

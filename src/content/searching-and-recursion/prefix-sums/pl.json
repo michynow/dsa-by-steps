@@ -1,0 +1,165 @@
+{
+  "title": "Sumy prefiksowe",
+  "story": {
+    "title": "Suma sprzedaży między dowolnymi dwiema datami",
+    "summary": "Dashboard Twojego sklepu pozwala kierownikowi wybrać dwie daty i pokazuje sprzedaż między nimi. Takich pytań przychodzą tysiące na godzinę i każde dotyczy innego zakresu dni. Chcesz odpowiedzieć na wszystkie, nie dodając w kółko tych samych dni."
+  },
+  "uses": [
+    {
+      "title": "Sumy narastające w narzędziach do danych",
+      "body": "`cumsum` z NumPy i funkcje okna SQL, takie jak `SUM(amount) OVER (ORDER BY day)`, liczą sumy narastające. Odejmij sumę sprzed daty początkowej od sumy z daty końcowej, a dostaniesz sumę między nimi, czyli ten sam trik co na dashboardzie."
+    },
+    {
+      "title": "Sumy prostokątów w obrazach",
+      "body": "Summed-area table, czyli obraz całkowy, to suma prefiksowa w dwóch wymiarach. Dzięki niej suma pikseli w dowolnym prostokącie kosztuje cztery odczyty, a tak detektor twarzy Viola-Jones szybko liczy swoje cechy."
+    },
+    {
+      "title": "Zadania o sumie podtablicy",
+      "body": "Żeby znaleźć odcinek dni, w którym sprzedaż daje dokładnie zadaną sumę, liczysz sumy narastające i zapamiętujesz w hash mapie te, które już widziałeś. Odcinek kończy się w dniu, w którym obecna suma minus cel pojawiła się wcześniej."
+    },
+    {
+      "title": "Wyrównywanie histogramu",
+      "body": "Narzędzia poprawiające kontrast zliczają, ile pikseli ma każdą jasność, a potem liczą sumę narastającą tych liczb. Ten skumulowany histogram mówi, jaka część pikseli jest co najmniej tak ciemna jak dana jasność, i na jego podstawie narzędzie rozkłada jasności szerzej."
+    }
+  ],
+  "whenNot": "Sumy prefiksowe opłacają się, gdy dane stoją w miejscu, a Ty zadajesz wiele pytań. Jeśli jakaś wartość się zmieni, każda suma po niej jest nieaktualna, a naprawienie ich kosztuje O(n); drzewo Fenwicka albo drzewo przedziałowe odpowiada na zapytania i obsługuje zmiany w O(log n). Przy jednym zapytaniu bezpośrednie dodanie zakresu kosztuje O(n), tyle samo co zbudowanie sum, więc nic nie zyskujesz. Trik wymaga też działania, które da się cofnąć: sumy i liczniki da się odjąć, ale maksimum ani minimum nie, więc maksimum z zakresu wymaga innej struktury. A przy kilku dniach zwykła pętla jest prostsza.",
+  "outcomes": {
+    "see-the-repeated-work": "Zauważ powtarzaną pracę przy dodawaniu każdego zakresu od zera",
+    "build-the-running-totals": "Zbuduj tablicę sum narastających z zerem na początku w jednym przebiegu",
+    "subtract-two-totals": "Odpowiedz na zakres dni wyrażeniem `totals[last + 1] - totals[first]`",
+    "state-the-cost": "Podaj koszt: O(n) na zbudowanie sum, O(1) na zapytanie"
+  },
+  "steps": {
+    "overview": {
+      "title": "Sumy narastające dają sumy zakresów",
+      "caption": "Tablica [[prefix-sum]] (suma prefiksowa) trzyma sumę narastającą listy, więc suma dowolnego jej zakresu to jedno odejmowanie. Rysunek pokazuje gotowy przykład: `sales` trzyma sprzedaż z siedmiu dni, liczonych od dnia 0, a `totals` trzyma sumy narastające. Wskaźniki `before` i `through` wskazują dwie sumy, które dają dni od 2 do 5, zacieniowane w `sales`: 21 - 6 = 15."
+    },
+    "the-problem": {
+      "title": "Sprzedaż między dowolnymi datami",
+      "caption": "Dashboard Twojego sklepu pokazuje sprzedaż między dowolnymi dwiema datami wybranymi przez kierownika. Każdy wybór to zakres dni, a strona odpowiada na tysiące takich zapytań na godzinę. Dodawanie dni zakresu jeden po drugim jest w porządku przy jednym pytaniu, ale przy każdym kolejnym powtarza te same dodawania.",
+      "keyIdea": "Gdy wiele zapytań sumuje zachodzące na siebie zakresy, te same dni są dodawane w kółko."
+    },
+    "adding-again": {
+      "title": "Dodanie zakresu kosztuje tyle, ile jego długość",
+      "caption": "Żeby odpowiedzieć dla dni od 2 do 5, dodajesz `5 + 3 + 6 + 1` i dostajesz 15: cztery dodawania. Zakres 300 dni to 300 dodawań, a następne zapytanie zaczyna od zera. Praca rośnie z długością zakresu i płacisz ją przy każdym zapytaniu."
+    },
+    "the-leading-zero": {
+      "title": "Druga tablica, która zaczyna się od 0",
+      "caption": "Trzymasz drugą tablicę, `totals`, w której `totals[k]` to suma pierwszych `k` dni. Zaczyna się od `totals[0]`, sumy zera dni, czyli 0. To zero na początku daje `totals` jedną komórkę więcej niż `sales`: 8 komórek dla 7 dni."
+    },
+    "the-first-totals": {
+      "title": "Każda suma dodaje jeden dzień",
+      "caption": "`totals[1]` to `totals[0] + sales[0]`, czyli 0 + 4 = 4. `totals[2]` to `totals[1] + sales[1]`, czyli 4 + 2 = 6. Każda suma to więc poprzednia suma plus sprzedaż jednego dnia.",
+      "keyIdea": "Każda suma narastająca to poprzednia suma plus jeden dzień: `totals[k] = totals[k - 1] + sales[k - 1]`."
+    },
+    "the-next-total": {
+      "title": "Następna suma dodaje następny dzień",
+      "caption": "`totals[3]` to `totals[2] + sales[2]`, czyli 6 + 5 = 11. Zwróć uwagę na przesunięcie o jeden: suma pierwszych 3 dni dodaje `sales[2]`, trzeci dzień, bo dni liczysz od 0."
+    },
+    "fill-the-totals": {
+      "title": "Jeden przebieg wypełnia wszystkie",
+      "caption": "Powtarzasz ten sam krok dla pozostałych dni i dostajesz 14, 20, 21 i 25. Ostatnia suma, `totals[7]`, to suma całego tygodnia. Zbudowanie `totals` to jeden przebieg z jednym dodawaniem na dzień, czyli O(n) dla n dni, i robisz to raz."
+    },
+    "subtract-two-totals": {
+      "title": "Odejmij dwie sumy",
+      "caption": "Dla dni od 2 do 5 bierzesz `totals[6]`, sumę pierwszych 6 dni, czyli dni od 0 do 5. Odejmujesz `totals[2]`, sumę dni 0 i 1. Zostają dni od 2 do 5: 21 - 6 = 15, ta sama odpowiedź co przy czterech dodawaniach, bez pętli po zakresie."
+    },
+    "from-the-first-day": {
+      "title": "Zero na początku obsługuje dzień 0",
+      "caption": "Dla dni od 0 do 3 odejmujesz `totals[0]` od `totals[4]`: 14 - 0 = 14. Zero na początku to suma zera dni, więc zakres zaczynający się od pierwszego dnia nie wymaga osobnego przypadku. Ogólnie dni od `first` do `last` dają `totals[last + 1] - totals[first]`.",
+      "keyIdea": "Sprzedaż od dnia `first` do dnia `last` włącznie to `totals[last + 1] - totals[first]`."
+    },
+    "cost-per-query": {
+      "title": "Każde zapytanie to dwa odczyty",
+      "caption": "Zapytanie czyta dwie komórki `totals` i je odejmuje, niezależnie od długości zakresu. To [[constant-time]] (czas stały): O(1). Zakres tygodnia i zakres roku kosztują tyle samo.",
+      "keyIdea": "Zbuduj sumy raz w O(n); potem każde zapytanie o zakres kosztuje O(1)."
+    },
+    "answer-many-ranges": {
+      "title": "Dalej: odpowiedz na wiele zakresów naraz",
+      "caption": "W Practice piszesz `rangeTotals`. Funkcja dostaje dzienną sprzedaż i listę zakresów, każdy to para indeksów dni z oboma końcami włącznie, i zwraca sumę każdego zakresu. Zbuduj `totals` raz i odpowiadaj na każdy zakres jednym odejmowaniem: O(n + q) dla n dni i q zakresów, zamiast O(n × q), gdy każdy zakres sumujesz od nowa."
+    },
+    "where-you-meet-it": {
+      "title": "Gdzie to spotkasz",
+      "caption": "Oto miejsca, gdzie sumy narastające pojawiają się poza dashboardem. Uwaga pod Uses mówi, kiedy wybrać coś innego, głównie gdy liczby zmieniają się między pytaniami."
+    }
+  },
+  "checks": {
+    "cost-of-adding-again": {
+      "prompt": "Dashboard dostaje 10 000 zapytań o zakres w roku liczącym 365 dni, a każde zapytanie obejmuje około 300 dni. Na każde odpowiadasz, dodając jego dni jeden po drugim. Ile mniej więcej dodawań to daje w sumie?",
+      "options": {
+        "every-query-adds-again": "Około 3 milionów, bo każde zapytanie dodaje swoje 300 dni od nowa",
+        "each-day-once": "Około 365, bo sprzedaż każdego dnia wystarczy dodać raz",
+        "one-step-per-query": "Około 10 000, bo odpowiedź na zapytanie to jeden krok",
+        "overlap-is-shared": "Około 300, bo zapytania zachodzą na siebie, więc ten sam zakres dodaje się tylko raz"
+      },
+      "explanation": "Około 3 milionów: 10 000 zapytań razy około 300 dni. Nic nie jest zapamiętywane między zapytaniami, więc te same dni są dodawane za każdym razem. Sprzedaż dnia jest dodawana raz na każde zapytanie, które go obejmuje, a nie raz w ogóle. A zapytanie to nie jeden krok, bo dodaje każdy dzień swojego zakresu."
+    },
+    "how-many-totals": {
+      "prompt": "Będziesz trzymać sumy narastające dziennej sprzedaży, gdzie `totals[k]` to suma pierwszych `k` dni. Ile komórek potrzebuje `totals` dla tygodnia liczącego 7 dni?",
+      "options": {
+        "one-per-day": "7, bo na każdy dzień przypada jedna suma narastająca",
+        "one-more-than-days": "8, bo `k` biegnie od 0 dni do 7 dni, a zero dni też ma swoją sumę",
+        "one-fewer-than-days": "6, bo pierwszy dzień nie potrzebuje własnej sumy",
+        "two-per-day": "14, bo każdy dzień trzyma i swoją sprzedaż, i swoją sumę"
+      },
+      "explanation": "8 komórek. `k` może być dowolną liczbą dni od zera do wszystkich 7, czyli 8 wartości, a `totals[0]`, suma zera dni, to 0. Przy 7 komórkach nie dałoby się powiedzieć „nic przed pierwszym dniem”, a zakres zaczynający się od dnia 0 wymagałby osobnego przypadku. Sprzedaż zostaje w swojej tablicy, więc nic się nie podwaja."
+    },
+    "which-day-is-added": {
+      "prompt": "`totals[3]` to suma pierwszych 3 dni, a `totals[2]` trzyma już sumę pierwszych 2 dni. Wskaż dzień, którego sprzedaż `totals[3]` dodaje do `totals[2]`.",
+      "explanation": "Dzień 2, komórka `d2`. Pierwsze 3 dni to dni 0, 1 i 2, a `totals[2]` obejmuje już dni 0 i 1, więc nowym dniem jest dzień 2. To jest przesunięcie o jeden: `totals[k]` dodaje `sales[k - 1]`, bo dni liczysz od 0, a sumy liczą, ile dni jest wliczonych."
+    },
+    "additions-to-build": {
+      "prompt": "Wypełniasz `totals` dla n dni sprzedaży. Ile mniej więcej dodawań zajmuje cały przebieg?",
+      "options": {
+        "all-days-each-time": "Około n²/2, bo każda suma dodaje wszystkie swoje dni od nowa",
+        "one-per-day": "n, bo każda suma to poprzednia suma plus jeden dzień",
+        "just-the-last": "1, bo trzeba dodać tylko ostatnią sumę, która trzyma wszystko",
+        "two-per-day": "2n, bo każda suma wymaga jednego dodawania dla dnia i jednego dla wcześniejszych dni"
+      },
+      "explanation": "n dodawań. Każda suma korzysta z poprzedniej, więc potrzebuje jednego dodawania: poprzednia suma plus jeden dzień. Dodawanie wszystkich dni od nowa przy każdej sumie kosztowałoby około n²/2, czyli właśnie tę powtarzaną pracę, której unikasz. Potrzebna jest każda suma, nie tylko ostatnia, a wcześniejsze dni siedzą już w poprzedniej sumie, więc nie kosztują nic dodatkowo."
+    },
+    "which-total-ends-the-range": {
+      "prompt": "Raport prosi o sprzedaż od dnia 2 do dnia 5 włącznie. Odpowiedzią jest jedna suma minus druga. Wskaż sumę, która kończy się dokładnie po dniu 5.",
+      "explanation": "`totals[6]`, komórka `t6`. To suma pierwszych 6 dni, czyli dni od 0 do 5, więc kończy się dokładnie po dniu 5. `totals[5]` skończyłoby się przed dniem 5, a `totals[7]` objęłoby jeszcze dzień 6."
+    },
+    "range-from-the-first-day": {
+      "prompt": "Dashboard pyta o sprzedaż od dnia 0 do dnia 3 włącznie. Które obliczenie ją daje?",
+      "options": {
+        "end-at-the-last-day": "`totals[3] - totals[0]`, bo zakres kończy się na dniu 3, więc `totals[3]` to suma, która tam się kończy",
+        "leading-zero-is-the-start": "`totals[4] - totals[0]`, bo `totals[0]` to zero na początku, które oznacza brak dni przed dniem 0",
+        "skip-the-first-total": "`totals[4] - totals[1]`, bo pierwsza suma należy do dnia 0 i nie powinna być liczona",
+        "no-total-before": "Potrzeba innej metody, bo przed dniem 0 nie ma sumy, którą dałoby się odjąć"
+      },
+      "explanation": "`totals[4] - totals[0]`, czyli 14 - 0. `totals[4]` to suma pierwszych 4 dni, dni od 0 do 3, a `totals[0]` to 0, suma zera dni. `totals[3]` kończy się po dniu 2, więc pomija dzień 3. Odjęcie `totals[1]` wyrzuciłoby dzień 0, który należy do zakresu. A suma przed dniem 0 istnieje: po to jest zero na początku."
+    },
+    "cost-of-a-query": {
+      "prompt": "Gdy `totals` jest już zbudowane, jak zmienia się koszt jednego zapytania o zakres, gdy zakres się wydłuża?",
+      "options": {
+        "grows-with-the-range": "Rośnie z długością zakresu, bo dni między dwiema sumami nadal trzeba dodać",
+        "same-for-every-query": "Zostaje taki sam, bo to dwa odczyty i jedno odejmowanie",
+        "grows-with-the-year": "Rośnie z liczbą dni n, bo obie sumy trzeba najpierw znaleźć w `totals`",
+        "log-of-days": "Zajmuje około log n kroków, bo obie sumy znajduje się przez połowienie"
+      },
+      "explanation": "Zostaje taki sam: O(1). Indeks każdej sumy wylicza się z numerów dni, więc odczyt idzie prosto do komórki, bez szukania. Dni między dwiema sumami są już w nich zawarte, więc dłuższy zakres nie dodaje pracy. Nie ma tu połowienia, bo nic nie trzeba przeszukiwać."
+    }
+  },
+  "terms": {
+    "prefix-sum": {
+      "term": "prefix sum",
+      "gloss": "suma prefiksowa: suma narastająca listy, w której wpis k to suma pierwszych k wartości. Suma dowolnego zakresu to różnica dwóch wpisów."
+    },
+    "constant-time": {
+      "term": "constant time",
+      "gloss": "czas stały: koszt, który nie rośnie z rozmiarem danych, zapisywany O(1)."
+    }
+  },
+  "exercise": {
+    "title": "Suma sprzedaży między dwoma dniami",
+    "task": "Napisz funkcję `rangeTotals`, która przyjmuje dzienną sprzedaż sklepu i listę zakresów, z których każdy to para `[first, last]` indeksów dni liczonych od 0, z oboma dniami włącznie. Zwróć sumę sprzedaży każdego zakresu, w tej samej kolejności. Zbuduj tablicę [[prefix-sum]] raz, tak żeby wszystkie zakresy razem kosztowały O(n + q) dla n dni i q zakresów.",
+    "hints": [
+      "Dodawanie każdego zakresu od zera kosztuje długość zakresu przy każdym zapytaniu. Czy da się raz policzyć coś wyłącznie ze sprzedaży, co zmieni każdy zakres w tanią operację?",
+      "Trzymaj sumę narastającą z jedną komórką więcej niż dni: pierwsza komórka to 0, a każda następna to poprzednia plus sprzedaż jednego dnia. Wtedy pierwsze `k` dni daje komórka o indeksie `k`.",
+      "Zakres od `first` do `last` włącznie to suma pierwszych `last + 1` dni minus suma pierwszych `first` dni. Zbuduj sumę narastającą raz, a potem odpowiadaj na każdy zakres jednym odejmowaniem."
+    ]
+  }
+}
