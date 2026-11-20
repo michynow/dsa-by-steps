@@ -3,6 +3,7 @@ import { Button } from '@/ui';
 import styles from './exercise.module.css';
 import { fill } from './fill';
 import type { ExerciseMessages } from './messages';
+import { CodeText } from '@/features/terms';
 
 export interface HintsPanelProps {
   readonly hints: readonly string[];
@@ -24,7 +25,7 @@ export function HintsPanel({ hints, taken, messages, onTake }: HintsPanelProps):
             <span className={styles.hintLabel}>
               {fill(messages.hints.item, { number: String(index + 1) })}
             </span>{' '}
-            {hint}
+            <CodeText text={hint} />
           </li>
         ))}
       </ol>

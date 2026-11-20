@@ -11,6 +11,7 @@ import { OrderCheckCard } from './OrderCheckCard';
 import { ChoiceOptions } from './ChoiceOptions';
 import type { CheckSession } from './use-check-session';
 import styles from './checks.module.css';
+import { CodeText } from '@/features/terms';
 
 function feedbackOf(session: CheckSession, text: CheckText, empty: boolean): string {
   if (session.state.status === 'passed') return text.passed;
@@ -73,7 +74,7 @@ export function CheckPanel(props: {
     <section className={panelClass(session)} aria-label={text.region}>
       <p className={styles.header}>{headerOf(session, text)}</p>
       <h3 id={promptId} className={styles.prompt}>
-        {messages.prompt}
+        <CodeText text={messages.prompt} />
       </h3>
       {misses === null ? null : <p className={styles.misses}>{misses}</p>}
       <ChoiceOptions
@@ -93,7 +94,7 @@ export function CheckPanel(props: {
       </p>
       {session.settled ? (
         <p ref={focusOnMount} tabIndex={-1} className={styles.explanation}>
-          {messages.explanation}
+          <CodeText text={messages.explanation} />
         </p>
       ) : null}
     </section>
