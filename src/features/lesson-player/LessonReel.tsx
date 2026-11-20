@@ -4,7 +4,7 @@ import type { LessonContent } from '@/content';
 import { elementIdsOf, scenesOf } from '@/domain';
 import type { Locale, Scene } from '@/domain';
 import { useLocale, useMessages } from '@/features/locale';
-import { SceneView } from '@/renderer';
+import { SceneView, boundsOf } from '@/renderer';
 import { Button, useReducedMotion } from '@/ui';
 import { lessonPlayerMessages } from './messages';
 import { sceneLabelsOf } from './scene-labels';
@@ -62,6 +62,14 @@ export function LessonReel({
   const reduced = useReducedMotion();
   const [paused, setPaused] = useState(false);
   const shots = useMemo(() => shotsOf(lessons, locale), [lessons, locale]);
+  const bounds = useMemo(() => boundsOf(shots.map((candidate) => candidate.scene)), [shots]);
+  const lessonBounds = useMemo(
+    () =>
+      lessons.map((_, lesson) =>
+        boundsOf(shots.filter((candidate) => candidate.lesson === lesson).map((c) => c.scene)),
+      ),
+    [lessons, shots],
+  );
   const index = useReelIndex(shots.length, !paused && !reduced);
   const shot = shots[index];
   if (shot === undefined) return null;
@@ -73,7 +81,12 @@ export function LessonReel({
         <span className={styles.title}>{shot.title}</span>
       </figcaption>
       <div className={styles.screen} aria-hidden="true">
-        <SceneView scene={shot.scene} labels={sceneLabelsOf(messages)} />
+        <SceneView
+          scene={shot.scene}
+          labels={sceneLabelsOf(messages)}
+          bounds={bounds}
+          centeredOn={lessonBounds[shot.lesson]}
+        />
       </div>
       <div className={styles.footer}>
         <ol className={styles.ticks} aria-hidden="true">

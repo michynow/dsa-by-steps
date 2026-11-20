@@ -1,0 +1,8 @@
+.code {
+  padding: 0 var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-code);
+  background: var(--color-paper);
+  border: 1px solid var(--color-paper-dot);
+  border-radius: var(--radius-control);
+}

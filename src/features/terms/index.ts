@@ -1,4 +1,4 @@
-export { CaptionText } from './CaptionText';
+export { CaptionText, CodeText } from './CaptionText';
 export { KeyIdea } from './KeyIdea';
 export { TermChip } from './TermChip';
 export { TermsPanel } from './TermsPanel';

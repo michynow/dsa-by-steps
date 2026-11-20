@@ -1,4 +1,5 @@
 import type { ElementRef, HighlightTone, Scene, StructureKind } from '@/domain';
+import type { SceneBounds } from './scene-bounds';
 
 export interface SceneLabels {
   readonly structure: Readonly<Record<StructureKind, string>>;
@@ -24,4 +25,6 @@ export interface SceneViewProps {
   readonly scene: Scene;
   readonly labels: SceneLabels;
   readonly selection?: SceneSelection;
+  readonly bounds?: SceneBounds | undefined;
+  readonly centeredOn?: SceneBounds | undefined;
 }

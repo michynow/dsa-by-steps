@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
-import { framesOf, scenesOf } from '@/domain';
+import { framesOf, scenesOf, stepStartScene } from '@/domain';
 import type { Lesson, LessonKey, Scene } from '@/domain';
+import { boundsOf } from '@/renderer';
+import type { SceneBounds } from '@/renderer';
 import { displayedScene } from './scene-choice';
 
 export function useLessonScenes(lesson: Lesson, key: LessonKey): readonly Scene[] {
@@ -28,4 +30,17 @@ export function useStepFrames(
     }
     return result.value;
   }, [lesson, scenes, step, gated]);
+}
+
+export function useLessonBounds(lesson: Lesson, scenes: readonly Scene[]): SceneBounds {
+  return useMemo(
+    () =>
+      boundsOf(
+        lesson.steps.flatMap((step, index) => {
+          const frames = framesOf(stepStartScene(lesson, scenes, index), step.events);
+          return frames.ok ? frames.value : [];
+        }),
+      ),
+    [lesson, scenes],
+  );
 }
