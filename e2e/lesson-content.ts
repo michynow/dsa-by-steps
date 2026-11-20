@@ -27,7 +27,7 @@ export function escaped(text: string): string {
 
 export function visibleText(raw: string): RegExp {
   const longest = raw
-    .split(/\[\[[^\]]*\]\]/)
+    .split(/\[\[[^\]]*\]\]|`[^`]*`/)
     .map((piece) => piece.trim())
     .reduce((best, piece) => (piece.length > best.length ? piece : best), '');
   return new RegExp(escaped(longest));
