@@ -1,4 +1,5 @@
 import type { ModuleContent } from '../types';
+import { bigOContent } from './big-o';
 import en from './en.json';
 import { hashMapsContent } from './hash-maps';
 import { linkedListsContent } from './linked-lists';
@@ -8,5 +9,5 @@ import { stacksAndQueuesContent } from './stacks-and-queues';
 export const foundations: ModuleContent = {
   slug: 'foundations',
   titles: { en: en.title, pl: pl.title },
-  lessons: [linkedListsContent, stacksAndQueuesContent, hashMapsContent],
+  lessons: [bigOContent, linkedListsContent, stacksAndQueuesContent, hashMapsContent],
 };
