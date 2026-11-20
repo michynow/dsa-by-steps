@@ -7,7 +7,7 @@
   "uses": [
     {
       "title": "Map, Set i dict w Twoim języku",
-      "body": "Map i Set w JavaScripcie oraz dict i set w Pythonie znajdują wpisy po kluczu przez tablicę mieszającą, więc korzystasz z nich w prawie każdym programie."
+      "body": "`Map` i `Set` w JavaScripcie oraz `dict` i `set` w Pythonie znajdują wpisy po kluczu przez tablicę mieszającą, więc korzystasz z nich w prawie każdym programie."
     },
     {
       "title": "Hash joiny w bazach danych",
@@ -22,7 +22,7 @@
       "body": "Kompilator zapisuje każdą nazwę z Twojego kodu, na przykład zmienne i funkcje, w tablicy z nazwą jako kluczem, więc znajduje deklarację za każdym razem, gdy nazwa się pojawia."
     }
   ],
-  "whenNot": "Hash map nie ma posortowanej kolejności, więc nie wypisze kluczy alfabetycznie ani nie znajdzie klucza najbliższego danemu. (Map i Set w JavaScripcie oraz dict w Pythonie zachowują kolejność wstawiania, a to nie jest porządek posortowany.) Do tego użyj posortowanej tablicy albo drzewa. Przy kilku elementach zwykłe przejście po tablicy jest prostsze i mniej więcej równie szybkie. Gdy wiele kluczy ma kolizje, wyszukiwanie zbliża się do O(n), więc hash function musi dobrze rozrzucać klucze.",
+  "whenNot": "Hash map nie ma posortowanej kolejności, więc nie wypisze kluczy alfabetycznie ani nie znajdzie klucza najbliższego danemu. (`Map` i `Set` w JavaScripcie oraz `dict` w Pythonie zachowują kolejność wstawiania, a to nie jest porządek posortowany.) Do tego użyj posortowanej tablicy albo drzewa. Przy kilku elementach zwykłe przejście po tablicy jest prostsze i mniej więcej równie szybkie. Gdy wiele kluczy ma kolizje, wyszukiwanie zbliża się do O(n), więc hash function musi dobrze rozrzucać klucze.",
   "outcomes": {
     "explain-scan-cost": "Wyjaśnisz, dlaczego szukanie klucza w liście kosztuje O(n)",
     "place-by-hash-function": "Znajdziesz bucket (koszyk) klucza za pomocą hash function (funkcji mieszającej)",
@@ -167,11 +167,11 @@
   },
   "exercise": {
     "title": "Oznacz pierwszą powtórzoną nazwę użytkownika",
-    "task": "Aplikacja ma oznaczać pierwszą nazwę użytkownika zarejestrowaną dwa razy. Napisz funkcję firstDuplicate, która przyjmuje nazwy w kolejności rejestracji i zwraca nazwę, której druga rejestracja przychodzi pierwsza, albo null, gdy żadna nazwa nie występuje dwa razy. Nazwy porównujesz dokładnie, więc Ada i ada to różne nazwy. Użyj struktury opartej na [[hash-map]], żeby sprawdzanie pozostało O(n). Nazwy przychodzą jako teksty, a w Complexity Test jako liczby, więc porównuj je przez === i nie używaj metod tylko dla tekstu.",
+    "task": "Aplikacja ma oznaczać pierwszą nazwę użytkownika zarejestrowaną dwa razy. Napisz funkcję `firstDuplicate`, która przyjmuje nazwy w kolejności rejestracji i zwraca nazwę, której druga rejestracja przychodzi pierwsza, albo `null`, gdy żadna nazwa nie występuje dwa razy. Nazwy porównujesz dokładnie, więc Ada i ada to różne nazwy. Użyj struktury opartej na [[hash-map]], żeby sprawdzanie pozostało O(n). Nazwy przychodzą jako teksty, a w Complexity Test jako liczby, więc porównuj je przez `===` i nie używaj metod tylko dla tekstu.",
     "hints": [
       "Dla każdej nazwy musisz wiedzieć, czy już ją widziałeś. Przeszukiwanie wszystkich wcześniejszych nazw za każdym razem sprawia, że kod jest wolny.",
-      "Struktura oparta na hashu odpowiada, czy trzyma dany klucz, średnio w O(1). W TypeScripcie tak działają zarówno Set, jak i Map.",
-      "Sprawdź, czy bieżąca nazwa jest już w Set, zanim ją dodasz. Jeśli jest, to ta nazwa jest odpowiedzią."
+      "Struktura oparta na hashu odpowiada, czy trzyma dany klucz, średnio w O(1). W TypeScripcie tak działają zarówno `Set`, jak i `Map`.",
+      "Sprawdź, czy bieżąca nazwa jest już w `Set`, zanim ją dodasz. Jeśli jest, to ta nazwa jest odpowiedzią."
     ]
   }
 }
