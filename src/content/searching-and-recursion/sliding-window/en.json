@@ -1,0 +1,173 @@
+{
+  "title": "Sliding window",
+  "story": {
+    "title": "The busiest five minutes",
+    "summary": "A server logs how many requests arrive every minute. Before a launch you want to know which five minutes in a row were the busiest, and later how short a stretch can be and still reach a given number of requests."
+  },
+  "uses": [
+    {
+      "title": "Rate limiting",
+      "body": "A rate limiter that allows, say, 100 requests in any 60 seconds keeps a window over the most recent requests. New requests enter it, requests older than 60 seconds leave it, and the size of the window decides whether the next request is let through."
+    },
+    {
+      "title": "Moving averages",
+      "body": "A dashboard that shows the average of the last 30 samples does not add up 30 numbers on every new sample. It adds the new sample to a running total, subtracts the one that left, and divides, so each update costs the same however wide the window is."
+    },
+    {
+      "title": "TCP flow control",
+      "body": "TCP lets a sender have a window of bytes in flight that the receiver has not yet acknowledged. Every acknowledgement slides the start of the window forward, so the sender can transmit more. The window is a range of positions in a stream, like yours is a range of minutes."
+    },
+    {
+      "title": "Rolling hashes in text search",
+      "body": "The Rabin-Karp algorithm finds a word in a long text by comparing hashes. It computes the hash of the first stretch of text, then updates it in O(1) as the stretch slides one character forward, instead of hashing every stretch from scratch."
+    }
+  ],
+  "whenNot": "A window needs the items to be next to each other, so it cannot pick minutes that are far apart. The variable window also assumes that dropping a minute from the left never raises the total, which breaks when the numbers can be negative. If you only need one window total on a short log, a plain loop is simpler. And if you answer many questions about arbitrary ranges of a fixed log, not one moving window, a table of running totals answers each range in O(1) after one pass.",
+  "outcomes": {
+    "size-the-window": "Place `left` and `right` so the window covers a given number of minutes",
+    "update-the-total": "Update the window total by adding the minute that enters and subtracting the one that leaves",
+    "find-the-busiest-window": "Slide a fixed window over the whole log and keep track of the best total",
+    "grow-and-shrink": "Grow a variable window on the right and shrink it from the left while its condition holds",
+    "count-the-cost": "State the cost of a sliding window: O(n) steps"
+  },
+  "steps": {
+    "overview": {
+      "title": "A window that moves along the log",
+      "caption": "A [[sliding-window]] is a range of neighbouring cells in an array that moves along it one cell at a time. Two pointers mark it: `left` is the first cell in the window and `right` is the last. The drawing shows a finished example: a log of requests per minute, and the five-minute window with the most requests, from `m2` to `m6`."
+    },
+    "the-problem": {
+      "title": "Which five minutes were the busiest?",
+      "caption": "The server writes down how many requests arrived in each minute. Before a launch you want the five minutes in a row with the most requests. The simple way is to add up the five minutes of every possible window. For a log of a day, 1,440 minutes, that is more than 7,000 additions, and for a week of minutes it is more than 50,000. Most of that work repeats minutes you added a moment ago."
+    },
+    "first-window": {
+      "title": "Add up the first window once",
+      "caption": "You put `left` on `m1` and `right` on the fifth minute, `m5`: a window of five minutes. You add it up one time: 2 + 5 + 1 + 4 + 3 = 15 requests. This is the only time you add all five minutes together."
+    },
+    "slide-one-minute": {
+      "title": "Slide by one minute",
+      "caption": "Both pointers move one minute to the right. `m6` enters the window with 6 requests and `m1` leaves it with 2. The new total is 15 + 6 - 2 = 19, two operations instead of five additions. The new window, `m2` to `m6`, is the busiest so far.",
+      "keyIdea": "To slide the window one cell, add the cell that enters and subtract the cell that leaves."
+    },
+    "slide-to-the-end": {
+      "title": "Slide until the log ends",
+      "caption": "You keep sliding. The window from `m3` to `m7` has 19 + 2 - 5 = 16 requests, and the last window, `m4` to `m8`, has 16 + 1 - 1 = 16. You keep the best total you have seen, 19, and where its window started: `m2`. The totals were 15, 19, 16 and 16."
+    },
+    "cost-of-sliding": {
+      "title": "Every minute enters once and leaves once",
+      "caption": "Each minute is added when `right` reaches it and subtracted when `left` passes it, and that is all. A log of `n` minutes takes about 2n updates however wide the window is: [[linear-time]], O(n). Adding every window from scratch takes about `n * k` additions for a window of `k` minutes, and the wider the window, the slower it gets.",
+      "keyIdea": "A fixed window costs O(n) however wide it is, because each cell enters and leaves once."
+    },
+    "grow-the-window": {
+      "title": "Now the window sets its own size",
+      "caption": "A second question: what is the shortest stretch of minutes with at least 12 requests? Now the size is not given. This is a [[variable-window]]: it grows to the right until its total reaches the target. `left` stays on `m1` and `right` moves minute by minute: 2, 7, 8, and 12 at `m4`. The window `m1` to `m4` is long enough."
+    },
+    "shrink-the-window": {
+      "title": "Shrink from the left while it still reaches 12",
+      "caption": "The window reaches 12, so you note its length, 4 minutes. Then you try to make it shorter by moving `left` forward. Dropping `m1` takes away 2, and the total falls to 10, below 12. You stop shrinking, and the window `m2` to `m4` has to grow again.",
+      "keyIdea": "A variable window grows on the right until the condition holds, then shrinks from the left for as long as it still holds."
+    },
+    "grow-and-shrink-again": {
+      "title": "Grow, then shrink, again",
+      "caption": "`right` moves to `m5` and the total is 13. The window `m2` to `m5` has 4 minutes, no better than before, so `left` moves past `m2` and the total falls to 8. Then `right` moves to `m6`: the total is 14 and the window is `m3` to `m6`. `left` and `right` only ever move forward."
+    },
+    "the-shortest-stretch": {
+      "title": "Shrink as far as the total allows",
+      "caption": "The window `m3` to `m6` has 14 requests. Dropping `m3`, which has 1 request, leaves 13, still at least 12, so `left` moves to `m4`: three minutes. Dropping `m4` would leave 9, so `left` stops. The shortest stretch that reaches 12 is `m4` to `m6`, three minutes with 13 requests.",
+      "keyIdea": "Shrink only while the condition still holds: the last window that met it is the shortest one for that position of `right`."
+    },
+    "cost-of-resizing": {
+      "title": "Two pointers that never go back",
+      "caption": "`right` visits each minute once and `left` visits each minute at most once, so together they make at most 2n moves. A variable window is O(n) too, even though it sometimes shrinks by many minutes in a row. What matters is that neither pointer ever moves back.",
+      "keyIdea": "If both pointers only move forward, the whole pass is O(n)."
+    },
+    "busiest-window-in-practice": {
+      "title": "Next: find the busiest window yourself",
+      "caption": "In Practice you write `busiestWindow`. It takes the requests of every minute and the window `size`, and returns the minute where the busiest window starts. When two windows tie, the earlier one wins. It returns -1 when no window of that size fits in the log. It is the fixed window from this Lesson: add up the first window once, then slide it."
+    },
+    "where-you-meet-it": {
+      "title": "Where you will meet it",
+      "caption": "Windows over a moving stream show up in several systems besides the server log. The note under the Uses says when a window is the wrong tool."
+    }
+  },
+  "checks": {
+    "where-the-window-ends": {
+      "prompt": "A window covers five minutes in a row, and `left` is on `m1`. Select the minute where `right` goes.",
+      "explanation": "`right` goes on `m5`. The window includes both `m1` and the cell `right` is on, so it covers `m1`, `m2`, `m3`, `m4` and `m5`. Choosing `m6` would make the window six minutes wide."
+    },
+    "total-after-one-slide": {
+      "prompt": "The window `m1` to `m5` has 15 requests. It slides one minute to the right and now covers `m2` to `m6`. What is the new total?",
+      "options": {
+        "add-and-subtract": "19, because `m6` with 6 requests enters and `m1` with 2 requests leaves",
+        "add-only": "21, because `m6` with 6 requests enters and the minutes that were already in the window stay",
+        "subtract-only": "13, because `m1` with 2 requests leaves and the window gets smaller",
+        "unchanged": "15, because one minute enters and one leaves, so the total stays the same"
+      },
+      "explanation": "The total is 19: 15 + 6 - 2. A sliding window moves, it does not grow, so the minute that enters has to be paired with the minute that leaves. Adding only gives 21 and counts `m1` that is no longer inside. Subtracting only gives 13 and forgets that `m6` is inside. One in and one out does not mean the total stays put, because the two minutes have different counts."
+    },
+    "where-the-sliding-stops": {
+      "prompt": "The window is five minutes wide and keeps sliding one minute at a time while the whole window still fits in the log of eight minutes. Select the minute where `right` ends.",
+      "explanation": "`right` ends on `m8`, the last minute of the log. The window can slide while `right` has a next minute to move to. Once `right` is on `m8` there is nothing left to add, so the last window is `m4` to `m8`."
+    },
+    "cost-of-the-fixed-window": {
+      "prompt": "A log has `n` minutes and the window is `k` minutes wide. The window slides from the start to the end of the log and the total is updated at every step. About how much work is that in all?",
+      "options": {
+        "linear": "O(n), because each minute is added once when it enters and subtracted once when it leaves",
+        "n-times-k": "O(n * k), because every window still has to add up its `k` minutes",
+        "only-k": "O(k), because only the minutes inside the window are ever looked at",
+        "quadratic": "O(n^2), because every minute is paired with every other minute"
+      },
+      "explanation": "O(n), because each of the `n` minutes enters once and leaves once, and each takes O(1) work. Adding up `k` minutes for every window is the slow way the window avoids: it costs O(n * k). Looking at `k` minutes only would miss that the window visits the whole log. And no minute is ever paired with another minute."
+    },
+    "where-right-stops": {
+      "prompt": "`left` is on `m1`. `right` moves one minute at a time and the total counts every minute from `left` to `right`. Select the first minute where the total reaches 12.",
+      "explanation": "`right` stops on `m4`. The totals are 2 on `m1`, 7 on `m2`, 8 on `m3` and 12 on `m4`, and 12 is the first one that is at least 12. Going on to `m5` would make the window longer than it has to be."
+    },
+    "what-happens-at-twelve": {
+      "prompt": "The window `m1` to `m4` has exactly 12 requests, the target. It is four minutes long. What do you do next to look for a shorter stretch?",
+      "options": {
+        "shrink-from-left": "Move `left` one minute forward, because a shorter window might still reach 12 without `m1`",
+        "keep-growing": "Move `right` to `m5`, because a window that reached the target has to be extended before it can improve",
+        "stop-now": "Stop, because the first window that reaches 12 is also the shortest one",
+        "restart": "Move `left` all the way to `m4`, because a window that reached the target should start over from `right`"
+      },
+      "explanation": "Move `left` one minute forward. Dropping `m1` might leave a window that still reaches 12, and that window would be shorter. Growing only makes the window longer. Stopping at the first match is wrong: the first window to reach 12 is not necessarily the shortest, and the log has a three-minute one. And jumping `left` to `m4` skips the windows in between."
+    },
+    "where-left-stops": {
+      "prompt": "The window `m3` to `m6` has 14 requests, and `left` moves one minute forward at a time for as long as the total stays at least 12. Select the minute where `left` stops.",
+      "explanation": "`left` stops on `m4`. Dropping `m3`, which has 1 request, leaves 13, still enough. Dropping `m4`, which has 4, would leave 9, too few, so `left` stays. Stopping on `m3` would leave a window that is longer than it needs to be."
+    },
+    "cost-of-the-variable-window": {
+      "prompt": "In a log of `n` minutes, a variable window grows on the right and shrinks from the left. How much work is a whole pass, in the worst case?",
+      "options": {
+        "both-forward": "O(n), because `left` and `right` only move forward, so each minute enters and leaves at most once",
+        "restart-each": "O(n^2), because every time `right` moves, `left` may have to start over from the beginning",
+        "n-log-n": "O(n log n), because the window is halved every time it shrinks",
+        "only-the-window": "O(k), because the window is only as wide as the stretch it is looking for"
+      },
+      "explanation": "O(n). Neither pointer ever moves back, so `right` makes at most `n` moves and `left` at most `n`. `left` does not start over after `right` moves: it continues from where it was. A window shrinks by dropping minutes one by one, not by halving. And the window may be as wide as the whole log, so the cost depends on `n`, not on how wide the window is."
+    }
+  },
+  "terms": {
+    "sliding-window": {
+      "term": "sliding window",
+      "gloss": "A range of neighbouring cells in an array that moves along it, with the total or other summary updated as cells enter and leave."
+    },
+    "variable-window": {
+      "term": "variable window",
+      "gloss": "A sliding window whose size is not fixed: it grows on the right until a condition holds and shrinks from the left while it still holds."
+    },
+    "linear-time": {
+      "term": "linear time",
+      "gloss": "A cost that grows in step with the input size n, written O(n)."
+    }
+  },
+  "exercise": {
+    "title": "Find the busiest window",
+    "task": "Write `busiestWindow`, which takes the number of requests in each minute of a log and a window `size`, a number of minutes in a row. Return the index of the minute where the busiest window starts: the one with the most requests in total. When several windows have the same total, return the earliest. Return -1 when `size` is less than 1 or larger than the log. Use a [[sliding-window]] so the whole log is read in O(n), however wide the window is.",
+    "hints": [
+      "Two windows next to each other share all minutes except two. When the window moves one minute to the right, which minute enters and which one leaves?",
+      "Add up the first `size` minutes once. After that, each move changes the total by the minute that enters minus the minute that leaves. Keep the best total so far and the index where its window started.",
+      "Replace the best only when the new total is strictly greater, so an earlier window wins a tie. Check the size first: a `size` below 1 or above the length of the log has no window to return."
+    ]
+  }
+}
