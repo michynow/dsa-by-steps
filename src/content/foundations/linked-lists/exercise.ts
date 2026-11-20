@@ -30,8 +30,10 @@ export const reverseListExercise: Exercise = {
 `,
   visibleTests: [
     reverseOf('three-spots', ['Mat', 'Mail', 'Clock'], ['Clock', 'Mail', 'Mat']),
+    reverseOf('four-spots', ['Mat', 'Mail', 'Clock', 'Oven'], ['Oven', 'Clock', 'Mail', 'Mat']),
     reverseOf('single-spot', ['Mat'], ['Mat']),
     reverseOf('empty-hunt', null, null),
+    reverseOf('same-both-ways', ['Mat', 'Mail', 'Mat'], ['Mat', 'Mail', 'Mat']),
   ],
   hiddenTests: [
     reverseOf('two-spots', ['Mat', 'Mail'], ['Mail', 'Mat']),

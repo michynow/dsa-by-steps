@@ -27,7 +27,9 @@ export const firstDuplicateExercise: Exercise = {
 `,
   visibleTests: [
     firstDuplicateOf('one-repeat', ['ada', 'linus', 'ada'], 'ada'),
+    firstDuplicateOf('back-to-back', ['ada', 'ada'], 'ada'),
     firstDuplicateOf('all-different', ['ada', 'linus', 'grace'], null),
+    firstDuplicateOf('repeat-far-apart', ['ada', 'linus', 'grace', 'turing', 'ada'], 'ada'),
     firstDuplicateOf('second-registration-decides', ['ada', 'linus', 'linus', 'ada'], 'linus'),
   ],
   hiddenTests: [

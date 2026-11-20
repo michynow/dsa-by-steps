@@ -176,6 +176,21 @@
     grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
     align-items: start;
   }
+
+  .columns[data-wide='true'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.layoutToggle {
+  display: none;
+  justify-content: flex-end;
+}
+
+@media (width >= 60rem) {
+  .layoutToggle {
+    display: flex;
+  }
 }
 
 @media (width < 60rem) {

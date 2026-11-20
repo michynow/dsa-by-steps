@@ -52,14 +52,14 @@ describe('reverseList Exercise', () => {
     );
   });
 
-  it('has unique kebab-case test ids, 3 visible and 5 to 7 hidden tests', () => {
+  it('has unique kebab-case test ids, 5 visible and 5 to 7 hidden tests', () => {
     const ids = allTests.map((test) => test.id);
     expect({
       kebab: ids.filter((id) => !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(id)),
       unique: new Set(ids).size === ids.length,
       visible: visible.length,
       hiddenInRange: hidden.length >= 5 && hidden.length <= 7,
-    }).toEqual({ kebab: [], unique: true, visible: 3, hiddenInRange: true });
+    }).toEqual({ kebab: [], unique: true, visible: 5, hiddenInRange: true });
   });
 
   it('declares the function name, Complexity Test and Hint count', () => {

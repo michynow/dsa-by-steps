@@ -104,6 +104,8 @@ export function CodeEditor({
         scrollBeyondLastLine: false,
         fontSize: 14,
         tabSize: 2,
+        wordWrap: 'on',
+        wrappingIndent: 'indent',
       }}
     />
   );
