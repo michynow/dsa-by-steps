@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { ReactElement } from 'react';
 import type { LessonContent } from '@/content';
 import { exerciseProgressOf, lessonKey } from '@/domain';
@@ -5,6 +6,7 @@ import type { Exercise } from '@/domain';
 import { useLocale, useMessages } from '@/features/locale';
 import { useProgress, useProgressActions } from '@/features/progress';
 import { CaptionText } from '@/features/terms';
+import { Button } from '@/ui';
 import { EditorColumn } from './EditorColumn';
 import { ExamplesPanel } from './ExamplesPanel';
 import { HintsPanel } from './HintsPanel';
@@ -30,6 +32,7 @@ export function ExerciseView({ content, exercise }: ExerciseViewProps): ReactEle
   const progress = useProgress((all) => exerciseProgressOf(all, lesson));
   const actions = useProgressActions();
   const run = useExerciseRun(exercise, lesson, () => code.latest.current);
+  const [wide, setWide] = useState(false);
   if (texts === undefined) return null;
   return (
     <article aria-labelledby="exercise-title" className={styles.exercise}>
@@ -44,7 +47,17 @@ export function ExerciseView({ content, exercise }: ExerciseViewProps): ReactEle
       </p>
       <ExamplesPanel exercise={exercise} messages={messages} />
       <p className={styles.narrow}>{messages.narrow}</p>
-      <div className={styles.columns}>
+      <div role="group" aria-label={messages.layout.label} className={styles.layoutToggle}>
+        <Button
+          aria-pressed={wide}
+          onClick={() => {
+            setWide((current) => !current);
+          }}
+        >
+          {messages.layout.wide}
+        </Button>
+      </div>
+      <div className={styles.columns} data-wide={wide ? 'true' : undefined}>
         <EditorColumn exercise={exercise} code={code} run={run} messages={messages} />
         <ResultsPanel
           result={run.result}
