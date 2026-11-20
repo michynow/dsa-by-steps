@@ -52,6 +52,7 @@ const complexityTest = z.strictObject({
     z.strictObject({ kind: z.literal('repeat-string'), unit: z.string(), size: z.number() }),
     z.strictObject({ kind: z.literal('string-range'), prefix: z.string(), size: z.number() }),
   ]),
+  extraArgs: z.array(shapedValue).optional(),
   expected: z.literal('reference'),
   budgetMultiple: z.number(),
   complexity: z.string(),

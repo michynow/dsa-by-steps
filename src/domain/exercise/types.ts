@@ -23,6 +23,7 @@ export type InputGenerator =
 export interface ComplexityTest {
   readonly id: string;
   readonly generator: InputGenerator;
+  readonly extraArgs?: readonly ShapedValue[] | undefined;
   readonly expected: 'reference';
   readonly budgetMultiple: number;
   readonly complexity: string;
