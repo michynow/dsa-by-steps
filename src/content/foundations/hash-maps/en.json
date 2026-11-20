@@ -7,7 +7,7 @@
   "uses": [
     {
       "title": "Map, Set and dict in your language",
-      "body": "JavaScript's Map and Set and Python's dict and set find entries by key through a hash table, so you use one in almost every program."
+      "body": "JavaScript's `Map` and `Set` and Python's `dict` and `set` find entries by key through a hash table, so you use one in almost every program."
     },
     {
       "title": "Hash joins in databases",
@@ -22,7 +22,7 @@
       "body": "A compiler records every name in your code, such as variables and functions, in a table keyed by the name, so it finds each declaration whenever the name appears."
     }
   ],
-  "whenNot": "A hash map has no sorted order, so it cannot list keys alphabetically or find the nearest key to a given one. (JavaScript's Map and Set and Python's dict keep insertion order, which is not sorted order.) For that, keep a sorted array or use a tree. For a handful of items a plain array scan is simpler and about as fast. If many keys collide, a lookup degrades towards O(n), so the hash function has to spread keys well.",
+  "whenNot": "A hash map has no sorted order, so it cannot list keys alphabetically or find the nearest key to a given one. (JavaScript's `Map` and `Set` and Python's `dict` keep insertion order, which is not sorted order.) For that, keep a sorted array or use a tree. For a handful of items a plain array scan is simpler and about as fast. If many keys collide, a lookup degrades towards O(n), so the hash function has to spread keys well.",
   "outcomes": {
     "explain-scan-cost": "Explain why searching a list for a key costs O(n)",
     "place-by-hash-function": "Find a key's bucket with a hash function",
@@ -167,11 +167,11 @@
   },
   "exercise": {
     "title": "Flag the first duplicate username",
-    "task": "The app wants to flag the first username that was registered twice. Write firstDuplicate, which takes the usernames in the order they were registered and returns the username whose second registration comes first, or null when no name appears twice. Names are compared exactly, so Ada and ada are different. Use a [[hash-map]] based structure so the check stays O(n). Usernames arrive as strings, or as numbers in the Complexity Test, so compare them with === and avoid string-only methods.",
+    "task": "The app wants to flag the first username that was registered twice. Write `firstDuplicate`, which takes the usernames in the order they were registered and returns the username whose second registration comes first, or `null` when no name appears twice. Names are compared exactly, so Ada and ada are different. Use a [[hash-map]] based structure so the check stays O(n). Usernames arrive as strings, or as numbers in the Complexity Test, so compare them with `===` and avoid string-only methods.",
     "hints": [
       "For each name, you need to know whether you have seen it before. Searching all the earlier names every time is what makes it slow.",
-      "A hash-based structure answers whether it already holds a key in O(1) on average. In TypeScript, both Set and Map are built that way.",
-      "Check whether the current name is already in your Set before you add it. If it is, that name is the answer."
+      "A hash-based structure answers whether it already holds a key in O(1) on average. In TypeScript, both `Set` and `Map` are built that way.",
+      "Check whether the current name is already in your `Set` before you add it. If it is, that name is the answer."
     ]
   }
 }

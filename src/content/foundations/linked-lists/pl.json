@@ -42,12 +42,12 @@
     },
     "a-clue": {
       "title": "Wskazówka staje się node",
-      "caption": "Każdą wskazówkę zapisujesz na osobnej karteczce i chowasz w jej miejscu. [[node]] (węzeł) ma dwie rzeczy: miejsce, w którym leży, i połączenie o nazwie next, czyli gdzie szukać następnej wskazówki. Tutaj node trzyma Mat, a jego next nie wskazuje jeszcze na nic.",
+      "caption": "Każdą wskazówkę zapisujesz na osobnej karteczce i chowasz w jej miejscu. [[node]] (węzeł) ma dwie rzeczy: miejsce, w którym leży, i połączenie o nazwie `next`, czyli gdzie szukać następnej wskazówki. Tutaj node trzyma Mat, a jego `next` nie wskazuje jeszcze na nic.",
       "keyIdea": "Wskazówki mogą leżeć gdziekolwiek; porządek nadają im tylko połączenia."
     },
     "chaining-clues": {
       "title": "Wskazówki złączone w podchody",
-      "caption": "Dodajesz Mail, Oven i Shed, a potem każdą wskazówkę kierujesz na następną. Idąc za połączeniami, dojdziesz od Mat do Shed. Next ostatniej wskazówki to null, co oznacza koniec łańcucha: tam jest skarb."
+      "caption": "Dodajesz Mail, Oven i Shed, a potem każdą wskazówkę kierujesz na następną. Idąc za połączeniami, dojdziesz od Mat do Shed. `next` ostatniej wskazówki to `null`, co oznacza koniec łańcucha: tam jest skarb."
     },
     "the-first-clue": {
       "title": "Head to wskazówka, którą wręczasz",
@@ -55,26 +55,26 @@
     },
     "finger-on-a-clue": {
       "title": "Pointer wskazuje czytaną wskazówkę",
-      "caption": "[[pointer]] (wskaźnik) to znacznik z nazwą, który wskazuje jeden node. Ustawiasz here na Mat, czyli na wskazówce czytanej w tej chwili. Gdy wskazówka jest rozwiązana, znacznik idzie za połączeniem next."
+      "caption": "[[pointer]] (wskaźnik) to znacznik z nazwą, który wskazuje jeden node. Ustawiasz `here` na Mat, czyli na wskazówce czytanej w tej chwili. Gdy wskazówka jest rozwiązana, znacznik idzie za połączeniem `next`."
     },
     "following-the-trail": {
       "title": "Podążanie za śladem",
-      "caption": "Żeby sprawdzić całe podchody, idziesz za nimi. Here startuje na Mat i idzie za next do Mail, Oven i Shed. W Shed next to null, więc ślad się kończy. Odwiedzanie node jeden po drugim w ten sposób to [[traversal]] (przejście po liście)."
+      "caption": "Żeby sprawdzić całe podchody, idziesz za nimi. `here` startuje na Mat i idzie za `next` do Mail, Oven i Shed. W Shed `next` to `null`, więc ślad się kończy. Odwiedzanie node jeden po drugim w ten sposób to [[traversal]] (przejście po liście)."
     },
     "add-a-stop": {
       "title": "Nowy punkt przepisuje dwie wskazówki",
-      "caption": "Stoisz przy Mail i piszesz nową wskazówkę, Clock. Najpierw jej next wskazuje na Oven, czyli punkt, który po niej następuje. Dopiero potem przepisujesz next w Mail, żeby wskazywał na Clock. Zmieniają się dwa połączenia i żadna wskazówka się nie przesuwa, więc koszt nie zależy od długości podchodów.",
+      "caption": "Stoisz przy Mail i piszesz nową wskazówkę, Clock. Najpierw jej `next` wskazuje na Oven, czyli punkt, który po niej następuje. Dopiero potem przepisujesz `next` w Mail, żeby wskazywał na Clock. Zmieniają się dwa połączenia i żadna wskazówka się nie przesuwa, więc koszt nie zależy od długości podchodów.",
       "keyIdea": "Najpierw skieruj nowy node do przodu, potem przepisz stary node tak, by do niego prowadził."
     },
     "remove-a-stop": {
       "title": "Pomiń punkt, przepisując wskazówkę przed nim",
-      "caption": "Oven okazuje się za trudny, więc z niego rezygnujesz. Ustawiasz prev na Clock, czyli na wskazówce przed nim, i przepisujesz next w Clock na Shed. Nic już nie wskazuje na Oven, więc możesz go usunąć. Pozostałe wskazówki w ogóle się nie przesuwają.",
+      "caption": "Oven okazuje się za trudny, więc z niego rezygnujesz. Ustawiasz `prev` na Clock, czyli na wskazówce przed nim, i przepisujesz `next` w Clock na Shed. Nic już nie wskazuje na Oven, więc możesz go usunąć. Pozostałe wskazówki w ogóle się nie przesuwają.",
       "keyIdea": "Żeby usunąć node, przepisz poprzedni node tak, by go ominął."
     },
     "jump-to-a-clue": {
       "title": "Skok do wskazówki wymaga przejścia",
-      "caption": "Łańcuch wskazówek nie ma numerów, po których można skoczyć. Żeby dotrzeć do indeksu 3, czyli do Shed, zaczynasz od pierwszej wskazówki, indeksu 0, i trzy razy idziesz za next. Wskazówka 50 leży pod indeksem 49, więc dojście do niej to 49 połączeń. Dojście do indeksu k kosztuje k ruchów.",
-      "keyIdea": "Linked list nie ma indeksu: dojście do pozycji k oznacza przejście k połączeń."
+      "caption": "Łańcuch wskazówek nie ma numerów, po których można skoczyć. Żeby dotrzeć do indeksu 3, czyli do Shed, zaczynasz od pierwszej wskazówki, indeksu 0, i trzy razy idziesz za `next`. Wskazówka 50 leży pod indeksem 49, więc dojście do niej to 49 połączeń. Dojście do indeksu `k` kosztuje `k` ruchów.",
+      "keyIdea": "Linked list nie ma indeksu: dojście do pozycji `k` oznacza przejście `k` połączeń."
     },
     "sheet-vs-trail": {
       "title": "Kartka i łańcuch obok siebie",
@@ -83,7 +83,7 @@
     },
     "reverse-preview": {
       "title": "Dalej: podchody od tyłu",
-      "caption": "W Practice układasz ślad od tyłu, żeby podchody kończyły się tam, gdzie się zaczęły: ostatnia wskazówka staje się pierwszą, przez odwrócenie listy w miejscu. Używasz trzech pointerów: prev, current i next. Przed pierwszym ruchem prev to null, current stoi na head, a next jest o jeden node dalej. Przekierowujesz połączenie każdej wskazówki po kolei."
+      "caption": "W Practice układasz ślad od tyłu, żeby podchody kończyły się tam, gdzie się zaczęły: ostatnia wskazówka staje się pierwszą, przez odwrócenie listy w miejscu. Używasz trzech pointerów: `prev`, `current` i `next`. Przed pierwszym ruchem `prev` to `null`, `current` stoi na head, a `next` jest o jeden node dalej. Przekierowujesz połączenie każdej wskazówki po kolei."
     },
     "where-you-meet-it": {
       "title": "Gdzie się z nią spotkasz",
@@ -99,39 +99,39 @@
         "position-number": "Swój numer z kartki, bo podchody znajdują każdą wskazówkę po numerze",
         "nothing-extra": "Nic więcej, bo wskazówki leżą obok siebie jak pola na kartce"
       },
-      "explanation": "Wskazówka Mat trzyma połączenie z następną, czyli next, i podchody toczą się dalej, idąc za nim. Kopia treści Mail nie mówi, gdzie Mail jest ukryta, a po przepisaniu tej wskazówki robi się nieaktualna. Wskazówka nie ma numeru, bo lista znajduje ją, idąc za połączeniami. Wskazówki nie leżą w pamięci obok siebie, więc bez połączenia nic nie łączy Mat z Mail."
+      "explanation": "Wskazówka Mat trzyma połączenie z następną, czyli `next`, i podchody toczą się dalej, idąc za nim. Kopia treści Mail nie mówi, gdzie Mail jest ukryta, a po przepisaniu tej wskazówki robi się nieaktualna. Wskazówka nie ma numeru, bo lista znajduje ją, idąc za połączeniami. Wskazówki nie leżą w pamięci obok siebie, więc bez połączenia nic nie łączy Mat z Mail."
     },
     "which-clue-is-first": {
       "prompt": "Podchody nie mają jeszcze head. Zaznacz wskazówkę, na którą head powinien wskazywać.",
-      "explanation": "Head wskazuje na Mat, bo żadne połączenie nie prowadzi do Mat, więc tylko head może Cię tam zaprowadzić. Gdyby head wskazywał na Oven, zgubiłbyś Mat i Mail. Gdyby wskazywał na Shed, czyli ostatnią wskazówkę, nie dotarłbyś do niczego więcej, bo jej next to null."
+      "explanation": "Head wskazuje na Mat, bo żadne połączenie nie prowadzi do Mat, więc tylko head może Cię tam zaprowadzić. Gdyby head wskazywał na Oven, zgubiłbyś Mat i Mail. Gdyby wskazywał na Shed, czyli ostatnią wskazówkę, nie dotarłbyś do niczego więcej, bo jej `next` to `null`."
     },
     "where-the-walk-lands": {
-      "prompt": "Here startuje na Mat i idzie za next po jednym połączeniu naraz. Na której wskazówce stoi po dwóch ruchach?",
-      "explanation": "Stoi na Oven: pierwszy ruch prowadzi do Mail, a drugi do Oven. Nie zatrzymuje się na Mail, bo ruch liczy się dopiero wtedy, gdy pójdziesz za połączeniem. Nie dochodzi też do Shed, bo to wymaga trzeciego ruchu. Połączenia wskazują tylko do przodu, więc here nigdy nie wraca."
+      "prompt": "`here` startuje na Mat i idzie za `next` po jednym połączeniu naraz. Na której wskazówce stoi po dwóch ruchach?",
+      "explanation": "Stoi na Oven: pierwszy ruch prowadzi do Mail, a drugi do Oven. Nie zatrzymuje się na Mail, bo ruch liczy się dopiero wtedy, gdy pójdziesz za połączeniem. Nie dochodzi też do Shed, bo to wymaga trzeciego ruchu. Połączenia wskazują tylko do przodu, więc `here` nigdy nie wraca."
     },
     "first-rewrite-for-new-stop": {
       "prompt": "Nowa wskazówka, Clock, ma zaraz dołączyć do podchodów za Mail. Które połączenie ustawiasz najpierw?",
       "options": {
-        "new-to-next": "Next w Clock, na Oven, bo Clock musi prowadzić do punktu, który jest za nim, zanim cokolwiek wskaże na Clock",
-        "previous-to-new": "Next w Mail, na Clock, bo wskazówka przed nowym punktem musi do niego prowadzić",
-        "new-to-previous": "Next w Clock, na Mail, bo Clock ma wskazywać punkt przed nim",
+        "new-to-next": "`next` w Clock, na Oven, bo Clock musi prowadzić do punktu, który jest za nim, zanim cokolwiek wskaże na Clock",
+        "previous-to-new": "`next` w Mail, na Clock, bo wskazówka przed nowym punktem musi do niego prowadzić",
+        "new-to-previous": "`next` w Clock, na Mail, bo Clock ma wskazywać punkt przed nim",
         "either-order": "Któreś z nich, bo oba połączenia i tak zostaną ustawione"
       },
-      "explanation": "Najpierw ustawiasz next w Clock na Oven, bo Clock musi prowadzić do punktu, który jest za nim. Jeśli wskażesz nim Mail, to Mail prowadzi do Clock, a Clock z powrotem do Mail, więc podchody zapętlają się, a Oven i Shed stają się nieosiągalne. Jeśli najpierw skierujesz Mail na Clock, nic nie wskazuje już na Oven i reszta podchodów przepada. Kolejność ma znaczenie, bo dawny next w Mail to jedyne odwołanie do reszty śladu."
+      "explanation": "Najpierw ustawiasz `next` w Clock na Oven, bo Clock musi prowadzić do punktu, który jest za nim. Jeśli wskażesz nim Mail, to Mail prowadzi do Clock, a Clock z powrotem do Mail, więc podchody zapętlają się, a Oven i Shed stają się nieosiągalne. Jeśli najpierw skierujesz Mail na Clock, nic nie wskazuje już na Oven i reszta podchodów przepada. Kolejność ma znaczenie, bo dawny `next` w Mail to jedyne odwołanie do reszty śladu."
     },
     "clue-before-the-removed": {
-      "prompt": "Rezygnujesz z Oven w podchodach. Zaznacz wskazówkę, której połączenie next musi się zmienić.",
-      "explanation": "Musi zmienić się next w Clock, bo to Clock wskazuje na Oven. Next w Mail już wskazuje na Clock i zostaje bez zmian. Shed to ostatnia wskazówka i nie ma next, za którym można pójść. Kierujesz Clock prosto na Shed i Oven wypada z podchodów."
+      "prompt": "Rezygnujesz z Oven w podchodach. Zaznacz wskazówkę, której połączenie `next` musi się zmienić.",
+      "explanation": "Musi zmienić się `next` w Clock, bo to Clock wskazuje na Oven. `next` w Mail już wskazuje na Clock i zostaje bez zmian. Shed to ostatnia wskazówka i nie ma `next`, za którym można pójść. Kierujesz Clock prosto na Shed i Oven wypada z podchodów."
     },
     "cost-of-reaching-clue-k": {
-      "prompt": "Uczestnik pyta o wskazówkę o indeksie k, gdzie pierwsza wskazówka ma indeks 0. Ile pracy kosztuje dojście do niej, licząc od pierwszej wskazówki?",
+      "prompt": "Uczestnik pyta o wskazówkę o indeksie `k`, gdzie pierwsza wskazówka ma indeks 0. Ile pracy kosztuje dojście do niej, licząc od pierwszej wskazówki?",
       "options": {
-        "k-moves": "k ruchów, bo idziesz za k połączeniami od pierwszej wskazówki: w najgorszym razie O(n)",
+        "k-moves": "`k` ruchów, bo idziesz za `k` połączeniami od pierwszej wskazówki: w najgorszym razie O(n)",
         "one-move": "1 ruch, bo podchody wiedzą, gdzie jest każda wskazówka: O(1)",
         "whole-trail": "n ruchów, bo zawsze idziesz za całym śladem: O(n)",
-        "halving": "Około log k ruchów, bo po drodze możesz pomijać wskazówki"
+        "halving": "Około log `k` ruchów, bo po drodze możesz pomijać wskazówki"
       },
-      "explanation": "Idziesz za k połączeniami od pierwszej wskazówki, więc koszt rośnie wraz z k i w najgorszym razie wynosi O(n). Lista nie potrafi skakać jak tablica, bo wskazówki nie leżą obok siebie. Przejście kończy się na indeksie k, a nie na końcu. Połączenie prowadzi tylko do następnej wskazówki, więc nie ma czego pomijać."
+      "explanation": "Idziesz za `k` połączeniami od pierwszej wskazówki, więc koszt rośnie wraz z `k` i w najgorszym razie wynosi O(n). Lista nie potrafi skakać jak tablica, bo wskazówki nie leżą obok siebie. Przejście kończy się na indeksie `k`, a nie na końcu. Połączenie prowadzi tylko do następnej wskazówki, więc nie ma czego pomijać."
     },
     "cheaper-on-a-trail": {
       "prompt": "Wyobraź sobie te same podchody zapisane na jednej ponumerowanej kartce. Które zadanie jest tańsze przy połączonych wskazówkach niż na kartce?",
@@ -167,11 +167,11 @@
   },
   "exercise": {
     "title": "Podchody od końca",
-    "task": "Uczestnicy chcą przejść podchody od końca, od ostatniej wskazówki do pierwszej, tak żeby skończyły się tam, gdzie się zaczęły. Napisz funkcję reverseList, która przyjmuje [[head]] listy [[linked-list]] i zwraca nowy head po odwróceniu jej w miejscu. Przepinaj istniejące [[node]] zamiast budować nowy ślad i obsłuż też puste podchody.",
+    "task": "Uczestnicy chcą przejść podchody od końca, od ostatniej wskazówki do pierwszej, tak żeby skończyły się tam, gdzie się zaczęły. Napisz funkcję `reverseList`, która przyjmuje [[head]] listy [[linked-list]] i zwraca nowy head po odwróceniu jej w miejscu. Przepinaj istniejące [[node]] zamiast budować nowy ślad i obsłuż też puste podchody.",
     "hints": [
       "Musisz zapamiętać node poprzedzający bieżący, bo node nie ma połączenia wstecz.",
-      "W każdym kroku zapisz next, zanim zmienisz jakiekolwiek połączenie, bo inaczej stracisz resztę podchodów.",
-      "Idź z prev ustawionym na null i current na head. Przepnij current.next na prev, a potem przesuń oba dalej. Gdy current jest null, prev jest nowym head."
+      "W każdym kroku zapisz `next`, zanim zmienisz jakiekolwiek połączenie, bo inaczej stracisz resztę podchodów.",
+      "Idź z `prev` ustawionym na `null` i `current` na `head`. Przepnij `current.next` na `prev`, a potem przesuń oba dalej. Gdy `current` jest `null`, `prev` jest nowym head."
     ]
   }
 }

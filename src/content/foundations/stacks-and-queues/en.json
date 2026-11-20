@@ -82,7 +82,7 @@
     },
     "bracket-preview": {
       "title": "Next up: check the brackets",
-      "caption": "In Practice you check that every (, [ and { in a line of code is closed in the right order. A stack suits that job, because the bracket opened last has to be closed first. The open brackets shown are ( and [, so [ has to close before ( can."
+      "caption": "In Practice you check that every `(`, `[` and `{` in a line of code is closed in the right order. A stack suits that job, because the bracket opened last has to be closed first. The open brackets shown are `(` and `[`, so `[` has to close before `(` can."
     },
     "where-you-meet-it": {
       "title": "Where you will meet them",
@@ -166,7 +166,7 @@
   },
   "exercise": {
     "title": "Check the brackets in a line",
-    "task": "The editor flags a line of code whose brackets are wrong. Write isBalanced, which takes a line of code and returns true when every (, [ and { is closed by the matching ), ] or } in the right order. Ignore every other character, and let a [[stack]] help you so one pass over the line is enough.",
+    "task": "The editor flags a line of code whose brackets are wrong. Write `isBalanced`, which takes a line of code and returns `true` when every `(`, `[` and `{` is closed by the matching `)`, `]` or `}` in the right order. Ignore every other character, and let a [[stack]] help you so one pass over the line is enough.",
     "hints": [
       "Look at the order in which brackets must close: the one opened last has to close first. Which structure gives back its newest item first?",
       "Only opening brackets need remembering, and every other character can be skipped. Think about what a closing bracket should be compared with.",
