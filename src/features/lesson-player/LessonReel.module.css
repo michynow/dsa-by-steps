@@ -1,0 +1,66 @@
+.reel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  margin: 0;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-hard);
+}
+
+.caption {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-caption);
+}
+
+.now {
+  padding: 0 var(--space-2);
+  color: var(--color-highlight-ink);
+  text-transform: uppercase;
+  background: var(--color-highlight);
+  border-radius: var(--radius-control);
+}
+
+.title {
+  font-weight: 600;
+}
+
+.screen {
+  display: grid;
+  place-items: center;
+  min-height: 16rem;
+  overflow: hidden;
+}
+
+.footer {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ticks {
+  display: flex;
+  flex: 1;
+  gap: var(--space-1);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.tick {
+  flex: 1;
+  height: var(--space-1);
+  background: var(--color-paper-dot);
+  border-radius: var(--radius-control);
+  transition: background-color var(--motion-base) ease-out;
+}
+
+.tick[data-current='true'] {
+  background: var(--color-accent);
+}

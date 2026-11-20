@@ -21,7 +21,7 @@ test('steps through the Linked lists Lesson, remembers seen Steps and keeps the 
     }
   `);
   await page.goto('/en');
-  await page.getByRole('main').getByRole('link', { name: lessonTitle }).click();
+  await page.getByRole('main').getByRole('link', { name: lessonTitle, exact: true }).click();
   await expect(page).toHaveURL(/\/en\/foundations\/linked-lists\/1$/);
   const rail = page.getByRole('navigation', { name: 'Steps' });
   await expect(rail.getByRole('link')).toHaveCount(stepCount);

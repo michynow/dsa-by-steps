@@ -60,5 +60,9 @@
     "replay": "Replay",
     "pause": "Pause",
     "play": "Play"
+  },
+  "reel": {
+    "label": "Lesson preview",
+    "nowShowing": "Now showing"
   }
 }
