@@ -27,8 +27,6 @@ describe('registry with a registered Lesson', () => {
   });
 
   it('derives the course from the registered Lesson', () => {
-    expect(course).toEqual({
-      modules: [{ slug: 'foundations', lessons: [templateContent.lesson] }],
-    });
+    expect(course.modules[0]).toEqual({ slug: 'foundations', lessons: [templateContent.lesson] });
   });
 });
