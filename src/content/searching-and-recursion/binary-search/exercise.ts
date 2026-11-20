@@ -41,7 +41,12 @@ export const firstCommitAtOrAfterExercise: Exercise = {
   visibleTests: [
     reportsOn('one-report', [100, 101, 105, 110, 120], [105], [2]),
     reportsOn('several-reports', [100, 101, 105, 110, 120], [100, 110, 120], [0, 3, 4]),
-    reportsOn('between-builds-and-past-the-end', [100, 101, 105, 110, 120], [102, 111, 121], [2, 4, 5]),
+    reportsOn(
+      'between-builds-and-past-the-end',
+      [100, 101, 105, 110, 120],
+      [102, 111, 121],
+      [2, 4, 5],
+    ),
   ],
   hiddenTests: [
     reportsOn('empty-history', [], [5, 9], [0, 0]),

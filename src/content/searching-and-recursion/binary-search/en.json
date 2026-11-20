@@ -7,11 +7,11 @@
   "uses": [
     {
       "title": "git bisect",
-      "body": "Git has this exact search built in. You mark one commit as bad and an older one as good, and git bisect checks out the commit halfway between them for you to test. Each answer you give halves the range, until it names the first bad commit."
+      "body": "Git has this exact search built in. You mark one commit as bad and an older one as good, and `git bisect` checks out the commit halfway between them for you to test. Each answer you give halves the range, until it names the first bad commit."
     },
     {
       "title": "Sorted lists in standard libraries",
-      "body": "Python's bisect module and Java's Arrays.binarySearch search a sorted list by halving it. bisect can also report where a new value belongs, so a list stays sorted as you insert into it."
+      "body": "Python's `bisect` module and Java's `Arrays.binarySearch` search a sorted list by halving it. `bisect` can also report where a new value belongs, so a list stays sorted as you insert into it."
     },
     {
       "title": "Database indexes",
@@ -26,14 +26,14 @@
   "outcomes": {
     "pick-the-middle": "Pick the middle of the range that is still in play",
     "discard-half": "Discard the half of the range that cannot hold the answer",
-    "keep-the-boundary": "Move lo and hi without losing the answer or looping forever",
+    "keep-the-boundary": "Move `lo` and `hi` without losing the answer or looping forever",
     "state-the-invariant": "State what stays true on every pass of the search",
     "count-the-builds": "State the cost of binary search: O(log n) steps"
   },
   "steps": {
     "overview": {
       "title": "Find a spot by halving",
-      "caption": "[[binary-search]] finds a position in a sorted array by looking at the middle and throwing away the half that cannot hold the answer, again and again. Three pointers keep track: lo and hi mark the range that is still in play, and mid is the cell you look at. The drawing shows a finished search through eight commits: the three pointers ended up on c6, the first commit that fails."
+      "caption": "[[binary-search]] finds a position in a sorted array by looking at the middle and throwing away the half that cannot hold the answer, again and again. Three pointers keep track: `lo` and `hi` mark the range that is still in play, and `mid` is the cell you look at. The drawing shows a finished search through eight commits: the three pointers ended up on `c6`, the first commit that fails."
     },
     "the-problem": {
       "title": "Which commit broke the build?",
@@ -42,37 +42,37 @@
     },
     "the-two-ends": {
       "title": "The range is the whole history",
-      "caption": "You put lo on c1, the oldest commit, and hi on c8, the newest. You know c8 fails, so the first bad commit is somewhere from lo to hi, and so far that is all eight commits."
+      "caption": "You put `lo` on `c1`, the oldest commit, and `hi` on `c8`, the newest. You know `c8` fails, so the first bad commit is somewhere from `lo` to `hi`, and so far that is all eight commits."
     },
     "pick-the-middle": {
       "title": "Build the middle commit",
-      "caption": "You build the commit halfway through the range. The middle index is lo plus hi divided by two, rounded down: indexes 0 and 7 give 3, which is c4. The pointer mid marks it."
+      "caption": "You build the commit halfway through the range. The middle index is `(lo + hi) / 2`, rounded down: indexes 0 and 7 give 3, which is `c4`. The pointer `mid` marks it."
     },
     "test-the-middle": {
       "title": "A good build rules out half",
-      "caption": "The build of c4 passes. The history is in order, with passing commits first, so every commit older than c4 passes too and the first bad commit has to come after c4. Four commits are out with one build.",
+      "caption": "The build of `c4` passes. The history is in order, with passing commits first, so every commit older than `c4` passes too and the first bad commit has to come after `c4`. Four commits are out with one build.",
       "keyIdea": "One build of the middle commit rules out half of the range."
     },
     "discard-half": {
       "title": "Move lo past the middle",
-      "caption": "Since c4 passed, lo jumps to the commit after it, c5: lo becomes mid plus 1. The new range is c5 to c8, four commits. The new middle is index 4 plus 7 divided by two, rounded down, which is index 5: c6."
+      "caption": "Since `c4` passed, `lo` jumps to the commit after it, `c5`: `lo` becomes `mid + 1`. The new range is `c5` to `c8`, four commits. The new middle is index 4 plus 7 divided by two, rounded down, which is index 5: `c6`."
     },
     "keep-the-boundary": {
       "title": "A bad build keeps the middle in the range",
-      "caption": "The build of c6 fails. It could be the first bad commit, or an older commit in the range could be. So hi moves onto c6 itself, not before it: hi becomes mid. The range is now c5 and c6.",
-      "keyIdea": "After a bad build, hi becomes mid; after a good build, lo becomes mid plus 1."
+      "caption": "The build of `c6` fails. It could be the first bad commit, or an older commit in the range could be. So `hi` moves onto `c6` itself, not before it: `hi` becomes `mid`. The range is now `c5` and `c6`.",
+      "keyIdea": "After a bad build, `hi` becomes `mid`; after a good build, `lo` becomes `mid + 1`."
     },
     "the-range-of-two": {
       "title": "The middle of two rounds down",
-      "caption": "With lo on c5 and hi on c6, indexes 4 and 5 add up to 9, and half of 9 is 4.5, which rounds down to 4. The middle is c5, the commit you have not built yet. Rounding down is also what keeps the search from getting stuck on c6, because mid is always strictly before hi when the range is more than one commit."
+      "caption": "With `lo` on `c5` and `hi` on `c6`, indexes 4 and 5 add up to 9, and half of 9 is 4.5, which rounds down to 4. The middle is `c5`, the commit you have not built yet. Rounding down is also what keeps the search from getting stuck on `c6`, because `mid` is always strictly before `hi` when the range is more than one commit."
     },
     "the-pointers-meet": {
       "title": "Stop when lo meets hi",
-      "caption": "The build of c5 passes, so lo becomes mid plus 1: it moves to c6, and now lo and hi sit on the same commit. The range holds one commit and c6 is the answer. It took 3 builds, c4, c6 and c5, instead of 6 for a scan from c1."
+      "caption": "The build of `c5` passes, so `lo` becomes `mid + 1`: it moves to `c6`, and now `lo` and `hi` sit on the same commit. The range holds one commit and `c6` is the answer. It took 3 builds, `c4`, `c6` and `c5`, instead of 6 for a scan from `c1`."
     },
     "the-invariant": {
       "title": "The first bad commit stays in the range",
-      "caption": "On every pass the same thing is true: the first bad commit is somewhere from lo to hi. This is the [[loop-invariant]] of the search. It starts true because hi is on a commit that fails. Every move keeps it true, because you only drop commits that cannot be the answer. And when lo meets hi, the range has one commit left, so that commit is the answer.",
+      "caption": "On every pass the same thing is true: the first bad commit is somewhere from `lo` to `hi`. This is the [[loop-invariant]] of the search. It starts true because `hi` is on a commit that fails. Every move keeps it true, because you only drop commits that cannot be the answer. And when `lo` meets `hi`, the range has one commit left, so that commit is the answer.",
       "keyIdea": "A loop invariant is a fact that is true before and after every pass. If each move keeps it true, the answer cannot be lost."
     },
     "count-the-builds": {
@@ -82,7 +82,7 @@
     },
     "look-up-many-reports": {
       "title": "Next: answer many reports at once",
-      "caption": "In Practice you write firstCommitAtOrAfter. The history is a sorted list of build numbers, and many reports each name a build number. For every report you return the index of the first commit whose build number is at least that number, or the length of the history when there is none. It is the same search with the test builds[mid] >= report, run once per report."
+      "caption": "In Practice you write `firstCommitAtOrAfter`. The history is a sorted list of build numbers, and many reports each name a build number. For every report you return the index of the first commit whose build number is at least that number, or the length of the history when there is none. It is the same search with the test `builds[mid] >= report`, run once per report."
     },
     "where-you-meet-it": {
       "title": "Where you will meet it",
@@ -91,52 +91,52 @@
   },
   "checks": {
     "where-the-middle-is": {
-      "prompt": "lo is on c1, index 0, and hi is on c8, index 7. The middle index is lo plus hi divided by two, rounded down. Select the commit you build first.",
-      "explanation": "The middle is c4. Indexes 0 and 7 add up to 7, half of 7 is 3.5, and rounded down that is index 3, which is c4. Choosing c5 would be rounding up, which breaks the search when the range shrinks to two commits."
+      "prompt": "`lo` is on `c1`, index 0, and `hi` is on `c8`, index 7. The middle index is `(lo + hi) / 2`, rounded down. Select the commit you build first.",
+      "explanation": "The middle is `c4`. Indexes 0 and 7 add up to 7, half of 7 is 3.5, and rounded down that is index 3, which is `c4`. Choosing `c5` would be rounding up, which breaks the search when the range shrinks to two commits."
     },
     "where-the-break-can-be": {
-      "prompt": "You build c4 and it passes. Which commits can still be the first bad one?",
+      "prompt": "You build `c4` and it passes. Which commits can still be the first bad one?",
       "options": {
-        "after-the-middle": "Only c5 to c8, because every commit older than a passing one passes too",
-        "same-side": "Only c1 to c3, because the break has to be on the same side as the commit you tested",
-        "anywhere": "Any of c1 to c8, because one passing build says nothing about the other commits",
-        "right-next-one": "Only c5, because the first commit after a good one must be the bad one"
+        "after-the-middle": "Only `c5` to `c8`, because every commit older than a passing one passes too",
+        "same-side": "Only `c1` to `c3`, because the break has to be on the same side as the commit you tested",
+        "anywhere": "Any of `c1` to `c8`, because one passing build says nothing about the other commits",
+        "right-next-one": "Only `c5`, because the first commit after a good one must be the bad one"
       },
-      "explanation": "Only c5 to c8. History is ordered, so if c4 passes then c1, c2 and c3 pass as well, and the first bad commit comes later. One build does say something about the others, and that is what makes halving work. But it does not pin down c5: c5 could pass too, so the search goes on inside c5 to c8."
+      "explanation": "Only `c5` to `c8`. History is ordered, so if `c4` passes then `c1`, `c2` and `c3` pass as well, and the first bad commit comes later. One build does say something about the others, and that is what makes halving work. But it does not pin down `c5`: `c5` could pass too, so the search goes on inside `c5` to `c8`."
     },
     "where-lo-lands": {
-      "prompt": "c4 passed, so everything up to c4 is out. lo is still on c1. Select the commit lo moves to.",
-      "explanation": "lo moves to c5, the commit right after the middle: lo becomes mid plus 1. c4 itself passed, so it cannot be the first bad commit, and leaving lo on it would keep it in the range for nothing."
+      "prompt": "`c4` passed, so everything up to `c4` is out. `lo` is still on `c1`. Select the commit `lo` moves to.",
+      "explanation": "`lo` moves to `c5`, the commit right after the middle: `lo` becomes `mid + 1`. `c4` itself passed, so it cannot be the first bad commit, and leaving `lo` on it would keep it in the range for nothing."
     },
     "where-hi-lands": {
-      "prompt": "lo is on c5 and mid is on c6. The build of c6 fails. Where does hi go?",
+      "prompt": "`lo` is on `c5` and `mid` is on `c6`. The build of `c6` fails. Where does `hi` go?",
       "options": {
-        "hi-on-the-middle": "Onto c6 itself, because c6 could be the first bad commit",
-        "hi-before-the-middle": "Onto c5, because c6 is already known to be bad, so it is no longer needed",
-        "hi-stays": "It stays on c8, because a failing build says nothing about the commits after it",
-        "hi-after-the-middle": "Onto c7, because the commits after c6 are the ones left to check"
+        "hi-on-the-middle": "Onto `c6` itself, because `c6` could be the first bad commit",
+        "hi-before-the-middle": "Onto `c5`, because `c6` is already known to be bad, so it is no longer needed",
+        "hi-stays": "It stays on `c8`, because a failing build says nothing about the commits after it",
+        "hi-after-the-middle": "Onto `c7`, because the commits after `c6` are the ones left to check"
       },
-      "explanation": "hi goes onto c6. A failing build does not say that c6 is the first failing commit, only that the first one is at c6 or before it, so c6 has to stay in the range. Moving hi to c5 would throw away the answer when c6 is the first bad commit. Leaving hi on c8 wastes the build: everything after c6 is known to fail too, so none of it can be the first bad commit. And c7 is after c6, so it is out, not in."
+      "explanation": "`hi` goes onto `c6`. A failing build does not say that `c6` is the first failing commit, only that the first one is at `c6` or before it, so `c6` has to stay in the range. Moving `hi` to `c5` would throw away the answer when `c6` is the first bad commit. Leaving `hi` on `c8` wastes the build: everything after `c6` is known to fail too, so none of it can be the first bad commit. And `c7` is after `c6`, so it is out, not in."
     },
     "which-commit-is-built-next": {
-      "prompt": "lo is on c5 and hi is on c6. Which commit do you build next, and why?",
+      "prompt": "`lo` is on `c5` and `hi` is on `c6`. Which commit do you build next, and why?",
       "options": {
-        "rounds-down": "c5, because the middle of indexes 4 and 5 is 4.5, rounded down to 4",
-        "rounds-up": "c6, because with two commits left the middle rounds up to the later one",
-        "no-build": "None, because c6 already failed, so it must be the first bad commit",
-        "past-the-end": "c7, because you have to look one commit past hi to be sure"
+        "rounds-down": "`c5`, because the middle of indexes 4 and 5 is 4.5, rounded down to 4",
+        "rounds-up": "`c6`, because with two commits left the middle rounds up to the later one",
+        "no-build": "None, because `c6` already failed, so it must be the first bad commit",
+        "past-the-end": "`c7`, because you have to look one commit past `hi` to be sure"
       },
-      "explanation": "c5, because the middle rounds down. c6 already failed, but that does not make it the first bad commit: c5 could fail too, and only a build of c5 can tell. Rounding up would put mid on c6, which is also hi, and the range would never shrink. And c7 is already out of the range."
+      "explanation": "`c5`, because the middle rounds down. `c6` already failed, but that does not make it the first bad commit: `c5` could fail too, and only a build of `c5` can tell. Rounding up would put `mid` on `c6`, which is also `hi`, and the range would never shrink. And `c7` is already out of the range."
     },
     "why-the-search-stops": {
-      "prompt": "c5 builds fine, so lo moves to c6, where hi already is. Why can you stop and name the first bad commit?",
+      "prompt": "`c5` builds fine, so `lo` moves to `c6`, where `hi` already is. Why can you stop and name the first bad commit?",
       "options": {
-        "one-candidate-left": "Because lo and hi are on the same commit, so only one commit is left in the range",
-        "last-one-tested": "Because c5 was the last commit tested, so it is the answer",
-        "confirm-with-a-build": "Because you stop, but you still need one more build of c6 to confirm it",
+        "one-candidate-left": "Because `lo` and `hi` are on the same commit, so only one commit is left in the range",
+        "last-one-tested": "Because `c5` was the last commit tested, so it is the answer",
+        "confirm-with-a-build": "Because you stop, but you still need one more build of `c6` to confirm it",
         "keep-halving": "Because a range of one commit cannot be halved, so you have to give up"
       },
-      "explanation": "Only one commit is left in the range, so c6 is the answer. You do not need to build c6 again: hi reached it only because its build failed, and every commit before it is out. The last commit you tested is not the answer, because c5 passed. And a range of one commit is not a failure to halve: it is the point where the invariant names the answer."
+      "explanation": "Only one commit is left in the range, so `c6` is the answer. You do not need to build `c6` again: `hi` reached it only because its build failed, and every commit before it is out. The last commit you tested is not the answer, because `c5` passed. And a range of one commit is not a failure to halve: it is the point where the invariant names the answer."
     },
     "builds-for-a-million-commits": {
       "prompt": "A project has 1,000,000 commits in a row, and the newest one fails. About how many builds does the search need to find the first bad commit?",
@@ -165,7 +165,7 @@
   },
   "exercise": {
     "title": "Match reports to commits",
-    "task": "Write firstCommitAtOrAfter, which takes the build numbers of a history, sorted from oldest to newest, and a list of reports, each a build number. For every report return the index of the first commit whose build number is at least the report, or the length of the history when no commit qualifies. Use [[binary-search]] so each report costs O(log n) even on a long history.",
+    "task": "Write `firstCommitAtOrAfter`, which takes the build numbers of a history, sorted from oldest to newest, and a list of reports, each a build number. For every report return the index of the first commit whose build number is at least the report, or the length of the history when no commit qualifies. Use [[binary-search]] so each report costs O(log n) even on a long history.",
     "hints": [
       "The build numbers are sorted, so the commits that are at least the report all sit on the right of the ones that are not. Which index are you looking for?",
       "Keep two indexes, lo and hi, so that the answer is always between them. The answer can be one past the last commit, so think about where hi starts. Look at the middle: should the answer stay at it or move past it?",
