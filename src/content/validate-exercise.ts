@@ -1,5 +1,12 @@
 import { hasListShape, isStrictJson } from './exercise-values';
-import type { ComplexityTest, Exercise, Locale, ShapedValue, TestCase } from '@/domain';
+import type {
+  ComplexityTest,
+  Exercise,
+  InputGenerator,
+  Locale,
+  ShapedValue,
+  TestCase,
+} from '@/domain';
 import { termsMarkedIn } from './caption';
 import { exerciseMessagesSchema } from './messages-schema';
 import type { LessonContent, TermId } from './types';
@@ -22,11 +29,17 @@ export type ExerciseIssue =
       readonly functionName: string;
     }
   | { readonly code: 'complexity-without-hidden-tests' }
+  | {
+      readonly code: 'complexity-arity-mismatch';
+      readonly testId: string;
+      readonly expected: number;
+      readonly actual: number;
+    }
   | { readonly code: 'invalid-function-name'; readonly functionName: string }
   | {
       readonly code: 'invalid-complexity-test';
-      readonly field: 'budgetMultiple' | 'size';
-      readonly value: number;
+      readonly field: 'budgetMultiple' | 'size' | 'unit' | 'prefix' | 'length';
+      readonly value: number | string;
     }
   | { readonly code: 'invalid-test-value'; readonly testId: string; readonly path: string }
   | {
@@ -155,11 +168,40 @@ function budgetIssues(test: ComplexityTest): readonly ExerciseIssue[] {
   return valid ? [] : [{ code: 'invalid-complexity-test', field: 'budgetMultiple', value }];
 }
 
+const maximumGeneratorTextLength = 16;
+const maximumRepeatedLength = 2_000_000;
+
 function sizeIssues(test: ComplexityTest): readonly ExerciseIssue[] {
   const value = test.generator.size;
   return Number.isInteger(value) && value >= minimumGeneratorSize
     ? []
     : [{ code: 'invalid-complexity-test', field: 'size', value }];
+}
+
+function textIssues(field: 'unit' | 'prefix', value: string): readonly ExerciseIssue[] {
+  return value.length >= 1 && value.length <= maximumGeneratorTextLength
+    ? []
+    : [{ code: 'invalid-complexity-test', field, value }];
+}
+
+function lengthIssues(value: number): readonly ExerciseIssue[] {
+  return value > maximumRepeatedLength
+    ? [{ code: 'invalid-complexity-test', field: 'length', value }]
+    : [];
+}
+
+function generatorTextIssues(generator: InputGenerator): readonly ExerciseIssue[] {
+  switch (generator.kind) {
+    case 'range':
+    case 'linked-list-range':
+      return [];
+    case 'string-range':
+      return textIssues('prefix', generator.prefix);
+    case 'repeat-string': {
+      const length = generator.unit.length * generator.size;
+      return [...textIssues('unit', generator.unit), ...lengthIssues(length)];
+    }
+  }
 }
 
 function complexityIssues(exercise: Exercise): readonly ExerciseIssue[] {
@@ -168,9 +210,21 @@ function complexityIssues(exercise: Exercise): readonly ExerciseIssue[] {
     : [];
 }
 
+function complexityArityIssues(exercise: Exercise): readonly ExerciseIssue[] {
+  const test = exercise.complexityTest;
+  const expected = exercise.visibleTests[0]?.args.length;
+  if (test === undefined || expected === undefined) return [];
+  const actual = 1 + (test.extraArgs?.length ?? 0);
+  return actual === expected
+    ? []
+    : [{ code: 'complexity-arity-mismatch', testId: test.id, expected, actual }];
+}
+
 function complexityValueIssues(exercise: Exercise): readonly ExerciseIssue[] {
   const test = exercise.complexityTest;
-  return test === undefined ? [] : [...budgetIssues(test), ...sizeIssues(test)];
+  return test === undefined
+    ? []
+    : [...budgetIssues(test), ...sizeIssues(test), ...generatorTextIssues(test.generator)];
 }
 
 function definitionIssues(exercise: Exercise): readonly ExerciseIssue[] {
@@ -181,6 +235,7 @@ function definitionIssues(exercise: Exercise): readonly ExerciseIssue[] {
     ...nameIssues(exercise),
     ...complexityIssues(exercise),
     ...complexityValueIssues(exercise),
+    ...complexityArityIssues(exercise),
   ];
 }
 

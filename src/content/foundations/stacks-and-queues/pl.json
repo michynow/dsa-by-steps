@@ -1,0 +1,176 @@
+{
+  "title": "Stosy i kolejki",
+  "story": {
+    "title": "Cofanie w edytorze tekstu i biurowa kolejka wydruku",
+    "summary": "Budujesz dwie funkcje: edytor, w którym Ctrl+Z cofa zmiany, i kolejkę wydruku, która obsługuje zlecenia. Każda potrzebuje własnej kolejności wyjmowania i obie muszą działać szybko, gdy historia lub kolejka się wydłuża."
+  },
+  "uses": [
+    {
+      "title": "Historia cofania w edytorach",
+      "body": "Edytor zapisuje każdą zmianę w historii, a Ctrl+Z cofa najpierw ostatnią z nich. Wiele edytorów trzyma tę historię jako stack."
+    },
+    {
+      "title": "Stos wywołań programu",
+      "body": "Gdy funkcja zostaje wywołana, środowisko wykonawcze wkłada na stos jej ramkę, a gdy funkcja kończy działanie, ramka jest zdejmowana. Wywołanie, które zaczęło się ostatnie, zawsze kończy się pierwsze."
+    },
+    {
+      "title": "Spoolery wydruku",
+      "body": "Spooler wydruku ustawia dokumenty w kolejce i domyślnie wysyła je do drukarki w kolejności, w jakiej przyszły."
+    },
+    {
+      "title": "Bufory wejścia z klawiatury",
+      "body": "System operacyjny trzyma naciśnięcia klawiszy w kolejce, więc aplikacja zajęta przez chwilę i tak czyta je w kolejności, w jakiej je wpisałeś."
+    }
+  ],
+  "whenNot": "Stack albo queue daje dostęp tylko do swoich końców: do wierzchołka stosu albo do początku i końca kolejki. Jeśli musisz odczytać lub zmienić piątą zmianę ze środka, lepsza jest tablica, bo tylko tablica daje dostęp po pozycji w O(1), a linked list musiałaby do niej dojść po połączeniach. Jeśli następny element do obsłużenia nie jest ani najnowszy, ani najstarszy, jak najpilniejsze zlecenie wydruku, potrzebujesz priority queue, która pojawi się dalej w Kursie.",
+  "outcomes": {
+    "push-and-pop-at-the-top": "Wykonasz push i pop na wierzchołku stack (stosu)",
+    "constant-time-operations": "Podasz koszt operacji push i pop",
+    "enqueue-and-dequeue-in-order": "Wykonasz enqueue i dequeue w kolejności przybycia w queue (kolejce)",
+    "choose-stack-or-queue": "Wybierzesz stack albo queue na podstawie kolejności, w jakiej elementy mają wychodzić",
+    "match-brackets-with-a-stack": "Sprawdzisz za pomocą stack, czy nawiasy są zbalansowane"
+  },
+  "steps": {
+    "overview": {
+      "title": "Dwa sposoby trzymania elementów po kolei",
+      "caption": "[[stack]] i [[queue]] trzymają elementy po kolei i różnią się tym, który element wychodzi pierwszy. Stack, czyli stos, oddaje najnowszy element jako pierwszy: last in, first out. Queue, czyli kolejka, oddaje najstarszy element jako pierwszy: first in, first out. Rysunek pokazuje przykład każdego z nich: historię cofania i kolejkę wydruku."
+    },
+    "the-problem": {
+      "title": "Cofanie musi znaleźć właściwą zmianę",
+      "caption": "Budujesz cofanie dla edytora, w którym autor wpisuje linijkę, pogrubia słowo i wkleja akapit. Edytor trzyma te zmiany w kolejności, w jakiej nastąpiły. Każde Ctrl+Z musi cofnąć właściwą zmianę, nawet gdy historia ma tysiące zmian, i musisz ją znaleźć od razu, bez szukania. Drukarka w tym samym biurze będzie potrzebować innej reguły, którą poznasz później.",
+      "keyIdea": "Jedne zadania wymagają najnowszego elementu jako pierwszego, a inne najstarszego."
+    },
+    "push-edits": {
+      "title": "Każda zmiana trafia na wierzch",
+      "caption": "Zaczynasz z pustym stosem cofania, w którym dotykasz tylko jednego końca, zwanego wierzchołkiem. Wpisujesz linijkę, pogrubiasz słowo, potem wklejasz. Każda zmiana trafia na stos przez [[push]] (włożenie), które kładzie ją na wierzchu elementów już tam leżących. Pierwsze wchodzi Type, potem Bold, potem Paste.",
+      "keyIdea": "Stack oddaje najnowszy element jako pierwszy: last in, first out (ostatni wchodzi, pierwszy wychodzi)."
+    },
+    "undo-pops": {
+      "title": "Cofanie bierze wierzch",
+      "caption": "Naciskasz Ctrl+Z. Edytor zdejmuje wierzchnią zmianę ze stosu przez [[pop]] (zdjęcie) i cofa ją. Pop dotyka tylko wierzchołka, więc pozostałe zmiany zostają dokładnie tam, gdzie były."
+    },
+    "new-edit-after-undo": {
+      "title": "Nowa zmiana znowu trafia na wierzch",
+      "caption": "Usuwasz wiersz, a edytor wkłada na stos zmianę Delete. Następne Ctrl+Z zdejmuje Delete, bo najnowsza zmiana zawsze leży na wierzchu. Type i Bold czekają pod spodem."
+    },
+    "constant-time": {
+      "title": "Push i pop niczego nie szukają",
+      "caption": "Stosujesz Italic, a edytor wkłada go na wierzch. Push i pop dotykają tylko wierzchołka, więc wymagają tyle samo pracy przy 2 zmianach co przy 100 000. Nic się nie szuka, więc pop kosztuje O(1), a push kosztuje zamortyzowane O(1) w stosie opartym na tablicy, bo tablica czasem musi urosnąć.",
+      "keyIdea": "Pop kosztuje O(1), a push zamortyzowane O(1) w stosie opartym na tablicy."
+    },
+    "a-queue": {
+      "title": "Drukarka stosuje przeciwną regułę",
+      "caption": "Teraz biurowa drukarka. Zlecenia muszą wychodzić w kolejności wysłania, więc pierwsze idzie to, które czeka najdłużej. Tak działa queue, czyli kolejka: zlecenia dołączają z tyłu, a wychodzą z przodu. Kolejka wydruku zaczyna pusta.",
+      "keyIdea": "Queue oddaje najstarszy element jako pierwszy: first in, first out (pierwszy wchodzi, pierwszy wychodzi)."
+    },
+    "enqueue-jobs": {
+      "title": "Zlecenia dołączają z tyłu",
+      "caption": "Wysyłasz trzy zlecenia jedno po drugim: najpierw Report, potem Invoice, potem Ticket. [[enqueue]] (dodanie na koniec) kładzie zlecenie na końcu kolejki. Kolejka trzyma zlecenia w kolejności przybycia."
+    },
+    "dequeue-print": {
+      "title": "Drukarka bierze pierwsze zlecenie",
+      "caption": "Drukarka jest wolna i bierze następne zlecenie przez [[dequeue]] (usunięcie z początku), które usuwa element z początku kolejki. Report opuszcza kolejkę i drukarka zaczyna go drukować. Zlecenia za nim nadal czekają."
+    },
+    "late-job": {
+      "title": "Spóźnione zlecenie czeka na swoją kolej",
+      "caption": "Dodajesz spóźnione zlecenie, Poster, na końcu kolejki. Drukarka bierze potem dwa zlecenia, jedno po drugim. Zostaje tylko Poster, bo wszystkie zlecenia przed nim już wyszły."
+    },
+    "stack-vs-queue": {
+      "title": "Te same elementy, inna kolejność wyjścia",
+      "caption": "Tutaj stack i queue trzymają elementy w kolejności przybycia, od lewej do prawej. Stack oddaje Paste, swój najnowszy element, a queue oddaje Poster, swój najstarszy. To operacje decydują, że struktura jest stosem albo kolejką, a nie elementy w środku.",
+      "keyIdea": "Stack zwraca najnowszy element, a queue najstarszy."
+    },
+    "bracket-preview": {
+      "title": "Dalej: sprawdzanie nawiasów",
+      "caption": "W Practice sprawdzasz, czy każdy (, [ i { w wierszu kodu jest zamknięty w dobrej kolejności. Stack nadaje się do tego, bo nawias otwarty ostatni musi zamknąć się pierwszy. Pokazane otwarte nawiasy to ( i [, więc [ musi się zamknąć, zanim zamknie się (."
+    },
+    "where-you-meet-it": {
+      "title": "Gdzie je spotkasz",
+      "caption": "Tu spotkasz stacki i queue poza tym biurem. Każda z tych struktur oddaje elementy w kolejności, która się nie zmienia. Notatka pod nimi mówi, kiedy wybrać coś innego."
+    }
+  },
+  "checks": {
+    "which-edit-is-undone": {
+      "prompt": "Stos cofania trzyma Type, Bold i Paste, włożone w tej kolejności. Naciskasz Ctrl+Z. Zaznacz zmianę, która zostaje cofnięta.",
+      "explanation": "Cofnięta zostaje Paste, bo leży na wierzchu, a stack oddaje tylko swój wierzchołek. Bold leży tuż pod Paste, więc może wyjść dopiero po niej. Type jest na dnie, więc cofasz ją na końcu."
+    },
+    "undo-after-a-new-edit": {
+      "prompt": "Cofnąłeś Paste, więc stos trzyma Type i Bold. Teraz usuwasz wiersz, co jest nową zmianą, i naciskasz Ctrl+Z. Którą zmianę to cofnie?",
+      "options": {
+        "delete-on-top": "Delete, bo najnowsza zmiana leży na wierzchu",
+        "paste-comes-back": "Paste, bo edytor wraca do zmiany, którą cofnął ostatnio",
+        "bold-under-new": "Bold, bo nowa zmiana dołącza na dnie stosu",
+        "oldest-first": "Type, bo Ctrl+Z zawsze cofa najstarszą zmianę"
+      },
+      "explanation": "Cofnięte zostaje Delete, bo push kładzie każdą nową zmianę na wierzchu, a pop zdejmuje wierzch. Gdy Paste zostaje cofnięta, znika ze stosu, więc nic jej nie przywraca jako pierwszej. Nowa zmiana nigdy nie dołącza na dnie: tak rośnie queue, a nie stack. Stack nigdy nie sięga po najstarszy element jako pierwszy, bo Type leży na dnie."
+    },
+    "cost-of-push-on-a-long-history": {
+      "prompt": "Historia cofania rośnie z 2 zmian do 100 000. Mniej więcej ile pracy potrzebuje jeden push albo pop?",
+      "options": {
+        "same-small-work": "Tyle samo co wcześniej, bo oba dotykają tylko wierzchołka: pop to O(1), a push to zamortyzowane O(1) w stosie opartym na tablicy",
+        "shift-all": "Więcej z każdą zmianą, bo push albo pop przesuwa wszystkie zmiany: O(n)",
+        "walk-to-spot": "Więcej z każdą zmianą, bo push albo pop najpierw schodzi w dół, żeby znaleźć swoje miejsce: O(n)",
+        "halving": "Około log n kroków, bo push albo pop znajduje miejsce, dzieląc historię na połowy"
+      },
+      "explanation": "Pop kosztuje O(1), a push zamortyzowane O(1) w stosie opartym na tablicy, bo oba dotykają tylko wierzchołka, a pozostałe zmiany się nie liczą. Nic się nie przesuwa, bo nowa zmiana trafia na wierzch stosu, a nie na numerowaną pozycję. Nic się też nie szuka, bo miejsce to zawsze wierzchołek. Dzielenie na połowy dotyczy szukania w posortowanej tablicy, a stack niczego nie szuka."
+    },
+    "which-job-prints-first": {
+      "prompt": "Kolejka wydruku trzyma Report, Invoice i Ticket, wysłane w tej kolejności. Drukarka jest wolna. Zaznacz zlecenie, które weźmie.",
+      "explanation": "Drukarka bierze Report, bo jest na początku i czeka najdłużej. Queue obsługuje zlecenia w kolejności przybycia. Ticket, najnowsze zlecenie, jest na końcu i idzie ostatnie. Invoice leży tuż za Report i idzie drugie."
+    },
+    "print-order-with-a-late-job": {
+      "prompt": "Report został wydrukowany, a Invoice i Ticket nadal czekają. Potem przychodzi nowe zlecenie, Poster. W jakiej kolejności drukują się trzy pozostałe zlecenia?",
+      "options": {
+        "back-of-queue": "Invoice, Ticket, Poster, bo nowe zlecenie dołącza na końcu i czeka na swoją kolej",
+        "front-of-queue": "Poster, Invoice, Ticket, bo nowe zlecenie dołącza na początku",
+        "newest-first": "Poster, Ticket, Invoice, bo drukarka bierze najnowsze zlecenie jako pierwsze, tak jak cofanie",
+        "short-jobs-first": "Invoice, Poster, Ticket, bo queue pozwala krótkiemu zleceniu wyprzedzić inne"
+      },
+      "explanation": "Kolejność to Invoice, Ticket, Poster, bo enqueue dodaje Poster na końcu, a dequeue bierze z początku. Nowe zlecenie nie dołącza na początku, a queue nigdy nie pozwala zleceniu wyprzedzić innych. Branie najnowszego zlecenia jako pierwszego to reguła stack, a nie queue. Queue nic nie wie o długości zlecenia, więc nie zmienia kolejności według niej."
+    },
+    "structure-for-redo": {
+      "prompt": "Edytor dostaje przycisk Redo. Cofnięte zmiany wracają, a ta cofnięta najpóźniej wraca pierwsza. Która struktura powinna trzymać cofnięte zmiany?",
+      "options": {
+        "stack-for-redo": "Stack, bo zmiana dodana ostatnia musi wyjść pierwsza",
+        "queue-for-redo": "Queue, bo cofnięte zmiany powinny wracać w kolejności, w jakiej je cofnięto",
+        "either-for-redo": "Obojętnie, bo obie oddają elementy z jednego końca"
+      },
+      "explanation": "Pasuje stack, bo ostatnio cofnięta zmiana to ta dodana ostatnia i musi wyjść pierwsza. Queue zwróciłaby zmianę cofniętą najwcześniej, czyli odwrotnie, niż potrzebuje Redo. Obie struktury oddają elementy z końca, ale wybierają różne końce, więc wybór decyduje o tym, która zmiana wraca."
+    }
+  },
+  "terms": {
+    "stack": {
+      "term": "stack",
+      "gloss": "stos: struktura, w której dodajesz i usuwasz elementy tylko na wierzchu, więc najnowszy element wychodzi pierwszy."
+    },
+    "push": {
+      "term": "push",
+      "gloss": "włożenie elementu na wierzch stosu."
+    },
+    "pop": {
+      "term": "pop",
+      "gloss": "zdjęcie i zwrócenie wierzchniego elementu stosu."
+    },
+    "queue": {
+      "term": "queue",
+      "gloss": "kolejka: rząd elementów, w którym dodajesz na końcu i usuwasz z początku, więc najstarszy element wychodzi pierwszy."
+    },
+    "enqueue": {
+      "term": "enqueue",
+      "gloss": "dodanie elementu na końcu kolejki."
+    },
+    "dequeue": {
+      "term": "dequeue",
+      "gloss": "usunięcie i zwrócenie elementu z początku kolejki."
+    }
+  },
+  "exercise": {
+    "title": "Sprawdzanie nawiasów w wierszu",
+    "task": "Edytor oznacza wiersz kodu, w którym nawiasy są błędne. Napisz funkcję isBalanced, która przyjmuje wiersz kodu i zwraca true, gdy każdy (, [ i { jest zamknięty przez pasujący ), ] lub } w dobrej kolejności. Pomiń wszystkie inne znaki i użyj [[stack]], żeby wystarczył jeden przebieg po wierszu.",
+    "hints": [
+      "Zobacz, w jakiej kolejności nawiasy muszą się zamykać: ten otwarty ostatni musi zamknąć się pierwszy. Która struktura oddaje najnowszy element jako pierwszy?",
+      "Zapamiętywać trzeba tylko nawiasy otwierające, a każdy inny znak można pominąć. Zastanów się, z czym powinien być porównany nawias zamykający.",
+      "Nawias zamykający, gdy nic nie jest otwarte, nie ma do czego pasować. Gdy wiersz się kończy, sprawdź, co zostało: nawias otwierający, który nigdy się nie zamknął, czyni wiersz niezbalansowanym."
+    ]
+  }
+}

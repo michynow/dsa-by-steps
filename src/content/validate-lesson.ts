@@ -55,6 +55,19 @@ export type ContentIssue =
       readonly target: ElementRef;
     }
   | {
+      readonly code: 'predict-answer-visible';
+      readonly step: StepId;
+      readonly check: CheckId;
+      readonly target: ElementRef;
+      readonly via: 'highlight' | 'pointer';
+    }
+  | {
+      readonly code: 'check-scene-highlighted';
+      readonly step: StepId;
+      readonly check: CheckId;
+      readonly count: number;
+    }
+  | {
       readonly code: 'order-structure-missing';
       readonly step: StepId;
       readonly check: CheckId;
@@ -249,15 +262,51 @@ function orderIssues(
     }));
 }
 
+function sameElement(a: ElementRef, b: ElementRef | null): boolean {
+  return b !== null && a.structureId === b.structureId && a.elementId === b.elementId;
+}
+
+function answerVisibleIssues(
+  step: Step,
+  check: Check,
+  target: ElementRef,
+  scene: Scene,
+): readonly ContentIssue[] {
+  const via = scene.highlights.some((h) => sameElement(target, h.target))
+    ? 'highlight'
+    : scene.pointers.some((p) => sameElement(target, p.target))
+      ? 'pointer'
+      : undefined;
+  return via === undefined
+    ? []
+    : [{ code: 'predict-answer-visible', step: step.id, check: check.id, target, via }];
+}
+
+function leftoverEmphasisIssues(step: Step, check: Check, scene: Scene): readonly ContentIssue[] {
+  const count = scene.highlights.filter((h) => h.tone === 'compare' || h.tone === 'error').length;
+  return count === 0
+    ? []
+    : [{ code: 'check-scene-highlighted', step: step.id, check: check.id, count }];
+}
+
 function checkIssues(step: Step, check: Check, scene: Scene | undefined): readonly ContentIssue[] {
   switch (check.kind) {
     case 'choice':
-      return check.options.includes(check.correct)
-        ? []
-        : [{ code: 'choice-correct-not-in-options', check: check.id, correct: check.correct }];
+      return [
+        ...(check.options.includes(check.correct)
+          ? []
+          : [
+              {
+                code: 'choice-correct-not-in-options',
+                check: check.id,
+                correct: check.correct,
+              } as const,
+            ]),
+        ...(scene === undefined ? [] : leftoverEmphasisIssues(step, check, scene)),
+      ];
     case 'predict':
       return scene !== undefined && sceneHasElement(scene, check.correct)
-        ? []
+        ? answerVisibleIssues(step, check, check.correct, scene)
         : [
             {
               code: 'predict-target-missing',
@@ -271,12 +320,20 @@ function checkIssues(step: Step, check: Check, scene: Scene | undefined): readon
   }
 }
 
+function withoutHighlights(scene: Scene | undefined): Scene | undefined {
+  return scene === undefined ? undefined : { ...scene, highlights: [] };
+}
+
 function allCheckIssues(content: LessonContent, scenes: readonly Scene[]): readonly ContentIssue[] {
   const { initialScene, steps } = content.lesson;
   return steps.flatMap((step, index) =>
     step.check === undefined
       ? []
-      : checkIssues(step, step.check, index === 0 ? initialScene : scenes[index - 1]),
+      : checkIssues(
+          step,
+          step.check,
+          withoutHighlights(index === 0 ? initialScene : scenes[index - 1]),
+        ),
   );
 }
 

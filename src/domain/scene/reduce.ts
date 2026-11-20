@@ -187,12 +187,16 @@ export function framesOf(
   }, start);
 }
 
+export function stepStartScene(lesson: Lesson, scenes: readonly Scene[], step: number): Scene {
+  const previous = step === 0 ? lesson.initialScene : (scenes[step - 1] ?? lesson.initialScene);
+  return previous.highlights.length === 0 ? previous : { ...previous, highlights: [] };
+}
+
 export function scenesOf(lesson: Lesson): Result<readonly Scene[], SceneError> {
   const initial: Result<readonly Scene[], SceneError> = ok([]);
-  return lesson.steps.reduce((acc, step) => {
+  return lesson.steps.reduce((acc, step, index) => {
     if (!acc.ok) return acc;
-    const previous = acc.value[acc.value.length - 1] ?? lesson.initialScene;
-    const next = applyStepEvents(previous, step.events);
+    const next = applyStepEvents(stepStartScene(lesson, acc.value, index), step.events);
     return next.ok ? ok([...acc.value, next.value]) : next;
   }, initial);
 }

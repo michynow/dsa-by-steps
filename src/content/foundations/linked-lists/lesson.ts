@@ -1,11 +1,11 @@
 import type { ElementRef, Lesson } from '@/domain';
 
-function song(id: string): ElementRef {
-  return { structureId: 'queue', elementId: id };
+function clue(id: string): ElementRef {
+  return { structureId: 'trail', elementId: id };
 }
 
 function slot(id: string): ElementRef {
-  return { structureId: 'queue-array', elementId: id };
+  return { structureId: 'sheet', elementId: id };
 }
 
 export const linkedListsLesson: Lesson = {
@@ -20,179 +20,185 @@ export const linkedListsLesson: Lesson = {
   initialScene: { structures: [], pointers: [], highlights: [] },
   steps: [
     {
-      id: 'the-problem',
-      kind: 'problem',
+      id: 'overview',
+      kind: 'explain',
       events: [
         {
           type: 'create',
           structure: {
+            kind: 'linked-list',
+            id: 'trail',
+            nodes: [
+              { id: 'mat', value: 'Mat', next: 'mail' },
+              { id: 'mail', value: 'Mail', next: 'shed' },
+              { id: 'shed', value: 'Shed', next: null },
+            ],
+            head: 'mat',
+          },
+        },
+      ],
+    },
+    {
+      id: 'the-problem',
+      kind: 'problem',
+      events: [
+        { type: 'remove', structureId: 'trail' },
+        {
+          type: 'create',
+          structure: {
             kind: 'array',
-            id: 'queue-array',
+            id: 'sheet',
             cells: [
-              { id: 'slot-intro', value: 'Intro' },
-              { id: 'slot-echo', value: 'Echo' },
-              { id: 'slot-drift', value: 'Drift' },
-              { id: 'slot-pulse', value: 'Pulse' },
+              { id: 'slot-mat', value: 'Mat' },
+              { id: 'slot-mail', value: 'Mail' },
+              { id: 'slot-oven', value: 'Oven' },
+              { id: 'slot-shed', value: 'Shed' },
             ],
           },
         },
         {
           type: 'insert-cell',
-          structureId: 'queue-array',
-          index: 1,
-          cell: { id: 'slot-glow', value: 'Glow' },
+          structureId: 'sheet',
+          index: 2,
+          cell: { id: 'slot-clock', value: 'Clock' },
         },
-        { type: 'highlight', highlight: { target: slot('slot-glow'), tone: 'focus' } },
-        { type: 'highlight', highlight: { target: slot('slot-echo'), tone: 'error' } },
-        { type: 'highlight', highlight: { target: slot('slot-drift'), tone: 'error' } },
-        { type: 'highlight', highlight: { target: slot('slot-pulse'), tone: 'error' } },
+        { type: 'highlight', highlight: { target: slot('slot-clock'), tone: 'focus' } },
+        { type: 'highlight', highlight: { target: slot('slot-oven'), tone: 'error' } },
+        { type: 'highlight', highlight: { target: slot('slot-shed'), tone: 'error' } },
       ],
     },
     {
-      id: 'a-node',
+      id: 'a-clue',
       kind: 'explain',
       events: [
-        { type: 'remove', structureId: 'queue-array' },
+        { type: 'remove', structureId: 'sheet' },
         { type: 'clear-highlights' },
         {
           type: 'create',
           structure: {
             kind: 'linked-list',
-            id: 'queue',
-            nodes: [{ id: 'intro', value: 'Intro', next: null }],
+            id: 'trail',
+            nodes: [{ id: 'mat', value: 'Mat', next: null }],
             head: null,
           },
         },
       ],
     },
     {
-      id: 'linking-songs',
+      id: 'chaining-clues',
       kind: 'explain',
       events: [
-        { type: 'add-node', structureId: 'queue', node: { id: 'echo', value: 'Echo', next: null } },
-        {
-          type: 'add-node',
-          structureId: 'queue',
-          node: { id: 'drift', value: 'Drift', next: null },
-        },
-        {
-          type: 'add-node',
-          structureId: 'queue',
-          node: { id: 'pulse', value: 'Pulse', next: null },
-        },
-        { type: 'link', structureId: 'queue', from: 'intro', to: 'echo' },
-        { type: 'link', structureId: 'queue', from: 'echo', to: 'drift' },
-        { type: 'link', structureId: 'queue', from: 'drift', to: 'pulse' },
+        { type: 'add-node', structureId: 'trail', node: { id: 'mail', value: 'Mail', next: null } },
+        { type: 'add-node', structureId: 'trail', node: { id: 'oven', value: 'Oven', next: null } },
+        { type: 'add-node', structureId: 'trail', node: { id: 'shed', value: 'Shed', next: null } },
+        { type: 'link', structureId: 'trail', from: 'mat', to: 'mail' },
+        { type: 'link', structureId: 'trail', from: 'mail', to: 'oven' },
+        { type: 'link', structureId: 'trail', from: 'oven', to: 'shed' },
       ],
       check: {
         kind: 'choice',
-        id: 'what-a-node-links-to',
+        id: 'what-a-clue-holds',
         options: ['next-link', 'copy-of-next', 'position-number', 'nothing-extra'],
         correct: 'next-link',
       },
     },
     {
-      id: 'the-head',
+      id: 'the-first-clue',
       kind: 'explain',
       events: [
-        { type: 'set-head', structureId: 'queue', head: 'intro' },
-        { type: 'highlight', highlight: { target: song('intro'), tone: 'focus' } },
+        { type: 'set-head', structureId: 'trail', head: 'mat' },
+        { type: 'highlight', highlight: { target: clue('mat'), tone: 'focus' } },
       ],
-      check: { kind: 'predict', id: 'which-song-is-head', correct: song('intro') },
+      check: { kind: 'predict', id: 'which-clue-is-first', correct: clue('mat') },
     },
     {
-      id: 'now-playing-pointer',
+      id: 'finger-on-a-clue',
+      kind: 'explain',
+      events: [{ type: 'point', pointer: { id: 'here', label: 'here', target: clue('mat') } }],
+    },
+    {
+      id: 'following-the-trail',
       kind: 'explain',
       events: [
-        { type: 'clear-highlights' },
+        { type: 'move-pointer', pointerId: 'here', target: clue('mail') },
+        { type: 'move-pointer', pointerId: 'here', target: clue('oven') },
+        { type: 'move-pointer', pointerId: 'here', target: clue('shed') },
+      ],
+      check: { kind: 'predict', id: 'where-the-walk-lands', correct: clue('oven') },
+    },
+    {
+      id: 'add-a-stop',
+      kind: 'explain',
+      events: [
+        { type: 'move-pointer', pointerId: 'here', target: clue('mail') },
         {
-          type: 'point',
-          pointer: { id: 'now-playing', label: 'now-playing', target: song('intro') },
+          type: 'add-node',
+          structureId: 'trail',
+          node: { id: 'clock', value: 'Clock', next: null },
         },
-      ],
-    },
-    {
-      id: 'traversal',
-      kind: 'explain',
-      events: [
-        { type: 'point', pointer: { id: 'cursor', label: 'cursor', target: song('intro') } },
-        { type: 'move-pointer', pointerId: 'cursor', target: song('echo') },
-        { type: 'move-pointer', pointerId: 'cursor', target: song('drift') },
-        { type: 'move-pointer', pointerId: 'cursor', target: song('pulse') },
-        { type: 'drop-pointer', pointerId: 'cursor' },
-      ],
-      check: { kind: 'predict', id: 'where-the-walk-lands', correct: song('drift') },
-    },
-    {
-      id: 'play-next',
-      kind: 'explain',
-      events: [
-        { type: 'add-node', structureId: 'queue', node: { id: 'glow', value: 'Glow', next: null } },
-        { type: 'highlight', highlight: { target: song('glow'), tone: 'focus' } },
-        { type: 'link', structureId: 'queue', from: 'glow', to: 'echo' },
-        { type: 'link', structureId: 'queue', from: 'intro', to: 'glow' },
-        { type: 'clear-highlights' },
+        { type: 'highlight', highlight: { target: clue('clock'), tone: 'focus' } },
+        { type: 'link', structureId: 'trail', from: 'clock', to: 'oven' },
+        { type: 'link', structureId: 'trail', from: 'mail', to: 'clock' },
       ],
       check: {
         kind: 'choice',
-        id: 'first-link-for-play-next',
-        options: ['new-to-next', 'current-to-new', 'new-to-current', 'either-order'],
+        id: 'first-rewrite-for-new-stop',
+        options: ['new-to-next', 'previous-to-new', 'new-to-previous', 'either-order'],
         correct: 'new-to-next',
       },
     },
     {
-      id: 'remove-from-queue',
+      id: 'remove-a-stop',
       kind: 'explain',
       events: [
-        { type: 'point', pointer: { id: 'prev', label: 'prev', target: song('glow') } },
-        { type: 'highlight', highlight: { target: song('echo'), tone: 'error' } },
-        { type: 'link', structureId: 'queue', from: 'glow', to: 'drift' },
-        { type: 'remove-node', target: song('echo') },
+        { type: 'point', pointer: { id: 'prev', label: 'prev', target: clue('clock') } },
+        { type: 'highlight', highlight: { target: clue('oven'), tone: 'error' } },
+        { type: 'link', structureId: 'trail', from: 'clock', to: 'shed' },
+        { type: 'remove-node', target: clue('oven') },
         { type: 'drop-pointer', pointerId: 'prev' },
       ],
-      check: { kind: 'predict', id: 'song-before-the-removed', correct: song('glow') },
+      check: { kind: 'predict', id: 'clue-before-the-removed', correct: clue('clock') },
     },
     {
-      id: 'jump-to-song',
+      id: 'jump-to-a-clue',
       kind: 'explain',
       events: [
-        { type: 'point', pointer: { id: 'cursor', label: 'cursor', target: song('intro') } },
-        { type: 'move-pointer', pointerId: 'cursor', target: song('glow') },
-        { type: 'move-pointer', pointerId: 'cursor', target: song('drift') },
-        { type: 'move-pointer', pointerId: 'cursor', target: song('pulse') },
-        { type: 'drop-pointer', pointerId: 'cursor' },
+        { type: 'move-pointer', pointerId: 'here', target: clue('mat') },
+        { type: 'move-pointer', pointerId: 'here', target: clue('mail') },
+        { type: 'move-pointer', pointerId: 'here', target: clue('clock') },
+        { type: 'move-pointer', pointerId: 'here', target: clue('shed') },
       ],
       check: {
         kind: 'choice',
-        id: 'cost-of-reaching-index-k',
-        options: ['k-moves', 'one-move', 'whole-queue', 'halving'],
+        id: 'cost-of-reaching-clue-k',
+        options: ['k-moves', 'one-move', 'whole-trail', 'halving'],
         correct: 'k-moves',
       },
     },
     {
-      id: 'arrays-vs-lists',
+      id: 'sheet-vs-trail',
       kind: 'explain',
       events: [
         {
           type: 'create',
           structure: {
             kind: 'array',
-            id: 'queue-array',
+            id: 'sheet',
             cells: [
-              { id: 'slot-intro', value: 'Intro' },
-              { id: 'slot-glow', value: 'Glow' },
-              { id: 'slot-drift', value: 'Drift' },
-              { id: 'slot-pulse', value: 'Pulse' },
+              { id: 'slot-mat', value: 'Mat' },
+              { id: 'slot-mail', value: 'Mail' },
+              { id: 'slot-clock', value: 'Clock' },
+              { id: 'slot-shed', value: 'Shed' },
             ],
           },
         },
-        { type: 'highlight', highlight: { target: slot('slot-pulse'), tone: 'focus' } },
-        { type: 'highlight', highlight: { target: song('pulse'), tone: 'compare' } },
+        { type: 'highlight', highlight: { target: slot('slot-shed'), tone: 'focus' } },
+        { type: 'highlight', highlight: { target: clue('shed'), tone: 'compare' } },
       ],
       check: {
         kind: 'choice',
-        id: 'cheaper-on-a-list',
-        options: ['insert-after-current', 'read-by-index', 'show-every-song'],
+        id: 'cheaper-on-a-trail',
+        options: ['insert-after-current', 'read-by-index', 'read-every-clue'],
         correct: 'insert-after-current',
       },
     },
@@ -200,13 +206,13 @@ export const linkedListsLesson: Lesson = {
       id: 'reverse-preview',
       kind: 'explain',
       events: [
-        { type: 'remove', structureId: 'queue-array' },
+        { type: 'remove', structureId: 'sheet' },
         { type: 'clear-highlights' },
-        { type: 'drop-pointer', pointerId: 'now-playing' },
+        { type: 'drop-pointer', pointerId: 'here' },
         { type: 'point', pointer: { id: 'prev', label: 'prev', target: null } },
-        { type: 'point', pointer: { id: 'current', label: 'current', target: song('intro') } },
-        { type: 'point', pointer: { id: 'next', label: 'next', target: song('glow') } },
-        { type: 'highlight', highlight: { target: song('intro'), tone: 'focus' } },
+        { type: 'point', pointer: { id: 'current', label: 'current', target: clue('mat') } },
+        { type: 'point', pointer: { id: 'next', label: 'next', target: clue('mail') } },
+        { type: 'highlight', highlight: { target: clue('mat'), tone: 'focus' } },
       ],
     },
     {
@@ -216,7 +222,6 @@ export const linkedListsLesson: Lesson = {
         { type: 'drop-pointer', pointerId: 'prev' },
         { type: 'drop-pointer', pointerId: 'current' },
         { type: 'drop-pointer', pointerId: 'next' },
-        { type: 'clear-highlights' },
       ],
     },
   ],

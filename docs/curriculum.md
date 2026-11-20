@@ -11,14 +11,14 @@ Status: `building` · `planned`
 | 1   | Big-O                   | Count work as input grows; drop constants and lower terms        | array                  | Choice, Predict | `countPairsWithSum(nums, target)`, naive first, then improved | O(n)     |
 | 2   | Arrays and two pointers | Contiguous memory, O(1) index; converge pointers on sorted input | array + pointers       | Predict, Order  | `twoSumSorted(nums, target)`                                  | O(n)     |
 | 3   | Linked lists            | Nodes and links; O(1) insert at a known node, O(n) access        | linked list + pointers | Predict, Choice | `reverseList(head)`                                           | O(n)     |
-| 4   | Stacks and queues       | LIFO vs FIFO; the operations define the structure                | stack, queue           | Order, Choice   | `isBalanced(brackets)`                                        | O(n)     |
-| 5   | Hash maps               | Hash to bucket, handle collisions, amortised O(1) lookup         | hash map (buckets)     | Predict, Choice | `firstDuplicate(nums)`                                        | O(n)     |
+| 4   | Stacks and queues       | LIFO vs FIFO; the operations define the structure                | stack, queue           | Predict, Choice | `isBalanced(code)`                                            | O(n)     |
+| 5   | Hash maps               | Hash to bucket, handle collisions, amortised O(1) lookup         | hash map (buckets)     | Predict, Choice | `firstDuplicate(usernames)`                                   | O(n)     |
 
 Stories (one product situation per Lesson, values named after it):
 
 1. Big-O: a search box that is fast with 100 products and crawls with 100,000.
 2. Arrays and two pointers: finding two prices in a sorted price list that add up to a gift-card balance.
-3. Linked lists: a music app's play queue (play next, remove from queue, jump to song 500).
+3. Linked lists: a treasure hunt where each clue says where the next one is hidden (add a stop, remove a stop, jump to clue 50).
 4. Stacks and queues: undo in a text editor; a print queue.
 5. Hash maps: checking whether a username is taken at sign-up.
 

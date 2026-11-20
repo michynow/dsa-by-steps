@@ -26,7 +26,12 @@ describe('registry', () => {
         slug: module.slug,
         lessons: module.lessons.map((lesson) => lesson.slug),
       })),
-    ).toEqual([{ slug: 'foundations', lessons: ['linked-lists'] }]);
+    ).toEqual(
+      modules.map((module) => ({
+        slug: module.slug,
+        lessons: module.lessons.map((content) => content.lesson.slug),
+      })),
+    );
   });
 
   it('preserves Module and Lesson order when deriving a course', () => {

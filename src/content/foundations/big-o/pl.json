@@ -1,0 +1,179 @@
+{
+  "title": "Big-O",
+  "story": {
+    "title": "Wyszukiwarka sklepu, która zwalnia",
+    "summary": "Wyszukiwarka Twojego sklepu odpowiada natychmiast przy 100 produktach, a przy 100 000 każe klientom czekać. Liczysz kroki, żeby zobaczyć dlaczego i co zmienić."
+  },
+  "uses": [
+    {
+      "title": "Indeksy w bazach danych",
+      "body": "Zapytanie po kolumnie bez indeksu czyta każdy wiersz, czyli kosztuje O(n). Indeks B-drzewo znajduje wiersz w O(log n), dlatego bazy trzymają indeksy na kolumnach, po których szukasz."
+    },
+    {
+      "title": "Sortowanie w bibliotekach standardowych",
+      "body": "Array.prototype.sort w JavaScripcie używa sortowania, które wykonuje O(n log n) porównań, czyli znacznie mniej niż O(n²) prostego sortowania parami, gdy n jest duże."
+    },
+    {
+      "title": "Wykrywanie kolizji w grach",
+      "body": "Sprawdzanie każdego obiektu z każdym innym kosztuje O(n²), więc silniki gier najpierw dzielą obiekty na siatki lub drzewa i sprawdzają tylko te, które leżą blisko siebie."
+    },
+    {
+      "title": "Wirtualizowane listy",
+      "body": "Długa lista w aplikacji internetowej może rysować tylko wiersze widoczne na ekranie, więc praca zależy od liczby widocznych wierszy, a nie od tego, ile ich istnieje."
+    }
+  ],
+  "whenNot": "Big-O opisuje, jak rośnie koszt dla dużych danych, a nie ile sekund trwa program. Pomija stałe współczynniki, więc program O(n), który jest 50 razy wolniejszy na krok, może przegrać z programem O(n²) dla małego n. Przy kilkudziesięciu elementach zwykle wystarcza najprostszy kod. Zmierz, zanim zaczniesz optymalizować.",
+  "outcomes": {
+    "read-in-constant-time": "Wyjaśnisz, dlaczego odczyt pozycji w tablicy kosztuje O(1)",
+    "scan-in-linear-time": "Policzysz kroki wyszukiwania liniowego, także w najgorszym przypadku",
+    "predict-growth": "Przewidzisz, jak zmieni się liczba kroków, gdy dane podwoją się",
+    "count-pairs-quadratically": "Policzysz porównania potrzebne do sprawdzenia każdej pary",
+    "drop-constant-factors": "Sprowadzisz liczbę kroków do Big-O, pomijając stałe współczynniki"
+  },
+  "steps": {
+    "overview": {
+      "title": "Co opisuje Big-O",
+      "caption": "[[big-o]] (notacja dużego O) opisuje, jak rośnie liczba kroków programu, gdy rosną jego dane. Twój sklep trzyma tu sześć produktów w tablicy, a wyszukiwarka ma znaleźć jeden z nich. Reszta Lekcji liczy kroki tego wyszukiwania."
+    },
+    "the-problem": {
+      "title": "Wyszukiwarka, która zwalnia",
+      "caption": "Przy 100 produktach wyszukiwarka działa natychmiast. Przy 100 000 produktów ten sam kod każe klientom czekać. W kodzie nic się nie zmieniło, zmieniła się tylko liczba produktów. Kursor zaczyna na pierwszym produkcie, a Ty policzysz, ile produktów czyta wyszukiwanie."
+    },
+    "counting-steps": {
+      "title": "Licz kroki, nie sekundy",
+      "caption": "Sekundy zależą od komputera, więc liczysz kroki. Tu jeden krok to odczyt jednego produktu: kursor czyta mug i to jest jeden krok. Liczbę produktów nazwij n i sprawdź, jak kroki rosną razem z n.",
+      "keyIdea": "Big-O liczy kroki w miarę wzrostu danych, a nie sekundy."
+    },
+    "constant-lookup": {
+      "title": "Odczyt jednej pozycji",
+      "caption": "Tablica skacze prosto do pozycji, więc odczyt piątego produktu, book, to jeden krok bez względu na to, ile produktów ma sklep. Koszt, który nie rośnie z n, to [[constant-time]] (czas stały), zapisywany O(1)."
+    },
+    "linear-scan": {
+      "title": "Szukanie produkt po produkcie",
+      "caption": "Klient szuka tape. Kursor wraca na początek i czyta mug, lamp, pen, a potem tape, na którym się zatrzymuje: cztery kroki. Czytanie element po elemencie, aż trafisz na szukany, to wyszukiwanie liniowe, a koszt rosnący razem z n to [[linear-time]] (czas liniowy), zapisywany O(n)."
+    },
+    "missing-product": {
+      "title": "Gdy produktu nie ma",
+      "caption": "Teraz klient szuka sock, którego sklep nie sprzedaje. Wyszukiwanie czyta wszystkie sześć produktów, zanim powie, że sock nie ma. W najgorszym przypadku wyszukiwanie liniowe czyta wszystkie n produktów.",
+      "keyIdea": "Wyszukiwanie liniowe potrzebuje do n kroków, bo w najgorszym przypadku czyta każdy element."
+    },
+    "growth-with-size": {
+      "title": "Dlaczego 100 000 produktów zwalnia",
+      "caption": "Każdy dodatkowy produkt dokłada wyszukiwaniu najwyżej jeden krok. Przy 100 produktach najgorszy przypadek to 100 kroków, a przy 100 000 produktów to 100 000 kroków. Tysiąc razy więcej produktów oznacza tysiąc razy więcej kroków i właśnie to czują klienci.",
+      "keyIdea": "W O(n) podwojenie n podwaja liczbę kroków."
+    },
+    "duplicate-listings": {
+      "title": "Szukanie podwójnych ofert",
+      "caption": "Drugie zadanie: podejrzewasz, że niektóre produkty są wystawione dwa razy. Oferty to tu mug, pen, mug, lamp i tape. Żeby znaleźć duplikaty, porównujesz każdą ofertę z każdą następną, zaczynając od mug i pen."
+    },
+    "count-pairs": {
+      "title": "Liczenie porównań",
+      "caption": "Pierwszą ofertę porównujesz z czterema następnymi, drugą z trzema, trzecią z dwiema, a czwartą z jedną. To 4 + 3 + 2 + 1 = 10 porównań dla 5 ofert, a dwa mugi spotykają się w jednym z nich."
+    },
+    "quadratic-growth": {
+      "title": "Jak rosną porównania",
+      "caption": "Dla n ofert liczba porównań to (n − 1) + (n − 2) + … + 1, czyli n(n − 1)/2. Dla 1000 ofert to 499 500 porównań, a dla 100 000 ofert prawie 5 miliardów. Gdy kroków przybywa mniej więcej jak n × n, koszt to [[quadratic-time]] (czas kwadratowy), zapisywany O(n²).",
+      "keyIdea": "W O(n²) podwojenie n mnoży liczbę kroków mniej więcej przez cztery."
+    },
+    "ignore-constants": {
+      "title": "Pomijanie drobnego druku",
+      "caption": "Załóżmy, że program czyta każdy element trzy razy pod rząd. To 3n kroków, ale Big-O zachowuje tylko to, jak rośnie koszt, więc nadal jest to O(n): potrojenie n nadal potraja kroki. Z tego samego powodu n² + n to O(n²), bo przy dużym n przeważa część n².",
+      "keyIdea": "Big-O zachowuje najszybciej rosnący składnik i pomija stałe współczynniki."
+    },
+    "pairs-preview": {
+      "title": "Dalej: liczenie par, które się sumują",
+      "caption": "W Practice Twój sklep sprzedaje karty podarunkowe, a Ty liczysz pary produktów, których ceny dają sumę docelową. Dla cen 3, 7, 3 i 5 oraz sumy 10 pary to 3 z 7 oraz 7 z drugą 3: dwie pary. Porównywanie każdej pary to O(n²), za wolno dla 100 000 cen, więc celuj w jedno przejście, które pamięta już widziane ceny."
+    },
+    "where-you-meet-it": {
+      "title": "Gdzie się z tym spotkasz",
+      "caption": "Tu Big-O rozstrzyga, jaki projekt wybiera prawdziwy system. Uwaga pod listą mówi, kiedy może wprowadzać w błąd."
+    }
+  },
+  "checks": {
+    "cost-of-reading-by-position": {
+      "prompt": "Sklep trzyma n produktów w tablicy. Na ile produktów patrzy program, żeby odczytać piąty z nich?",
+      "options": {
+        "one-step": "Na jeden, bo tablica skacze prosto do pozycji: koszt nie zależy od n",
+        "walk-from-start": "Na pięć, bo program idzie od pierwszego produktu do piątego: koszt rośnie z pozycją",
+        "walk-from-nearer-end": "Na około n podzielone przez 2, bo program zaczyna od bliższego końca"
+      },
+      "explanation": "Program patrzy na jeden produkt, bo tablica wylicza, gdzie jest pozycja, i idzie prosto do niej. Nie przechodzi obok wcześniejszych produktów, więc większy sklep nie spowalnia odczytu. Dlatego odczyt po pozycji to O(1)."
+    },
+    "last-product-read": {
+      "prompt": "Wyszukiwarka szuka tape i czyta produkty od lewej, zatrzymując się, gdy tylko trafi na szukany. Zaznacz ostatni produkt, który przeczyta.",
+      "explanation": "Wyszukiwarka czyta tape jako ostatni, bo zatrzymuje się, gdy tylko trafi na szukany produkt. Nie czyta book ani mat, które leżą za tape. Liczba kroków zależy od tego, gdzie leży szukany produkt, a w najgorszym przypadku jest to koniec listy."
+    },
+    "steps-for-missing-product": {
+      "prompt": "Sklep ma 6 produktów, a klient szuka sock, którego sklep nie sprzedaje. Wyszukiwanie czyta od lewej. Ile produktów przeczyta?",
+      "options": {
+        "every-product": "Wszystkie 6, bo może powiedzieć, że sock nie ma, dopiero po przeczytaniu każdego produktu: n kroków",
+        "half-the-products": "Około 3, bo średnio wyszukiwanie zatrzymuje się w połowie listy",
+        "single-step": "Jeden, bo tablica już wie, jakie produkty trzyma"
+      },
+      "explanation": "Wyszukiwanie czyta wszystkie 6 produktów, bo produktu, którego nie ma, nigdy się nie znajdzie, więc nic nie pozwala przerwać wcześniej. Zatrzymanie w okolicy środka to średnia dla produktów, które istnieją. Nieposortowana tablica nie wie, co trzyma, dopóki tego nie przeczyta. Najgorszy przypadek kosztuje więc n kroków."
+    },
+    "steps-when-shop-doubles": {
+      "prompt": "Sklep rośnie ze 100 000 do 200 000 produktów. Jak zmienia się liczba kroków wyszukiwania liniowego w najgorszym przypadku?",
+      "options": {
+        "doubles": "Podwaja się, bo każdy produkt dokłada najwyżej jeden krok: koszt rośnie razem z n",
+        "unchanged": "Zostaje taka sama, bo komputer czyta każdy produkt równie szybko",
+        "grows-slightly": "Rośnie tylko trochę, bo wyszukiwanie zatrzymuje się, gdy tylko znajdzie produkt"
+      },
+      "explanation": "Najgorszy przypadek się podwaja, bo każdy dodatkowy produkt może dołożyć jeden krok. Szybkość odczytu jednego produktu nie zmienia tego, ile produktów jest do przeczytania. Wcześniejsze zatrzymanie pomaga tylko wtedy, gdy produkt jest blisko początku, a Big-O liczy najgorszy przypadek. O(n) oznacza więc dwa razy więcej produktów, dwa razy więcej kroków."
+    },
+    "comparisons-for-five-listings": {
+      "prompt": "Porównujesz każdą ofertę z każdą następną, więc żadna para nie jest porównana dwa razy. Ile to porównań dla 5 ofert?",
+      "options": {
+        "ten": "10, bo pierwszą ofertę porównujesz z 4 innymi, następną z 3, potem z 2, potem z 1",
+        "five": "5, bo każdą ofertę porównujesz raz",
+        "twenty-five": "25, bo każdą z 5 ofert porównujesz ze wszystkimi 5"
+      },
+      "explanation": "To 10 porównań: 4 + 3 + 2 + 1. Jedno porównanie na ofertę ominęłoby większość par, bo oferta musi spotkać każdą inną. Porównanie każdej oferty ze wszystkimi 5 liczy ofertę z nią samą i każdą parę dwa razy. Dla n ofert liczba porównań to n(n − 1)/2."
+    },
+    "comparisons-when-listings-double": {
+      "prompt": "Sklep porównuje każdą parę ofert. Rośnie z 1000 do 2000 ofert. Mniej więcej ile razy więcej porównań wykonuje?",
+      "options": {
+        "four-times": "Mniej więcej cztery razy więcej, bo pary rosną jak n × n: podwojenie n podwaja oba czynniki",
+        "twice": "Mniej więcej dwa razy więcej, bo dwa razy więcej ofert to dwa razy więcej pracy",
+        "one-per-new-listing": "Mniej więcej o 1000 więcej, bo każda z 1000 nowych ofert dokłada jedno porównanie"
+      },
+      "explanation": "Porównań jest mniej więcej cztery razy więcej: z 499 500 do 1 999 000. Dwa razy więcej pracy byłoby dobrą odpowiedzią dla jednego przejścia, ale tu każda nowa oferta jest porównywana ze wszystkimi wcześniejszymi. Nowa oferta dokłada jedno porównanie na każdą istniejącą ofertę, a nie jedno w sumie. Tak działa O(n²)."
+    },
+    "cost-of-three-passes": {
+      "prompt": "Program czyta każdy z n produktów trzy razy pod rząd, więc wykonuje 3n kroków. Jaki jest jego koszt w Big-O?",
+      "options": {
+        "linear": "O(n), bo Big-O pomija stałe współczynniki: potrojenie n nadal potraja kroki",
+        "exact-count": "O(3n), bo Big-O musi policzyć każdy krok dokładnie",
+        "cubic": "O(n³), bo trzykrotny odczyt mnoży n przez siebie trzy razy"
+      },
+      "explanation": "Koszt to O(n). Big-O opisuje wzrost, a stały współczynnik, taki jak 3, zmienia tempo, ale nie kształt wzrostu. Nie liczy każdego kroku dokładnie, dlatego pomija 3. Trzy przejścia dodają kroki, a nie mnożą n przez siebie, więc koszt jest daleki od n³."
+    }
+  },
+  "terms": {
+    "big-o": {
+      "term": "Big-O",
+      "gloss": "notacja dużego O: zapis tego, jak rośnie liczba kroków programu, gdy rosną jego dane, na przykład O(n)."
+    },
+    "constant-time": {
+      "term": "constant time",
+      "gloss": "czas stały: koszt, który nie rośnie z rozmiarem danych, zapisywany O(1)."
+    },
+    "linear-time": {
+      "term": "linear time",
+      "gloss": "czas liniowy: koszt, który rośnie razem z rozmiarem danych n, zapisywany O(n)."
+    },
+    "quadratic-time": {
+      "term": "quadratic time",
+      "gloss": "czas kwadratowy: koszt rosnący jak n × n, zapisywany O(n²): podwojenie n zwiększa go mniej więcej czterokrotnie."
+    }
+  },
+  "exercise": {
+    "title": "Policz pary, które sumują się do karty podarunkowej",
+    "task": "Twój sklep sprzedaje karty podarunkowe i chce wiedzieć, ile par produktów daje w sumie wartość karty. Napisz funkcję countPairsWithSum, która przyjmuje ceny i sumę docelową oraz zwraca, ile jest par pozycji i < j, dla których prices[i] + prices[j] równa się sumie docelowej. Takie same ceny na różnych pozycjach to osobne pary, więc [5, 5, 5] z sumą 10 daje 3 pary. Zadbaj o O(n): sprawdzanie każdej pary jest za wolne dla długiej listy.",
+    "hints": [
+      "Sprawdzanie każdej pary cen to O(n²). Zamiast tego dla każdej ceny zapytaj, jaka inna cena dopełniłaby sumę docelową.",
+      "Czytając ceny od lewej do prawej, pamiętaj, ile razy widziałeś każdą cenę. Map z ceny na liczbę wystąpień odpowiada na zapytanie średnio w O(1).",
+      "Dla bieżącej ceny sprawdź, ile wcześniejszych cen równa się sumie docelowej minus ta cena, i dodaj tę liczbę do wyniku. Zapisz bieżącą cenę dopiero po tym sprawdzeniu."
+    ]
+  }
+}

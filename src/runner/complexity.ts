@@ -1,5 +1,5 @@
 import type { ComplexityTest, InputGenerator, Result, ShapedValue, TestOutcome } from '@/domain';
-import { err, ok, timeBudgetFloorMs } from '@/domain';
+import { assertNever, err, ok, timeBudgetFloorMs } from '@/domain';
 import { callTimed, erroredOutcome, loadFunction } from './execute';
 import { intrinsics } from './intrinsics';
 import { ListNode, shapedEqual, toArgument } from './values';
@@ -22,8 +22,21 @@ export function budgetOf(referenceMs: number, multiple: number): number {
 }
 
 function generateInput(generator: InputGenerator): ShapedValue {
-  const value = Array.from({ length: generator.size }, (_, index) => index);
-  return { shape: generator.kind === 'range' ? 'value' : 'linked-list', value };
+  switch (generator.kind) {
+    case 'range':
+      return { shape: 'value', value: Array.from({ length: generator.size }, (_, i) => i) };
+    case 'linked-list-range':
+      return { shape: 'linked-list', value: Array.from({ length: generator.size }, (_, i) => i) };
+    case 'repeat-string':
+      return { shape: 'value', value: generator.unit.repeat(generator.size) };
+    case 'string-range':
+      return {
+        shape: 'value',
+        value: Array.from({ length: generator.size }, (_, i) => generator.prefix + String(i)),
+      };
+    default:
+      return assertNever(generator);
+  }
 }
 
 function shapeOfResult(result: unknown): ShapedValue['shape'] {
@@ -34,25 +47,25 @@ export function measureComplexity(input: ComplexityInput): Result<TestOutcome, s
   const { test } = input;
   const reference = loadFunction(input.referenceCode, input.functionName);
   if (!reference.ok) return err(`Reference: ${reference.error.message}`);
-  const shaped = generateInput(test.generator);
-  const expected = callTimed(reference.value, [toArgument(shaped)], shapeOfResult);
+  const args = [generateInput(test.generator), ...(test.extraArgs ?? [])];
+  const expected = callTimed(reference.value, args.map(toArgument), shapeOfResult);
   if (!expected.ok) return err(`Reference: ${expected.error.message}`);
   if (!expected.value.shaped.ok) return err(`Reference: ${expected.value.shaped.error}`);
   const budgetMs = budgetOf(expected.value.durationMs, test.budgetMultiple);
   input.onReferenceTimed?.({ ms: expected.value.durationMs, budgetMs });
-  return ok(judgeLearner(input, shaped, expected.value.shaped.value, budgetMs));
+  return ok(judgeLearner(input, args, expected.value.shaped.value, budgetMs));
 }
 
 function judgeLearner(
   input: ComplexityInput,
-  shaped: ShapedValue,
+  args: readonly ShapedValue[],
   expected: ShapedValue,
   budgetMs: number,
 ): TestOutcome {
   const { test } = input;
   const learner = loadFunction(input.learnerCode, input.functionName);
   if (!learner.ok) return erroredOutcome(test.id, learner.error);
-  const actual = callTimed(learner.value, [toArgument(shaped)], () => expected.shape);
+  const actual = callTimed(learner.value, args.map(toArgument), () => expected.shape);
   if (!actual.ok) return erroredOutcome(test.id, actual.error);
   if (!actual.value.shaped.ok)
     return erroredOutcome(test.id, { message: actual.value.shaped.error });
@@ -60,7 +73,7 @@ function judgeLearner(
     return {
       kind: 'failed',
       testId: test.id,
-      args: [shaped],
+      args,
       expected,
       actual: actual.value.shaped.value,
     };

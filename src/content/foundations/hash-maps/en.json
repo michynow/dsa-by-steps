@@ -1,0 +1,177 @@
+{
+  "title": "Hash maps",
+  "story": {
+    "title": "Is this username taken?",
+    "summary": "You build the sign-up form of a web app. When someone picks a username, the app has to say at once whether it is taken, even when hundreds of thousands of accounts already exist."
+  },
+  "uses": [
+    {
+      "title": "Map, Set and dict in your language",
+      "body": "JavaScript's Map and Set and Python's dict and set find entries by key through a hash table, so you use one in almost every program."
+    },
+    {
+      "title": "Hash joins in databases",
+      "body": "To join two tables, a database can load the smaller one into a hash table keyed by the join column and look up each row of the other table in it."
+    },
+    {
+      "title": "Key-value caches",
+      "body": "Stores such as Redis and Memcached keep their keys in a hash table, so fetching a cached page or session by its key is O(1) on average."
+    },
+    {
+      "title": "Compiler symbol tables",
+      "body": "A compiler records every name in your code, such as variables and functions, in a table keyed by the name, so it finds each declaration whenever the name appears."
+    }
+  ],
+  "whenNot": "A hash map has no sorted order, so it cannot list keys alphabetically or find the nearest key to a given one. (JavaScript's Map and Set and Python's dict keep insertion order, which is not sorted order.) For that, keep a sorted array or use a tree. For a handful of items a plain array scan is simpler and about as fast. If many keys collide, a lookup degrades towards O(n), so the hash function has to spread keys well.",
+  "outcomes": {
+    "explain-scan-cost": "Explain why searching a list for a key costs O(n)",
+    "place-by-hash-function": "Find a key's bucket with a hash function",
+    "resolve-collisions": "Explain what happens when two keys share a bucket",
+    "look-up-by-key": "Look up a key by checking only its bucket",
+    "know-average-cost": "State the average and worst-case cost of a lookup"
+  },
+  "steps": {
+    "overview": {
+      "title": "What a hash map is",
+      "caption": "A [[hash-map]] stores entries, each a key with a value, and finds one by its key directly, without scanning the others. Here the keys are usernames and the values are account numbers. The entries sit in numbered [[bucket]]s, and a key always belongs to the same bucket. The rest of the Lesson shows how that works."
+    },
+    "the-problem": {
+      "title": "Checking a username means reading the whole list",
+      "caption": "Your sign-up form keeps registered usernames in an array: ada, linus and grace so far. Someone types tim. To say that tim is free, the app compares it with every name, one by one. With 300,000 accounts that is up to 300,000 comparisons for every check. You want the cost of the check not to grow with the number of accounts.",
+      "keyIdea": "Searching a list for a key means comparing it with the items one by one."
+    },
+    "buckets": {
+      "title": "Accounts go into buckets",
+      "caption": "You switch to a hash map and start it empty. It has four buckets, numbered 0 to 3, and each entry will live in exactly one of them. To find an entry you will need to look in only one bucket.",
+      "keyIdea": "A hash map finds an entry by working out where it lives, not by searching."
+    },
+    "hash-function": {
+      "title": "A hash function picks the bucket",
+      "caption": "A [[hash-function]] turns a key into a bucket number. Yours is a toy one: count the letters in the username and take the remainder after dividing by 4. The name ada has 3 letters, so it goes to bucket 3. Real hash functions mix every character of the key, but they work the same way.",
+      "keyIdea": "The same key always gives the same bucket."
+    },
+    "second-account": {
+      "title": "Every key goes to its own bucket",
+      "caption": "The name linus has 5 letters, and 5 divided by 4 leaves 1, so linus goes to bucket 1. The map did not search for a free place. The key alone decided where the entry goes."
+    },
+    "collision": {
+      "title": "Two names in one bucket",
+      "caption": "The name grace also has 5 letters, so it also belongs in bucket 1, which already holds linus. Two different keys that share a bucket are a [[collision]]. Nothing is lost: the bucket keeps both entries as a short list, the way a chain of linked nodes would, with grace after linus.",
+      "keyIdea": "A collision does not lose data: the bucket keeps every entry that hashes to it."
+    },
+    "lookup": {
+      "title": "Looking up a name",
+      "caption": "To find grace, the map hashes the name, gets bucket 1 and ignores the other buckets. It compares the keys in that bucket in order: linus is not grace, and the next entry is. It reads two entries and never touches the other buckets."
+    },
+    "free-name": {
+      "title": "A busy bucket does not mean a taken name",
+      "caption": "Someone types tim, which has 3 letters, so the lookup goes to bucket 3, where ada lives. The key ada is not tim, and the bucket holds nothing else, so tim is free. You register it by adding tim to the same bucket, after ada."
+    },
+    "duplicate-signup": {
+      "title": "The same name is found",
+      "caption": "Now someone types ada again. The lookup goes to bucket 3 and compares the keys. The first entry has the key ada, so the name is taken. The map holds at most one entry per key, so the sign-up is refused and no second ada appears."
+    },
+    "average-cost": {
+      "title": "Why a lookup stays fast",
+      "caption": "A lookup hashes the key, which takes the same time for any size of map, and then reads one bucket. A good hash function spreads keys evenly and the map adds buckets as it fills up, so a bucket holds only a few entries. That makes a lookup O(1) on average.",
+      "keyIdea": "A hash map lookup is O(1) on average."
+    },
+    "crowded-bucket": {
+      "title": "When every key crowds one bucket",
+      "caption": "Imagine a poor hash function that sends every username to the same bucket. The map still finds that bucket at once, but the bucket now holds all the entries, and the lookup compares keys one by one. The map has turned into a list, and a lookup costs O(n).",
+      "keyIdea": "In the worst case, every key lands in one bucket and a lookup is O(n)."
+    },
+    "duplicate-preview": {
+      "title": "Next up: find the first duplicate",
+      "caption": "In Practice the app flags the first username that was registered twice. The cursor reads the sign-ups in order, and the answer is the name whose second registration comes first. In this list that is linus, because its second registration comes before the second ada. Keep the names you have already seen in a structure that answers yes or no at once."
+    },
+    "where-you-meet-it": {
+      "title": "Where you will meet it",
+      "caption": "Here is where you meet hash maps outside this form. Each finds an item by its key without searching. The note under them says when another structure is the better pick."
+    }
+  },
+  "checks": {
+    "cost-of-scanning": {
+      "prompt": "The array holds n usernames in the order people joined, and nobody has picked tim yet. To say that tim is free, how many names does the app compare tim with?",
+      "options": {
+        "every-name": "All n names, because the app can say a name is free only after checking each one: O(n)",
+        "half-the-names": "About half of them, because the app stops in the middle of the list: O(n)",
+        "halving": "About log n names, because the app halves the list at each step: O(log n)"
+      },
+      "explanation": "The app compares tim with all n names, because a free name is never found, so no comparison lets it stop early. Even a taken name is found only about halfway on average, which is still O(n). Halving the list works only on a sorted list, and this one is in sign-up order. So every sign-up check costs more as the accounts grow."
+    },
+    "bucket-for-linus": {
+      "prompt": "The toy hash function counts the letters in a username and takes the remainder after dividing by 4. The name linus has 5 letters. Which bucket does the map use for linus?",
+      "options": {
+        "remainder": "Bucket 1, because 5 divided by 4 leaves a remainder of 1",
+        "first-empty": "Bucket 0, because the new account takes the first empty bucket",
+        "beside-ada": "Bucket 2, because ada already holds bucket 3, so linus takes the bucket next to it"
+      },
+      "explanation": "The map uses bucket 1, because the remainder of 5 divided by 4 is 1. The key alone decides the bucket, so the map does not look for an empty one the way an array fills from the left. Another account holding bucket 3 does not push linus to a neighbour either, because an entry only moves if the hash function says so. This is why you can find linus later without searching."
+    },
+    "who-shares-a-bucket": {
+      "prompt": "The name grace has 5 letters. Select the account whose bucket grace will share.",
+      "explanation": "Grace shares bucket 1 with linus, because 5 letters give a remainder of 1 for both names. It does not share a bucket with ada, whose 3 letters give 3. Any two keys with the same hash share a bucket, and the bucket keeps both entries."
+    },
+    "first-compared-in-bucket": {
+      "prompt": "You look up grace. The map has already worked out grace's bucket. Select the entry whose key it compares with grace first.",
+      "explanation": "The map compares linus first, because it reads the entries of the bucket in order and linus comes before grace. It does not start with ada, since ada sits in another bucket that the lookup never opens. It does not jump straight to grace either: the hash function names the bucket, and only comparing keys tells you which entry inside it matches."
+    },
+    "is-tim-taken": {
+      "prompt": "Someone types tim. It has 3 letters, so the toy hash function sends it to the bucket where ada already lives. Is the username tim taken?",
+      "options": {
+        "compare-keys": "No, because the map compares tim with ada's key and the two keys differ",
+        "bucket-occupied": "Yes, because ada already occupies that bucket, and a bucket holds one name",
+        "same-hash": "Yes, because tim and ada hash to the same bucket, so they count as the same name",
+        "bucket-has-room": "No, because a name is taken only when its bucket is full, and this bucket still has room"
+      },
+      "explanation": "Tim is free, because the map compares tim with the keys in the bucket and none of them equals it. A bucket can hold several entries, so a busy bucket says nothing about one name. Two different keys can hash to the same bucket, which is a collision, so equal hashes do not make equal names. A bucket has no fixed size, so whether it has room says nothing about whether a name exists."
+    },
+    "cost-of-lookup": {
+      "prompt": "The map holds 100,000 accounts, enough buckets for them, and a hash function that spreads names evenly. About how many keys does a lookup compare with the name?",
+      "options": {
+        "a-few": "A few, because the hash function leads to one small bucket: O(1) on average",
+        "every-account": "All 100,000, because the map must still check every account: O(n)",
+        "halving": "About 17, because the map halves the accounts at each step: O(log n)",
+        "exactly-one": "Exactly one, because the hash function always points at the right entry: O(1)"
+      },
+      "explanation": "A lookup compares a few keys, because the evenly spread accounts leave only a few in each bucket. It does not check every account, because it opens one bucket only. It does not halve anything, because a hash map has no order to halve. Exactly one comparison is not guaranteed, because collisions put several entries in a bucket, so the cost is O(1) on average."
+    },
+    "worst-case-lookup": {
+      "prompt": "Suppose a poor hash function sends every one of the n usernames to the same bucket. How much work does a lookup do?",
+      "options": {
+        "walk-the-bucket": "Up to n comparisons, because the one bucket holds every entry and its keys are compared one by one: O(n)",
+        "still-direct": "One comparison, because the hash function still names the bucket directly: O(1)",
+        "halving-the-bucket": "About log n comparisons, because the bucket can be halved at each step: O(log n)"
+      },
+      "explanation": "The lookup does up to n comparisons. The hash function still finds the bucket at once, but that bucket holds every entry, so the keys are compared one by one and the cost is O(n). Finding the bucket quickly does not help when the bucket is the whole map. A bucket is an unsorted list, so there is nothing to halve."
+    }
+  },
+  "terms": {
+    "hash-map": {
+      "term": "hash map",
+      "gloss": "A structure that stores key-value entries in buckets and finds an entry by hashing its key."
+    },
+    "bucket": {
+      "term": "bucket",
+      "gloss": "One numbered slot of a hash map, holding every entry whose key hashes to that number."
+    },
+    "hash-function": {
+      "term": "hash function",
+      "gloss": "A function that turns a key into a bucket number, giving the same number for the same key every time."
+    },
+    "collision": {
+      "term": "collision",
+      "gloss": "Two different keys landing in the same bucket."
+    }
+  },
+  "exercise": {
+    "title": "Flag the first duplicate username",
+    "task": "The app wants to flag the first username that was registered twice. Write firstDuplicate, which takes the usernames in the order they were registered and returns the username whose second registration comes first, or null when no name appears twice. Names are compared exactly, so Ada and ada are different. Use a [[hash-map]] based structure so the check stays O(n). Usernames arrive as strings, or as numbers in the Complexity Test, so compare them with === and avoid string-only methods.",
+    "hints": [
+      "For each name, you need to know whether you have seen it before. Searching all the earlier names every time is what makes it slow.",
+      "A hash-based structure answers whether it already holds a key in O(1) on average. In TypeScript, both Set and Map are built that way.",
+      "Check whether the current name is already in your Set before you add it. If it is, that name is the answer."
+    ]
+  }
+}

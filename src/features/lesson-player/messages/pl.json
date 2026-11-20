@@ -60,5 +60,9 @@
     "replay": "Odtwórz ponownie",
     "pause": "Wstrzymaj",
     "play": "Odtwórz"
+  },
+  "reel": {
+    "label": "Podgląd lekcji",
+    "nowShowing": "Teraz"
   }
 }

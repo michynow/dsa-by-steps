@@ -46,10 +46,13 @@ const testCase = z.strictObject({
 
 const complexityTest = z.strictObject({
   id: z.string(),
-  generator: z.strictObject({
-    kind: z.enum(['range', 'linked-list-range']),
-    size: z.number(),
-  }),
+  generator: z.discriminatedUnion('kind', [
+    z.strictObject({ kind: z.literal('range'), size: z.number() }),
+    z.strictObject({ kind: z.literal('linked-list-range'), size: z.number() }),
+    z.strictObject({ kind: z.literal('repeat-string'), unit: z.string(), size: z.number() }),
+    z.strictObject({ kind: z.literal('string-range'), prefix: z.string(), size: z.number() }),
+  ]),
+  extraArgs: z.array(shapedValue).optional(),
   expected: z.literal('reference'),
   budgetMultiple: z.number(),
   complexity: z.string(),

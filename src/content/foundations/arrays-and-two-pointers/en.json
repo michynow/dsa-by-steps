@@ -1,0 +1,159 @@
+{
+  "title": "Arrays and two pointers",
+  "story": {
+    "title": "A gift card and a sorted price list",
+    "summary": "You hold a gift card with a balance of 31 and a shop's price list sorted from cheapest to dearest. You want two items whose prices add up to exactly the balance, and you want to find them fast even when the list is long."
+  },
+  "uses": [
+    {
+      "title": "Pixel and audio buffers",
+      "body": "An image is stored as an array of pixel values and a sound as an array of samples. Every value sits next to its neighbours in memory, so a program reads a pixel or a sample by its index at once and scans them in order."
+    },
+    {
+      "title": "Columns in analytics databases",
+      "body": "Column-oriented databases keep all the values of one column together, in order. A query that sums a column then reads one tight run of values, which is fast."
+    },
+    {
+      "title": "Merging sorted lists",
+      "body": "Merge sort and the merge join in a database combine two sorted lists by keeping one pointer in each list and always taking the smaller of the two values. Each pointer only moves forward, so the merge is one pass."
+    },
+    {
+      "title": "Palindromes and in-place reversal",
+      "body": "To check whether a word reads the same backwards, you compare the first and last letters, then the second and second to last, with one pointer moving in from each end. Reversing an array in place swaps the same pairs."
+    }
+  ],
+  "whenNot": "An array is a poor fit when you often insert or delete in the middle, because every item after that position has to shift: O(n). Two pointers needs sorted input. If the data is not sorted, either sort it first, which costs O(n log n), or use a hash map, which finds a partner for each value in O(1) on average and does not care about order. And when the answer is a single value rather than a pair, a plain pass over the array is enough.",
+  "outcomes": {
+    "read-by-index": "Read an array cell by its index and state the cost",
+    "move-by-the-sum": "Decide which pointer to move by comparing a sum with the target",
+    "discard-with-sorted-order": "Explain why sorted order lets two pointers discard a price for good",
+    "find-the-pair": "Find two values that add up to a target with two pointers",
+    "count-the-moves": "State the cost of the two-pointer search"
+  },
+  "steps": {
+    "overview": {
+      "title": "A row of numbered cells",
+      "caption": "An [[array]] is a row of cells next to each other, each holding one value. Every cell has a number called its [[index]], and the first cell is index 0, so you can read any cell directly. [[two-pointers]] is a technique that puts one [[pointer]] at each end of a sorted array and moves them toward each other. The drawing shows a finished example: a sorted price list with a left and a right pointer on the two prices that add up to a gift card balance."
+    },
+    "the-problem": {
+      "title": "Which two prices use the whole card?",
+      "caption": "You have a gift card with a balance of 31 and a shop's price list, sorted from cheapest to dearest. You want two different items whose prices add up to exactly 31, so that nothing is left on the card. Trying every pair works, but 6 prices make 15 pairs and 100,000 prices make about 5 billion. You need a way to find the pair without trying them all.",
+      "keyIdea": "Sorted order lets you rule out a whole price at once instead of one pair at a time."
+    },
+    "read-by-index": {
+      "title": "Every price has an index",
+      "caption": "The prices sit in an array, so each one has an index that starts at 0. Index 0 holds the cheapest price and index 5 the dearest. The cells are next to each other in memory, so the computer jumps straight to any index without looking at the others, and the read costs O(1).",
+      "keyIdea": "Reading a cell by its index costs O(1), however long the array is."
+    },
+    "one-pointer-at-each-end": {
+      "title": "One pointer at each end",
+      "caption": "You put left on the cheapest price, index 0, and right on the dearest, index 5. The two pointers hold your first pair, 4 and 30, and every price between them is still in play.",
+      "keyIdea": "Start with one pointer at each end of the sorted array."
+    },
+    "add-the-two-prices": {
+      "title": "Add the two prices",
+      "caption": "You add the prices under the pointers: 4 plus 30 is 34. The balance is 31, so this pair is 3 too big. Now you decide which pointer has to move."
+    },
+    "too-big": {
+      "title": "Too big: move the right pointer",
+      "caption": "The sum is over the balance, so you need a smaller sum. The array is sorted, so only a cheaper right price can lower it, and the right pointer moves one step left, from 30 to 25. The 30 is out for good, because even with the cheapest left price it already gives 34.",
+      "keyIdea": "A sum that is too big needs a cheaper price, so the right pointer moves left."
+    },
+    "too-small": {
+      "title": "Too small: move the left pointer",
+      "caption": "Now 4 plus 25 is 29, which is 2 under the balance. The sum is too small, so you need a dearer price, and only a dearer left price can supply it. The left pointer moves one step right, from 4 to 7. The 4 is out for good, because even with the dearest remaining right price it is too small.",
+      "keyIdea": "A sum that is too small needs a dearer price, so the left pointer moves right."
+    },
+    "a-price-stays-out": {
+      "title": "A price that is out stays out",
+      "caption": "The pointers are on 7 and 25, and 7 plus 25 is 32, which is over 31. The right pointer moves left to 19, and you never come back for 25. Every price still on the left is at least 7, so 25 can only give sums of 32 or more."
+    },
+    "the-match": {
+      "title": "Too small again, then a match",
+      "caption": "Now 7 plus 19 is 26, which is under 31, so the left pointer moves right to 12. Then 12 plus 19 is 31, exactly the balance. The pair sits at index 2 and index 3, and you checked 5 pairs instead of 15."
+    },
+    "count-the-moves": {
+      "title": "Each move drops one price",
+      "caption": "The search took 4 moves, and each one threw a price away for good: 4, 30, 25 and 7 are out. The two pointers only move toward each other and stop when they meet, so they make at most one move per price. The work grows in step with the number of prices, which is O(n).",
+      "keyIdea": "Each move discards one price, so two pointers make at most n - 1 moves: O(n)."
+    },
+    "return-the-positions": {
+      "title": "Next: return the two positions",
+      "caption": "In Practice you write twoSumSorted. It takes the sorted prices and the balance, and returns the indices of two prices that add up to it, here 2 and 3, or null when no pair works. One pass with two pointers is enough."
+    },
+    "where-you-meet-it": {
+      "title": "Where you will meet them",
+      "caption": "Here is where you meet arrays and two pointers outside the shop. Some Uses are about the array itself and some about moving two pointers through one. The note under them says when to pick something else."
+    }
+  },
+  "checks": {
+    "price-at-index-three": {
+      "prompt": "The prices sit in the array, with the cheapest at index 0. Select the price at index 3.",
+      "explanation": "The price at index 3 is 19. Counting from 0, index 0 holds 4, index 1 holds 7, index 2 holds 12 and index 3 holds 19. The computer reaches that cell directly, without reading the cells before it."
+    },
+    "which-pointer-moves": {
+      "prompt": "The left pointer is on 4 and the right pointer is on 30. Their sum, 34, is over the balance of 31. Which pointer moves, and where?",
+      "options": {
+        "right-moves-left": "The right pointer moves one step left, because only a cheaper right price can bring the sum down",
+        "left-moves-right": "The left pointer moves one step right, because the left price is the smaller one, so it is the one to replace",
+        "both-move-in": "Both pointers move one step inward, because neither price of a failed pair can be in the answer",
+        "restart-from-next": "The left pointer moves right and the right pointer goes back to the end, because each left price has to be tried with every other price"
+      },
+      "explanation": "The right pointer moves left, because prices grow toward the right, so a cheaper right price is the only way to lower the sum. Moving the left pointer would raise the sum and make it worse. Moving both would throw away 4, which could still be the answer. Starting over with the next left price is the slow try-every-pair search that the pointers replace."
+    },
+    "where-left-lands": {
+      "prompt": "The pointers are on 4 and 25, and the sum 29 is under the balance of 31. The sum is too small, so the left pointer moves. Select the price it moves to.",
+      "explanation": "The left pointer moves one step right, to 7. The prices are sorted, so the next price to the right is the smallest one that is dearer than 4. The 12 would skip 7, which has not been ruled out yet."
+    },
+    "could-the-leftover-return": {
+      "prompt": "The pointers are on 7 and 25, and the sum 32 is over the balance of 31. The right pointer is about to leave 25. Could 25 still be part of the answer?",
+      "options": {
+        "left-only-grows": "No, because every price still on the left is at least 7, so 25 plus any of them is at least 32",
+        "must-retry": "Yes, because 25 was only tried with 4 and 7, so it still has to be tried with 12 and 19",
+        "pointer-may-return": "Yes, because the right pointer may land on a price that is too small, and then it has to come back to 25",
+        "failed-once": "No, because 25 failed with one partner, and a price that fails once is never used again"
+      },
+      "explanation": "No, 25 is out for good. The left pointer only moves right over a sorted array, so every left price still available is at least 7, and 25 plus 7 is already over the balance. Trying 25 with 12 or 19 would only give bigger sums. Failing with one partner does not rule a price out by itself: 25 is out because every partner still available would fail. The right pointer never has to come back, because a sum that is too small is fixed on the left side."
+    },
+    "price-that-completes-the-pair": {
+      "prompt": "The pointers are on 7 and 19, and the sum 26 is under the balance of 31. The left pointer moves one step right. Select the price that now pairs with 19 to reach the balance exactly.",
+      "explanation": "The price is 12, because 12 plus 19 is 31. The left pointer moves from 7 to the next price, which is 12, and the sum matches the balance. The search ends and the pair is at index 2 and index 3."
+    },
+    "moves-on-a-long-list": {
+      "prompt": "A sorted list holds 100,000 prices and no pair adds up to the balance. At most how many pointer moves does the search make before the pointers meet?",
+      "options": {
+        "one-per-price": "At most 99,999 moves, because each move discards one price and the pointers stop when they meet",
+        "every-pair": "About 5 billion moves, because every pair still has to be compared",
+        "halving": "About 17 moves, because each move halves the range, as in binary search"
+      },
+      "explanation": "At most 99,999 moves: each move discards exactly one price, and the search stops when one price is left between the pointers, so the cost is O(n). It never compares every pair, because each move rules out a whole price. It does not halve the range either, because a move discards one price, not half of them."
+    }
+  },
+  "terms": {
+    "array": {
+      "term": "array",
+      "gloss": "A row of cells next to each other in memory, each holding one value that you reach by its index."
+    },
+    "index": {
+      "term": "index",
+      "gloss": "The number of a cell in an array, counted from 0."
+    },
+    "two-pointers": {
+      "term": "two pointers",
+      "gloss": "A technique that moves two pointers through sorted data, usually toward each other, and decides each move from the values they point at."
+    },
+    "pointer": {
+      "term": "pointer",
+      "gloss": "A labelled marker that refers to one position in a structure, such as left or right."
+    }
+  },
+  "exercise": {
+    "title": "Find two prices for the gift card",
+    "task": "Write twoSumSorted, which takes a list of prices sorted from cheapest to dearest and a gift card balance. Return the indices of two different prices that add up to exactly the balance, with the lower index first, or null when no such pair exists. Use [[two-pointers]] so one pass over the prices is enough.",
+    "hints": [
+      "Prices grow from left to right. Which two positions give you the smallest sum, and which give the largest?",
+      "Add the prices at your two positions and compare the sum with the balance. That comparison alone tells you which position has to move, and in which direction.",
+      "A price cannot be paired with itself, so stop when the two positions meet and return null. When the sum equals the balance, return both indices."
+    ]
+  }
+}

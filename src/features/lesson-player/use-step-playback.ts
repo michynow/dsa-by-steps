@@ -4,7 +4,7 @@ import type { Scene } from '@/domain';
 import { useReducedMotion } from '@/ui';
 import { isKeyOwnedByControl } from './key-ownership';
 
-export const STEP_BEAT_MILLISECONDS = 450;
+export const STEP_BEAT_MILLISECONDS = 1000;
 
 interface PlaybackState {
   readonly key: string;
