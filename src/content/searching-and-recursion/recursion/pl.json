@@ -7,7 +7,7 @@
   "uses": [
     {
       "title": "Narzędzia do systemu plików",
-      "body": "Narzędzie, które sumuje rozmiar folderu, jak du, odwiedza folder, potem każdy jego podfolder, potem każdy podfolder tych podfolderów. Narzędzia, które przeszukują lub kopiują całe drzewa katalogów, robią ten sam obchód, często zapisany rekurencyjnie."
+      "body": "Narzędzie, które sumuje rozmiar folderu, jak `du`, odwiedza folder, potem każdy jego podfolder, potem każdy podfolder tych podfolderów. Narzędzia, które przeszukują lub kopiują całe drzewa katalogów, robią ten sam obchód, często zapisany rekurencyjnie."
     },
     {
       "title": "Parsery danych zagnieżdżonych",
@@ -41,7 +41,7 @@
     },
     "first-call": {
       "title": "Pierwsze wywołanie zaczyna od Photos",
-      "caption": "Piszesz listFiles, funkcję wypisującą wszystko, co jest w jednym folderze, i wywołujesz ją dla Photos. Wywołanie dostaje ramkę na stosie wywołań, podpisaną nazwą jego folderu. Ramka zostaje tam, dopóki wywołanie się nie skończy."
+      "caption": "Piszesz `listFiles`, funkcję wypisującą wszystko, co jest w jednym folderze, i wywołujesz ją dla Photos. Wywołanie dostaje ramkę na stosie wywołań, podpisaną nazwą jego folderu. Ramka zostaje tam, dopóki wywołanie się nie skończy."
     },
     "a-file-is-the-base-case": {
       "title": "Plik kończy poszukiwania",
@@ -76,12 +76,12 @@
     },
     "no-base-case": {
       "title": "Bez base case stos się przepełnia",
-      "caption": "Załóżmy, że folder zawiera skrót prowadzący z powrotem do Photos, a funkcja traktuje skrót jak folder. Photos wywołuje skrót, skrót wywołuje znowu Photos i żadne wywołanie nie dochodzi do pliku, który by je zatrzymał. Ramki piętrzą się, aż środowisko osiągnie swój limit i zgłosi [[stack-overflow]] (przepełnienie stosu). W JavaScripcie jest to RangeError, a może go wywołać także prawidłowe, bardzo głęboko zagnieżdżone drzewo folderów.",
+      "caption": "Załóżmy, że folder zawiera skrót prowadzący z powrotem do Photos, a funkcja traktuje skrót jak folder. Photos wywołuje skrót, skrót wywołuje znowu Photos i żadne wywołanie nie dochodzi do pliku, który by je zatrzymał. Ramki piętrzą się, aż środowisko osiągnie swój limit i zgłosi [[stack-overflow]] (przepełnienie stosu). W JavaScripcie jest to `RangeError`, a może go wywołać także prawidłowe, bardzo głęboko zagnieżdżone drzewo folderów.",
       "keyIdea": "Każdy łańcuch wywołań musi dojść do base case, inaczej stos się przepełni."
     },
     "total-size-preview": {
       "title": "Dalej: łączny rozmiar folderu",
-      "caption": "W Practice napiszesz totalSize, która sumuje rozmiar wszystkich plików w folderze, bez względu na zagnieżdżenie. Rozmiar pliku to base case, a rozmiar folderu to suma rozmiarów jego wpisów. Narysowane pliki mają 12, 40, 35 i 3 KB, więc Photos waży razem 90 KB."
+      "caption": "W Practice napiszesz `totalSize`, która sumuje rozmiar wszystkich plików w folderze, bez względu na zagnieżdżenie. Rozmiar pliku to base case, a rozmiar folderu to suma rozmiarów jego wpisów. Narysowane pliki mają 12, 40, 35 i 3 KB, więc Photos waży razem 90 KB."
     },
     "where-you-meet-it": {
       "title": "Gdzie to spotkasz",
@@ -172,7 +172,7 @@
   },
   "exercise": {
     "title": "Zsumuj rozmiar folderu",
-    "task": "Aplikacja do zdjęć pokazuje, ile miejsca zajmuje folder. Folder to obiekt z nazwą i listą wpisów, a plik to obiekt z nazwą i rozmiarem w KB. Napisz totalSize, która przyjmuje folder albo plik i zwraca łączny rozmiar wszystkich plików w środku, na dowolnej głębokości. Pusty folder to 0, a plik to po prostu jego własny rozmiar.",
+    "task": "Aplikacja do zdjęć pokazuje, ile miejsca zajmuje folder. Folder to obiekt z nazwą i listą wpisów, a plik to obiekt z nazwą i rozmiarem w KB. Napisz `totalSize`, która przyjmuje folder albo plik i zwraca łączny rozmiar wszystkich plików w środku, na dowolnej głębokości. Pusty folder to 0, a plik to po prostu jego własny rozmiar.",
     "hints": [
       "Folder może zawierać foldery, które zawierają foldery, więc stała liczba pętli nie wystarczy. Zastanów się, jakie dane dają odpowiedź od razu, a jakie to ten sam problem na mniejszych kawałkach.",
       "Plik ma rozmiar i nie wymaga dalszej pracy, więc tu wywołania się kończą. Dla folderu zastanów się, z czego składa się jego suma i która funkcja już liczy sumę jednego wpisu.",

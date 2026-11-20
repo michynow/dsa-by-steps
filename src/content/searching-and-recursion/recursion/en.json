@@ -7,7 +7,7 @@
   "uses": [
     {
       "title": "File system tools",
-      "body": "A tool that adds up the size of a folder, such as du, visits the folder, then every subfolder inside it, then every subfolder inside those. Tools that search or copy whole directory trees do the same walk, often written recursively."
+      "body": "A tool that adds up the size of a folder, such as `du`, visits the folder, then every subfolder inside it, then every subfolder inside those. Tools that search or copy whole directory trees do the same walk, often written recursively."
     },
     {
       "title": "Parsers for nested data",
@@ -41,7 +41,7 @@
     },
     "first-call": {
       "title": "The first call starts on Photos",
-      "caption": "You write listFiles, a function that lists everything inside one folder, and you call it on Photos. The call gets a frame on the call stack, labelled with its folder. The frame stays there until the call finishes."
+      "caption": "You write `listFiles`, a function that lists everything inside one folder, and you call it on Photos. The call gets a frame on the call stack, labelled with its folder. The frame stays there until the call finishes."
     },
     "a-file-is-the-base-case": {
       "title": "A file ends the search",
@@ -76,12 +76,12 @@
     },
     "no-base-case": {
       "title": "Without a base case the stack overflows",
-      "caption": "Suppose a folder contains a shortcut that leads back to Photos, and the function treats a shortcut as a folder. Photos calls the shortcut, which calls Photos again, and no call ever reaches a file that stops it. The frames pile up until the runtime hits its limit and raises a [[stack-overflow]]. In JavaScript this is a RangeError, and a legitimate folder tree that is nested very deeply can cause it too.",
+      "caption": "Suppose a folder contains a shortcut that leads back to Photos, and the function treats a shortcut as a folder. Photos calls the shortcut, which calls Photos again, and no call ever reaches a file that stops it. The frames pile up until the runtime hits its limit and raises a [[stack-overflow]]. In JavaScript this is a `RangeError`, and a legitimate folder tree that is nested very deeply can cause it too.",
       "keyIdea": "Every chain of calls must reach a base case, or the stack overflows."
     },
     "total-size-preview": {
       "title": "Next up: the total size of a folder",
-      "caption": "In Practice you write totalSize, which adds up the size of every file in a folder, however deeply nested. A file's size is the base case, and a folder's size is the sum of the sizes of its entries. The files drawn here are 12, 40, 35 and 3 KB, so Photos totals 90 KB."
+      "caption": "In Practice you write `totalSize`, which adds up the size of every file in a folder, however deeply nested. A file's size is the base case, and a folder's size is the sum of the sizes of its entries. The files drawn here are 12, 40, 35 and 3 KB, so Photos totals 90 KB."
     },
     "where-you-meet-it": {
       "title": "Where you will meet it",
@@ -172,7 +172,7 @@
   },
   "exercise": {
     "title": "Add up the size of a folder",
-    "task": "The photo app shows how much space a folder takes. A folder is an object with a name and a list of entries, and a file is an object with a name and a size in KB. Write totalSize, which takes a folder or a file and returns the combined size of every file inside it, at any depth. An empty folder is 0, and a file is just its own size.",
+    "task": "The photo app shows how much space a folder takes. A folder is an object with a name and a list of entries, and a file is an object with a name and a size in KB. Write `totalSize`, which takes a folder or a file and returns the combined size of every file inside it, at any depth. An empty folder is 0, and a file is just its own size.",
     "hints": [
       "A folder can hold folders, which hold folders, so a fixed number of loops will not do. Think about which input gives the answer at once, and which input is the same problem on smaller pieces.",
       "A file has a size and needs no further work, so that is where the calls stop. For a folder, think about what its total is made of, and which function already computes the total of one entry.",
