@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import type { CheckMessages } from '@/content';
 import type { CheckSession } from './use-check-session';
 import styles from './checks.module.css';
+import { CodeText } from '@/features/terms';
 
 export function ChoiceOptions(props: {
   readonly session: CheckSession;
@@ -40,7 +41,9 @@ export function ChoiceOptions(props: {
                   onSubmit();
                 }}
               />
-              <span>{label}</span>
+              <span>
+                <CodeText text={label} />
+              </span>
             </label>
             {isMarked ? (
               <span id={markId} className={styles.mark}>
