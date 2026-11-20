@@ -29,6 +29,12 @@ export type ExerciseIssue =
       readonly functionName: string;
     }
   | { readonly code: 'complexity-without-hidden-tests' }
+  | {
+      readonly code: 'complexity-arity-mismatch';
+      readonly testId: string;
+      readonly expected: number;
+      readonly actual: number;
+    }
   | { readonly code: 'invalid-function-name'; readonly functionName: string }
   | {
       readonly code: 'invalid-complexity-test';
@@ -204,6 +210,16 @@ function complexityIssues(exercise: Exercise): readonly ExerciseIssue[] {
     : [];
 }
 
+function complexityArityIssues(exercise: Exercise): readonly ExerciseIssue[] {
+  const test = exercise.complexityTest;
+  const expected = exercise.visibleTests[0]?.args.length;
+  if (test === undefined || expected === undefined) return [];
+  const actual = 1 + (test.extraArgs?.length ?? 0);
+  return actual === expected
+    ? []
+    : [{ code: 'complexity-arity-mismatch', testId: test.id, expected, actual }];
+}
+
 function complexityValueIssues(exercise: Exercise): readonly ExerciseIssue[] {
   const test = exercise.complexityTest;
   return test === undefined
@@ -219,6 +235,7 @@ function definitionIssues(exercise: Exercise): readonly ExerciseIssue[] {
     ...nameIssues(exercise),
     ...complexityIssues(exercise),
     ...complexityValueIssues(exercise),
+    ...complexityArityIssues(exercise),
   ];
 }
 
