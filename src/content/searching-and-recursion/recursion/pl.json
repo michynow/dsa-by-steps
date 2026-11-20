@@ -1,0 +1,182 @@
+{
+  "title": "Rekurencja",
+  "story": {
+    "title": "Lista wszystkich plików w zagnieżdżonych folderach",
+    "summary": "Budujesz aplikację do zdjęć, która wypisuje każdy plik w folderze, razem z plikami w jego podfolderach i w podfolderach tych podfolderów. Nie wiesz z góry, jak głęboko sięgają foldery, więc kod musi poradzić sobie z każdą głębokością."
+  },
+  "uses": [
+    {
+      "title": "Narzędzia do systemu plików",
+      "body": "Narzędzie, które sumuje rozmiar folderu, jak du, odwiedza folder, potem każdy jego podfolder, potem każdy podfolder tych podfolderów. Narzędzia, które przeszukują lub kopiują całe drzewa katalogów, robią ten sam obchód, często zapisany rekurencyjnie."
+    },
+    {
+      "title": "Parsery danych zagnieżdżonych",
+      "body": "JSON może zawierać obiekty w obiektach i w tablicach. Parser czyta takie dane funkcją, która wywołuje samą siebie za każdym razem, gdy trafi na zagnieżdżony obiekt albo tablicę, a wiele kompilatorów czyta w ten sam sposób zagnieżdżone wyrażenia."
+    },
+    {
+      "title": "Sortowanie dziel i zwyciężaj",
+      "body": "Merge sort dzieli tablicę na pół, sortuje każdą połowę, wywołując samego siebie, i scala wyniki. Quicksort działa według tego samego wzorca, tylko dzieli inaczej."
+    },
+    {
+      "title": "Drzewa komponentów w interfejsach",
+      "body": "Strona składa się z elementów zagnieżdżonych w elementach. Żeby ją narysować, renderer rysuje element, a potem wywołuje samego siebie dla każdego dziecka, więc drzewo o dowolnej głębokości nie wymaga dodatkowego kodu."
+    }
+  ],
+  "whenNot": "Rekurencja kosztuje: każde wywołanie zajmuje ramkę na stosie wywołań, a stos ma limit zależny od silnika i od rozmiaru ramek. Pętla po liście ze stu tysiącami elementów działa w stałej ilości stosu, a ta sama pętla zapisana rekurencyjnie może go przepełnić, bo silniki JavaScript nie zamieniają jej niezawodnie w pętlę. Wybierz pętlę, gdy praca to zwykłe powtarzanie, a własny, jawny stos, gdy zagnieżdżenie może sięgać bardzo głęboko. Uważaj na funkcję, która wywołuje samą siebie dwa razy na nakładających się kawałkach, jak naiwny Fibonacci: powtarza tę samą pracę, a jej koszt rośnie wykładniczo.",
+  "outcomes": {
+    "name-base-and-recursive-case": "Wskażesz base case (przypadek bazowy) i recursive case (przypadek rekurencyjny) funkcji rekurencyjnej",
+    "trace-the-call-stack": "Prześledzisz, które wywołania są na call stack (stosie wywołań) w każdym momencie",
+    "explain-stack-overflow": "Wyjaśnisz, dlaczego brak base case kończy się stack overflow (przepełnieniem stosu)",
+    "recurse-over-nested-data": "Napiszesz funkcję rekurencyjną działającą na danych zagnieżdżonych"
+  },
+  "steps": {
+    "overview": {
+      "title": "Funkcja, która wywołuje samą siebie",
+      "caption": "[[recursion]] (rekurencja) oznacza, że funkcja rozwiązuje problem, wywołując samą siebie na mniejszym jego kawałku. Każde wywołanie, które się zaczęło i jeszcze nie skończyło, jest zapamiętane na [[call-stack]] (stosie wywołań). Rysunek pokazuje gotowy przykład: wywołania, które wypisują folder ze zdjęciami, po jednej ramce na folder, oraz znalezione przez nie pliki."
+    },
+    "the-problem": {
+      "title": "Nie wiesz, jak głęboko sięgają foldery",
+      "caption": "Budujesz aplikację do zdjęć i użytkownik prosi o listę wszystkich plików w folderze Photos. Photos zawiera pliki i foldery, te foldery zawierają kolejne pliki i foldery, a nikt nie wie, ile jest poziomów. Stała liczba zagnieżdżonych pętli pasuje tylko do jednej głębokości, więc potrzebujesz kodu, który obsłuży każdą.",
+      "keyIdea": "Dane zagnieżdżone o nieznanej głębokości wymagają funkcji, która potrafi wywołać samą siebie."
+    },
+    "first-call": {
+      "title": "Pierwsze wywołanie zaczyna od Photos",
+      "caption": "Piszesz listFiles, funkcję wypisującą wszystko, co jest w jednym folderze, i wywołujesz ją dla Photos. Wywołanie dostaje ramkę na stosie wywołań, podpisaną nazwą jego folderu. Ramka zostaje tam, dopóki wywołanie się nie skończy."
+    },
+    "a-file-is-the-base-case": {
+      "title": "Plik kończy poszukiwania",
+      "caption": "Pierwszy wpis w Photos to logo.png. Plik nie zawiera już nic do wypisania, więc wywołanie dodaje go do wyniku i idzie dalej. To jest [[base-case]] (przypadek bazowy): sytuacja tak prosta, że odpowiedź znasz od razu, bez kolejnego wywołania.",
+      "keyIdea": "Base case odpowiada od razu, bez dalszego wywołania."
+    },
+    "a-folder-is-the-recursive-case": {
+      "title": "Folder wywołuje funkcję jeszcze raz",
+      "caption": "Następny wpis to folder Trip. Zawiera on kolejne wpisy, a ich wypisanie to to samo zadanie, które już wykonujesz, tylko na mniejszym kawałku. To jest [[recursive-case]] (przypadek rekurencyjny): funkcja wywołuje samą siebie na tym kawałku. Nowe wywołanie dostaje własną ramkę na wierzchu Photos.",
+      "keyIdea": "Recursive case wywołuje funkcję na mniejszym kawałku tego samego problemu."
+    },
+    "going-deeper": {
+      "title": "Każdy folder dodaje ramkę",
+      "caption": "W Trip wywołanie znajduje beach.jpg i dodaje go do wyniku. Potem dochodzi do Day two, folderu w Trip, i wywołuje samo siebie ponownie. Każde wywołanie, które się zaczęło i nie skończyło, trzyma swoją ramkę."
+    },
+    "only-the-top-runs": {
+      "title": "Działa tylko wywołanie z wierzchu",
+      "caption": "Wywołanie dla Day two wypisuje swój jedyny plik, hike.jpg, i dodaje go do wyniku. Wywołania dla Photos i Trip czekają pod spodem, każde wstrzymane w miejscu, w którym zrobiło swoje wywołanie. Działa tylko wywołanie leżące na wierzchu stosu.",
+      "keyIdea": "Działa tylko ramka z wierzchu, a ramki pod nią czekają."
+    },
+    "a-call-returns": {
+      "title": "Zakończone wywołanie jest zdejmowane",
+      "caption": "Day two nie ma już wpisów, więc jego wywołanie wraca, a jego ramka jest zdejmowana. Wywołanie pod spodem kontynuuje od miejsca, w którym się zatrzymało. Powrót to sposób, w jaki stos się kurczy, i dzięki niemu każde wywołanie może użyć wyniku wywołania, które zrobiło."
+    },
+    "back-in-photos": {
+      "title": "Trip wraca do Photos",
+      "caption": "Trip też nie ma już wpisów, więc jego wywołanie wraca, a jego ramka jest zdejmowana. Zostaje tylko pierwsze wywołanie, dla Photos. Idzie ono dalej do następnego wpisu w swoim folderze."
+    },
+    "the-last-entry": {
+      "title": "Pierwsze wywołanie kończy się ostatnie",
+      "caption": "Ostatni wpis w Photos to notes.txt, plik, więc trafia do wyniku. Photos nie ma już wpisów i wraca, co zdejmuje ostatnią ramkę. Wywołanie, które zaczęło się pierwsze, kończy się ostatnie, a stos znowu jest pusty."
+    },
+    "no-base-case": {
+      "title": "Bez base case stos się przepełnia",
+      "caption": "Załóżmy, że folder zawiera skrót prowadzący z powrotem do Photos, a funkcja traktuje skrót jak folder. Photos wywołuje skrót, skrót wywołuje znowu Photos i żadne wywołanie nie dochodzi do pliku, który by je zatrzymał. Ramki piętrzą się, aż środowisko osiągnie swój limit i zgłosi [[stack-overflow]] (przepełnienie stosu). W JavaScripcie jest to RangeError, a może go wywołać także prawidłowe, bardzo głęboko zagnieżdżone drzewo folderów.",
+      "keyIdea": "Każdy łańcuch wywołań musi dojść do base case, inaczej stos się przepełni."
+    },
+    "total-size-preview": {
+      "title": "Dalej: łączny rozmiar folderu",
+      "caption": "W Practice napiszesz totalSize, która sumuje rozmiar wszystkich plików w folderze, bez względu na zagnieżdżenie. Rozmiar pliku to base case, a rozmiar folderu to suma rozmiarów jego wpisów. Narysowane pliki mają 12, 40, 35 i 3 KB, więc Photos waży razem 90 KB."
+    },
+    "where-you-meet-it": {
+      "title": "Gdzie to spotkasz",
+      "caption": "Oto miejsca, w których spotkasz rekurencję poza tą aplikacją do zdjęć. W każdym są dane zagnieżdżone albo problem, który rozpada się na mniejsze kopie samego siebie. Notatka pod nimi mówi, kiedy wybrać coś innego."
+    }
+  },
+  "checks": {
+    "what-to-do-with-a-file": {
+      "prompt": "Wywołanie dla Photos dochodzi do logo.png, czyli pliku. Co funkcja ma z nim zrobić?",
+      "options": {
+        "add-and-return": "Dodać go do listy i iść dalej, bo plik nie ma wpisów, więc nie ma na czym wywoływać się ponownie",
+        "open-it": "Wywołać samą siebie na logo.png, bo każdy wpis trzeba otworzyć w ten sam sposób",
+        "skip-it": "Pominąć go na liście, bo lista zawiera tylko foldery",
+        "add-and-descend": "Dodać go do listy, a potem wywołać samą siebie na nim, bo każdy wpis traktuje się tak samo"
+      },
+      "explanation": "Funkcja dodaje logo.png i idzie dalej, bo plik nie ma w środku wpisów, a odpowiedź jest już znana. To jest base case i to on powstrzymuje wywołania przed schodzeniem głębiej. Wywołanie na pliku szukałoby wpisów, których nie ma. Lista zawiera pliki, nie foldery, więc plik do niej należy."
+    },
+    "what-to-do-with-a-folder": {
+      "prompt": "Wywołanie dla Photos dochodzi do Trip, czyli folderu. Co funkcja ma z nim zrobić?",
+      "options": {
+        "call-itself": "Wywołać samą siebie na Trip, bo folder zawiera wpisy, które trzeba wypisać tak samo",
+        "list-the-folder": "Dodać Trip do listy, bo to wpis jak każdy inny",
+        "skip-the-folder": "Pominąć Trip, bo funkcja wypisuje tylko pliki leżące bezpośrednio w Photos",
+        "stop-here": "Zatrzymać się i wrócić, bo folder kończy poszukiwania"
+      },
+      "explanation": "Funkcja wywołuje samą siebie na Trip, bo wypisanie tego, co jest w Trip, to to samo zadanie na mniejszym kawałku. To jest recursive case. Dodanie Trip do listy dałoby folder, a nie pliki z jego wnętrza. Pominięcie go zgubiłoby beach.jpg i wszystko inne w tym folderze, a zatrzymanie się zgubiłoby nawet wpisy, które w Photos następują po nim."
+    },
+    "frames-when-entering-day-two": {
+      "prompt": "Na stosie są ramki Photos i Trip. Wywołanie dla Trip dochodzi do folderu Day two i wywołuje samo siebie. Ile ramek jest na stosie, gdy nowe wywołanie się zaczyna?",
+      "options": {
+        "three-frames": "Trzy, bo każde wywołanie, które się zaczęło i nie wróciło, trzyma ramkę: Photos, Trip i Day two",
+        "two-frames": "Dwie, bo nowe wywołanie zastępuje ramkę Trip",
+        "five-frames": "Pięć, bo każdy plik i folder, który już widzieliśmy, dostaje ramkę",
+        "one-frame": "Jedną, bo ramkę potrzebuje tylko wywołanie, które działa"
+      },
+      "explanation": "Na stosie są trzy ramki, bo wywołanie trzyma swoją ramkę, dopóki nie wróci, a Photos i Trip jeszcze nie wróciły. Nowe wywołanie dochodzi na wierzch i niczego nie zastępuje. Pliki nie dostają ramek, bo dojście do pliku nie zaczyna wywołania, które czeka. Wstrzymane wywołania są potrzebne, bo każde musi kontynuować tam, gdzie stanęło."
+    },
+    "which-call-is-running": {
+      "prompt": "Na stosie są ramki Photos, Trip i Day two. Wskaż ramkę wywołania, które teraz działa i dodaje hike.jpg.",
+      "explanation": "Działa wywołanie dla Day two, bo leży na wierzchu, a działa tylko wywołanie z wierzchu. Trip i Photos są wstrzymane pod spodem i każde czeka na powrót wywołania nad sobą. Wywołanie dla Photos zaczęło się pierwsze, ale to, że zaczęło się pierwsze, nie czyni go aktywnym."
+    },
+    "which-call-continues": {
+      "prompt": "Wywołanie dla Day two nie ma już wpisów i wraca. Wskaż ramkę wywołania, które potem kontynuuje działanie.",
+      "explanation": "Kontynuuje wywołanie dla Trip, bo po zdjęciu Day two staje się ramką z wierzchu. Wznawia od miejsca, w którym zrobiło swoje wywołanie. Photos zostaje wstrzymane, bo Trip nadal leży nad nim i jeszcze się nie skończyło."
+    },
+    "state-after-the-first-call-returns": {
+      "prompt": "Wywołanie dla Photos dodaje swój ostatni wpis, notes.txt, i wraca. Co zostaje?",
+      "options": {
+        "empty-stack-four-files": "Pusty stos i cztery pliki na liście, bo każde wywołanie wróciło, a każdy plik został dodany raz",
+        "photos-stays": "Photos nadal na stosie, bo pierwsze wywołanie zostaje do końca programu",
+        "only-direct-files": "Pusty stos i dwa pliki, logo.png i notes.txt, bo wypisywane są tylko pliki leżące bezpośrednio w Photos",
+        "frames-stay": "Trzy ramki na stosie i cztery pliki, bo ramki zostają jako zapis ścieżki"
+      },
+      "explanation": "Stos jest pusty, a lista ma cztery pliki, bo każde wywołanie zdjęło swoją ramkę przy powrocie, a każdy plik został dodany dokładnie raz. Pierwsze wywołanie nie zostaje, bo kończy się jak każde inne. Pliki z Trip i Day two też są na liście, bo dodały je wywołania dla tych folderów, zanim wróciły. Ramki nie są zapisem: wywołanie, które wróciło, niczego po sobie nie zostawia."
+    },
+    "folder-that-contains-itself": {
+      "prompt": "Skrót w Photos prowadzi z powrotem do Photos, a funkcja traktuje skrót jak folder. Wywołujesz ją dla Photos. Co się dzieje?",
+      "options": {
+        "stack-overflow": "Stos rośnie, aż środowisko zatrzyma go błędem przepełnienia stosu, bo żadne wywołanie nie dochodzi do base case",
+        "runtime-notices": "Kończy się normalnie, bo środowisko zauważa powtórzony folder i się zatrzymuje",
+        "lists-twice": "Wypisuje każdy plik dwa razy i kończy, bo skrót dodaje tylko jedno okrążenie",
+        "small-stack": "Lista rośnie, ale stos pozostaje mały, bo każde wywołanie wraca, zanim zacznie się następne"
+      },
+      "explanation": "Stos rośnie, aż środowisko zatrzyma go przepełnieniem, bo każde wywołanie zaczyna następne, zanim zdąży wrócić, a żadne nie dochodzi do pliku kończącego łańcuch. Środowisko nie wykrywa powtórzeń: pilnuje tylko limitu stosu. Drugie okrążenie znowu doszłoby do skrótu, więc obchód nigdy sam się nie kończy. Wywołania nie wracają, zanim zacznie się następne, więc stos rośnie z każdym okrążeniem."
+    }
+  },
+  "terms": {
+    "recursion": {
+      "term": "recursion",
+      "gloss": "rekurencja: rozwiązywanie problemu funkcją, która wywołuje samą siebie na mniejszym kawałku tego samego problemu."
+    },
+    "call-stack": {
+      "term": "call stack",
+      "gloss": "stos wywołań: stos wywołań, które się zaczęły i jeszcze nie wróciły, z jedną ramką na każde; ramka z wierzchu to działające wywołanie."
+    },
+    "base-case": {
+      "term": "base case",
+      "gloss": "przypadek bazowy: dane tak proste, że funkcja rekurencyjna odpowiada na nie od razu, bez wywoływania samej siebie."
+    },
+    "recursive-case": {
+      "term": "recursive case",
+      "gloss": "przypadek rekurencyjny: dane, przy których funkcja rekurencyjna wywołuje samą siebie na mniejszym kawałku problemu."
+    },
+    "stack-overflow": {
+      "term": "stack overflow",
+      "gloss": "przepełnienie stosu: błąd zgłaszany, gdy stos wywołań przekroczy limit środowiska, zwykle przez rekurencję, która nigdy nie dochodzi do base case."
+    }
+  },
+  "exercise": {
+    "title": "Zsumuj rozmiar folderu",
+    "task": "Aplikacja do zdjęć pokazuje, ile miejsca zajmuje folder. Folder to obiekt z nazwą i listą wpisów, a plik to obiekt z nazwą i rozmiarem w KB. Napisz totalSize, która przyjmuje folder albo plik i zwraca łączny rozmiar wszystkich plików w środku, na dowolnej głębokości. Pusty folder to 0, a plik to po prostu jego własny rozmiar.",
+    "hints": [
+      "Folder może zawierać foldery, które zawierają foldery, więc stała liczba pętli nie wystarczy. Zastanów się, jakie dane dają odpowiedź od razu, a jakie to ten sam problem na mniejszych kawałkach.",
+      "Plik ma rozmiar i nie wymaga dalszej pracy, więc tu wywołania się kończą. Dla folderu zastanów się, z czego składa się jego suma i która funkcja już liczy sumę jednego wpisu.",
+      "Nie rozpoznawaj plików i folderów po nazwie wpisu: odróżniaj je po tym, co obiekt zawiera. Sprawdź, czy pusty folder daje 0 i czy folder zawierający tylko puste foldery też."
+    ]
+  }
+}
