@@ -169,7 +169,7 @@
   },
   "exercise": {
     "title": "Policz pary, które sumują się do karty podarunkowej",
-    "task": "Twój sklep sprzedaje karty podarunkowe i chce wiedzieć, ile par produktów daje w sumie wartość karty. Napisz funkcję countPairsWithSum, która przyjmuje ceny i sumę docelową oraz zwraca, ile jest par pozycji i < j, dla których prices[i] + prices[j] równa się sumie docelowej. Takie same ceny na różnych pozycjach to osobne pary, więc [5, 5, 5] z sumą 10 daje 3 pary. Zadbaj o O(n): sprawdzanie każdej pary jest za wolne dla długiej listy. Complexity Test przekazuje tylko ceny, więc nie zakładaj, że target jest podany.",
+    "task": "Twój sklep sprzedaje karty podarunkowe i chce wiedzieć, ile par produktów daje w sumie wartość karty. Napisz funkcję countPairsWithSum, która przyjmuje ceny i sumę docelową oraz zwraca, ile jest par pozycji i < j, dla których prices[i] + prices[j] równa się sumie docelowej. Takie same ceny na różnych pozycjach to osobne pary, więc [5, 5, 5] z sumą 10 daje 3 pary. Zadbaj o O(n): sprawdzanie każdej pary jest za wolne dla długiej listy.",
     "hints": [
       "Sprawdzanie każdej pary cen to O(n²). Zamiast tego dla każdej ceny zapytaj, jaka inna cena dopełniłaby sumę docelową.",
       "Czytając ceny od lewej do prawej, pamiętaj, ile razy widziałeś każdą cenę. Map z ceny na liczbę wystąpień odpowiada na zapytanie średnio w O(1).",

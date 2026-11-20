@@ -169,7 +169,7 @@
   },
   "exercise": {
     "title": "Count the pairs that add up to a gift card",
-    "task": "Your shop sells gift cards and wants to know how many pairs of products add up to a card's value. Write countPairsWithSum, which takes the prices and a target and returns how many pairs of positions i < j have prices[i] + prices[j] equal to the target. Equal prices at different positions are separate pairs, so [5, 5, 5] with a target of 10 has 3 pairs. Keep it O(n): checking every pair is too slow for a long list. The Complexity Test passes only the prices, so do not rely on target being present.",
+    "task": "Your shop sells gift cards and wants to know how many pairs of products add up to a card's value. Write countPairsWithSum, which takes the prices and a target and returns how many pairs of positions i < j have prices[i] + prices[j] equal to the target. Equal prices at different positions are separate pairs, so [5, 5, 5] with a target of 10 has 3 pairs. Keep it O(n): checking every pair is too slow for a long list.",
     "hints": [
       "Checking every pair of prices is O(n²). Instead, for each price ask which other price would complete the target.",
       "While you read the prices from left to right, remember how many times you have seen each price. A Map from a price to its count answers a lookup in O(1) on average.",

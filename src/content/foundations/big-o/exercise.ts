@@ -47,6 +47,7 @@ export const countPairsWithSumExercise: Exercise = {
   complexityTest: {
     id: 'many-prices-complexity',
     generator: { kind: 'range', size: 30000 },
+    extraArgs: [{ shape: 'value', value: 29999 }],
     expected: 'reference',
     budgetMultiple: 8,
     complexity: 'O(n)',

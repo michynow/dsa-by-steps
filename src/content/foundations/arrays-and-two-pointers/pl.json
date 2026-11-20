@@ -1,0 +1,159 @@
+{
+  "title": "Tablice i dwa wskaźniki",
+  "story": {
+    "title": "Karta podarunkowa i posortowany cennik",
+    "summary": "Masz kartę podarunkową z saldem 31 i cennik sklepu posortowany od najtańszego do najdroższego. Szukasz dwóch produktów, których ceny dają dokładnie tyle co saldo, i chcesz je znaleźć szybko, nawet gdy cennik jest długi."
+  },
+  "uses": [
+    {
+      "title": "Bufory obrazu i dźwięku",
+      "body": "Obraz jest zapisany jako tablica wartości pikseli, a dźwięk jako tablica próbek. Każda wartość leży w pamięci tuż obok sąsiadów, więc program czyta piksel lub próbkę od razu po indeksie i przegląda je po kolei."
+    },
+    {
+      "title": "Kolumny w analitycznych bazach danych",
+      "body": "Kolumnowe bazy danych trzymają wszystkie wartości jednej kolumny razem, po kolei. Zapytanie sumujące kolumnę czyta wtedy jeden zwarty ciąg wartości, a to jest szybkie."
+    },
+    {
+      "title": "Scalanie posortowanych list",
+      "body": "Merge sort i merge join w bazie danych łączą dwie posortowane listy, trzymając po jednym wskaźniku w każdej i biorąc zawsze mniejszą z dwóch wartości. Każdy wskaźnik idzie tylko do przodu, więc scalanie to jeden przebieg."
+    },
+    {
+      "title": "Palindromy i odwracanie w miejscu",
+      "body": "Żeby sprawdzić, czy słowo czyta się tak samo od tyłu, porównujesz pierwszą i ostatnią literę, potem drugą i przedostatnią, a jeden wskaźnik idzie z każdego końca do środka. Odwracanie tablicy w miejscu zamienia te same pary."
+    }
+  ],
+  "whenNot": "Tablica słabo się sprawdza, gdy często wstawiasz lub usuwasz elementy w środku, bo każdy element za tym miejscem trzeba przesunąć: O(n). Dwa wskaźniki wymagają posortowanych danych. Jeśli dane nie są posortowane, posortuj je najpierw, co kosztuje O(n log n), albo użyj hash mapy, która znajduje parę dla każdej wartości w O(1) średnio i nie zależy od kolejności. A gdy wynikiem jest jedna wartość, a nie para, wystarcza zwykły przebieg po tablicy.",
+  "outcomes": {
+    "read-by-index": "Odczytasz komórkę array (tablicy) po jej index (indeksie) i podasz koszt",
+    "move-by-the-sum": "Zdecydujesz, który pointer (wskaźnik) przesunąć, porównując sumę z celem",
+    "discard-with-sorted-order": "Wyjaśnisz, dlaczego posortowanie pozwala odrzucić cenę raz na zawsze",
+    "find-the-pair": "Znajdziesz dwie wartości o zadanej sumie za pomocą two pointers (dwóch wskaźników)",
+    "count-the-moves": "Podasz koszt wyszukiwania dwoma wskaźnikami"
+  },
+  "steps": {
+    "overview": {
+      "title": "Rząd ponumerowanych komórek",
+      "caption": "[[array]] (tablica) to rząd komórek leżących obok siebie, z których każda trzyma jedną wartość. Każda komórka ma numer zwany [[index]] (indeksem), a pierwsza komórka ma indeks 0, więc każdą komórkę odczytasz bezpośrednio. [[two-pointers]] (dwa wskaźniki) to technika, w której ustawiasz po jednym [[pointer]] (wskaźniku) na każdym końcu posortowanej tablicy i przesuwasz je ku sobie. Rysunek pokazuje gotowy przykład: posortowany cennik z lewym i prawym wskaźnikiem na dwóch cenach, które dają saldo karty podarunkowej."
+    },
+    "the-problem": {
+      "title": "Które dwie ceny wykorzystają całą kartę?",
+      "caption": "Masz kartę podarunkową z saldem 31 i cennik sklepu posortowany od najtańszego do najdroższego. Szukasz dwóch różnych produktów, których ceny dają dokładnie 31, żeby na karcie nic nie zostało. Sprawdzanie każdej pary działa, ale 6 cen daje 15 par, a 100 000 cen daje około 5 miliardów. Potrzebujesz sposobu, żeby znaleźć parę bez sprawdzania wszystkich.",
+      "keyIdea": "Posortowanie pozwala odrzucić od razu całą cenę, a nie tylko jedną parę."
+    },
+    "read-by-index": {
+      "title": "Każda cena ma indeks",
+      "caption": "Ceny leżą w tablicy, więc każda ma indeks liczony od 0. Indeks 0 to najtańsza cena, a indeks 5 najdroższa. Komórki leżą w pamięci obok siebie, więc komputer skacze prosto do dowolnego indeksu, nie patrząc na pozostałe, a odczyt kosztuje O(1).",
+      "keyIdea": "Odczyt komórki po indeksie kosztuje O(1), niezależnie od długości tablicy."
+    },
+    "one-pointer-at-each-end": {
+      "title": "Po wskaźniku na każdym końcu",
+      "caption": "Ustawiasz left na najtańszej cenie, indeks 0, a right na najdroższej, indeks 5. Dwa wskaźniki trzymają twoją pierwszą parę, 4 i 30, a każda cena między nimi nadal wchodzi w grę.",
+      "keyIdea": "Zacznij od jednego wskaźnika na każdym końcu posortowanej tablicy."
+    },
+    "add-the-two-prices": {
+      "title": "Dodaj dwie ceny",
+      "caption": "Dodajesz ceny pod wskaźnikami: 4 plus 30 to 34. Saldo wynosi 31, więc ta para jest o 3 za droga. Teraz decydujesz, który wskaźnik musi się przesunąć."
+    },
+    "too-big": {
+      "title": "Za dużo: przesuń prawy wskaźnik",
+      "caption": "Suma przekracza saldo, więc potrzebujesz mniejszej sumy. Tablica jest posortowana, więc obniżyć ją może tylko tańsza cena po prawej, i prawy wskaźnik przesuwa się o jedno miejsce w lewo, z 30 na 25. Cena 30 odpada na zawsze, bo nawet z najtańszą ceną po lewej daje już 34.",
+      "keyIdea": "Suma, która jest za duża, wymaga tańszej ceny, więc prawy wskaźnik idzie w lewo."
+    },
+    "too-small": {
+      "title": "Za mało: przesuń lewy wskaźnik",
+      "caption": "Teraz 4 plus 25 to 29, czyli o 2 za mało. Suma jest za mała, więc potrzebujesz droższej ceny, a dać ją może tylko droższa cena po lewej. Lewy wskaźnik przesuwa się o jedno miejsce w prawo, z 4 na 7. Cena 4 odpada na zawsze, bo nawet z najdroższą pozostałą ceną po prawej jest za mała.",
+      "keyIdea": "Suma, która jest za mała, wymaga droższej ceny, więc lewy wskaźnik idzie w prawo."
+    },
+    "a-price-stays-out": {
+      "title": "Odrzucona cena nie wraca",
+      "caption": "Wskaźniki stoją na 7 i 25, a 7 plus 25 to 32, czyli więcej niż 31. Prawy wskaźnik przesuwa się w lewo na 19 i nigdy nie wracasz po 25. Każda cena, która została po lewej, wynosi co najmniej 7, więc 25 może dać tylko sumy 32 lub więcej."
+    },
+    "the-match": {
+      "title": "Znowu za mało, a potem trafienie",
+      "caption": "Teraz 7 plus 19 to 26, czyli mniej niż 31, więc lewy wskaźnik idzie w prawo na 12. Potem 12 plus 19 to 31, dokładnie saldo. Para leży pod indeksem 2 i indeksem 3, a sprawdziłeś 5 par zamiast 15."
+    },
+    "count-the-moves": {
+      "title": "Każdy ruch odrzuca jedną cenę",
+      "caption": "Wyszukiwanie zajęło 4 ruchy i każdy z nich odrzucił jedną cenę na zawsze: 4, 30, 25 i 7 odpadają. Dwa wskaźniki idą tylko ku sobie i zatrzymują się, gdy się spotkają, więc wykonują co najwyżej jeden ruch na cenę. Praca rośnie tak samo jak liczba cen, czyli O(n).",
+      "keyIdea": "Każdy ruch odrzuca jedną cenę, więc dwa wskaźniki wykonują co najwyżej n - 1 ruchów: O(n)."
+    },
+    "return-the-positions": {
+      "title": "Dalej: zwróć dwie pozycje",
+      "caption": "W Practice piszesz twoSumSorted. Funkcja dostaje posortowane ceny i saldo, a zwraca indeksy dwóch cen o sumie równej saldu, tutaj 2 i 3, albo null, gdy takiej pary nie ma. Wystarczy jeden przebieg dwoma wskaźnikami."
+    },
+    "where-you-meet-it": {
+      "title": "Gdzie to spotkasz",
+      "caption": "Tutaj spotkasz tablice i dwa wskaźniki poza sklepem. Część zastosowań dotyczy samej tablicy, a część przesuwania dwóch wskaźników po niej. Uwaga pod nimi mówi, kiedy wybrać coś innego."
+    }
+  },
+  "checks": {
+    "price-at-index-three": {
+      "prompt": "Ceny leżą w tablicy, a najtańsza ma indeks 0. Wskaż cenę pod indeksem 3.",
+      "explanation": "Pod indeksem 3 leży cena 19. Licząc od 0, indeks 0 to 4, indeks 1 to 7, indeks 2 to 12, a indeks 3 to 19. Komputer sięga do tej komórki bezpośrednio, bez czytania poprzednich."
+    },
+    "which-pointer-moves": {
+      "prompt": "Lewy wskaźnik stoi na 4, a prawy na 30. Ich suma, 34, jest większa niż saldo 31. Który wskaźnik się przesuwa i gdzie?",
+      "options": {
+        "right-moves-left": "Prawy wskaźnik przesuwa się o jedno miejsce w lewo, bo tylko tańsza cena po prawej obniży sumę",
+        "left-moves-right": "Lewy wskaźnik przesuwa się o jedno miejsce w prawo, bo lewa cena jest mniejsza, więc to ją trzeba wymienić",
+        "both-move-in": "Oba wskaźniki przesuwają się o jedno miejsce do środka, bo żadna cena z nieudanej pary nie może być w wyniku",
+        "restart-from-next": "Lewy wskaźnik idzie w prawo, a prawy wraca na koniec, bo każdą lewą cenę trzeba sprawdzić z każdą inną"
+      },
+      "explanation": "Przesuwa się prawy wskaźnik w lewo, bo ceny rosną w prawo, więc tańsza cena po prawej to jedyny sposób na obniżenie sumy. Przesunięcie lewego wskaźnika podniosłoby sumę i pogorszyło sprawę. Przesunięcie obu odrzuciłoby 4, która nadal może być w wyniku. Zaczynanie od następnej lewej ceny to wolne sprawdzanie każdej pary, które wskaźniki zastępują."
+    },
+    "where-left-lands": {
+      "prompt": "Wskaźniki stoją na 4 i 25, a suma 29 jest mniejsza niż saldo 31. Suma jest za mała, więc przesuwa się lewy wskaźnik. Wskaż cenę, na którą trafi.",
+      "explanation": "Lewy wskaźnik przesuwa się o jedno miejsce w prawo, na 7. Ceny są posortowane, więc następna cena po prawej to najmniejsza z tych droższych niż 4. Cena 12 pominęłaby 7, której jeszcze nie odrzucono."
+    },
+    "could-the-leftover-return": {
+      "prompt": "Wskaźniki stoją na 7 i 25, a suma 32 jest większa niż saldo 31. Prawy wskaźnik zaraz opuści 25. Czy 25 może jeszcze być częścią wyniku?",
+      "options": {
+        "left-only-grows": "Nie, bo każda cena, która została po lewej, wynosi co najmniej 7, więc 25 plus którakolwiek z nich daje co najmniej 32",
+        "must-retry": "Tak, bo 25 sprawdzono tylko z 4 i 7, więc trzeba je jeszcze sprawdzić z 12 i 19",
+        "pointer-may-return": "Tak, bo prawy wskaźnik może trafić na cenę, która jest za mała, i wtedy musi wrócić do 25",
+        "failed-once": "Nie, bo 25 nie pasowała do jednego partnera, a cena, która raz zawiodła, nigdy nie jest użyta ponownie"
+      },
+      "explanation": "Nie, 25 odpada na zawsze. Lewy wskaźnik idzie tylko w prawo po posortowanej tablicy, więc każda dostępna cena po lewej wynosi co najmniej 7, a 25 plus 7 to już więcej niż saldo. Sprawdzanie 25 z 12 lub 19 dałoby tylko większe sumy. Brak dopasowania do jednego partnera sam nie odrzuca ceny: 25 odpada, bo każdy dostępny partner by zawiódł. Prawy wskaźnik nie musi nigdy wracać, bo za małą sumę naprawia się po lewej stronie."
+    },
+    "price-that-completes-the-pair": {
+      "prompt": "Wskaźniki stoją na 7 i 19, a suma 26 jest mniejsza niż saldo 31. Lewy wskaźnik przesuwa się o jedno miejsce w prawo. Wskaż cenę, która teraz razem z 19 daje dokładnie saldo.",
+      "explanation": "Tą ceną jest 12, bo 12 plus 19 to 31. Lewy wskaźnik przechodzi z 7 na następną cenę, czyli 12, i suma równa się saldu. Wyszukiwanie się kończy, a para leży pod indeksem 2 i indeksem 3."
+    },
+    "moves-on-a-long-list": {
+      "prompt": "Posortowana lista ma 100 000 cen i żadna para nie daje salda. Ile co najwyżej ruchów wskaźników wykona wyszukiwanie, zanim wskaźniki się spotkają?",
+      "options": {
+        "one-per-price": "Co najwyżej 99 999 ruchów, bo każdy ruch odrzuca jedną cenę, a wskaźniki zatrzymują się, gdy się spotkają",
+        "every-pair": "Około 5 miliardów ruchów, bo nadal trzeba porównać każdą parę",
+        "halving": "Około 17 ruchów, bo każdy ruch zmniejsza zakres o połowę, jak w wyszukiwaniu binarnym"
+      },
+      "explanation": "Co najwyżej 99 999 ruchów: każdy ruch odrzuca dokładnie jedną cenę, a wyszukiwanie kończy się, gdy między wskaźnikami zostaje jedna cena, więc koszt to O(n). Nigdy nie porównuje każdej pary, bo każdy ruch odrzuca całą cenę. Nie dzieli też zakresu na pół, bo ruch odrzuca jedną cenę, a nie połowę."
+    }
+  },
+  "terms": {
+    "array": {
+      "term": "array",
+      "gloss": "tablica: rząd komórek leżących w pamięci obok siebie, z których każda trzyma jedną wartość dostępną po indeksie."
+    },
+    "index": {
+      "term": "index",
+      "gloss": "indeks: numer komórki w tablicy, liczony od 0."
+    },
+    "two-pointers": {
+      "term": "two pointers",
+      "gloss": "dwa wskaźniki: technika, w której dwa wskaźniki idą po posortowanych danych, zwykle ku sobie, a każdy ruch wynika z wartości, na które wskazują."
+    },
+    "pointer": {
+      "term": "pointer",
+      "gloss": "wskaźnik: znacznik z nazwą, który wskazuje jedno miejsce w strukturze, na przykład left albo right."
+    }
+  },
+  "exercise": {
+    "title": "Dwie ceny na kartę podarunkową",
+    "task": "Napisz funkcję twoSumSorted, która przyjmuje listę cen posortowaną od najtańszej do najdroższej oraz saldo karty podarunkowej. Zwróć indeksy dwóch różnych cen, które dają dokładnie saldo, z niższym indeksem na początku, albo null, gdy takiej pary nie ma. Użyj [[two-pointers]], żeby wystarczył jeden przebieg po cenach.",
+    "hints": [
+      "Ceny rosną od lewej do prawej. Które dwie pozycje dają najmniejszą sumę, a które największą?",
+      "Dodaj ceny z dwóch pozycji i porównaj sumę z saldem. Samo to porównanie mówi, która pozycja musi się przesunąć i w którą stronę.",
+      "Cena nie może tworzyć pary sama ze sobą, więc zatrzymaj się, gdy pozycje się spotkają, i zwróć null. Gdy suma równa się saldu, zwróć oba indeksy."
+    ]
+  }
+}
