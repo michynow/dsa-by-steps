@@ -1,0 +1,173 @@
+{
+  "title": "Okno przesuwne",
+  "story": {
+    "title": "Najbardziej obciążone pięć minut",
+    "summary": "Serwer zapisuje, ile żądań przychodzi w każdej minucie. Przed premierą chcesz wiedzieć, które pięć minut z rzędu było najbardziej obciążone, a potem jak krótki może być przedział, żeby nadal zebrać zadaną liczbę żądań."
+  },
+  "uses": [
+    {
+      "title": "Ograniczanie liczby żądań",
+      "body": "Ogranicznik, który dopuszcza na przykład 100 żądań w dowolnych 60 sekundach, trzyma okno nad ostatnimi żądaniami. Nowe żądania do niego wchodzą, żądania starsze niż 60 sekund z niego wychodzą, a rozmiar okna decyduje, czy następne żądanie zostanie przepuszczone."
+    },
+    {
+      "title": "Średnie kroczące",
+      "body": "Dashboard pokazujący średnią z ostatnich 30 próbek nie dodaje 30 liczb przy każdej nowej próbce. Dodaje nową próbkę do bieżącej sumy, odejmuje tę, która wyszła, i dzieli, więc każda aktualizacja kosztuje tyle samo, jak szerokie by nie było okno."
+    },
+    {
+      "title": "Kontrola przepływu w TCP",
+      "body": "TCP pozwala nadawcy mieć w locie okno bajtów, których odbiorca jeszcze nie potwierdził. Każde potwierdzenie przesuwa początek okna do przodu, więc nadawca może wysłać więcej. Okno jest zakresem pozycji w strumieniu, tak jak twoje jest zakresem minut."
+    },
+    {
+      "title": "Rolling hash w wyszukiwaniu tekstu",
+      "body": "Algorytm Rabina-Karpa znajduje słowo w długim tekście, porównując hasze. Liczy hasz pierwszego fragmentu tekstu, a potem aktualizuje go w O(1), gdy fragment przesuwa się o jeden znak, zamiast liczyć hasz każdego fragmentu od zera."
+    }
+  ],
+  "whenNot": "Okno wymaga, żeby elementy leżały obok siebie, więc nie wybierze minut oddalonych od siebie. Okno zmienne zakłada też, że odrzucenie minuty z lewej strony nigdy nie podnosi sumy, co przestaje działać, gdy liczby mogą być ujemne. Jeśli potrzebujesz sumy jednego okna na krótkim logu, zwykła pętla jest prostsza. A jeśli odpowiadasz na wiele pytań o dowolne zakresy stałego logu, a nie o jedno poruszające się okno, tabela sum bieżących odpowiada na każdy zakres w O(1) po jednym przebiegu.",
+  "outcomes": {
+    "size-the-window": "Ustawisz `left` i `right` tak, żeby okno obejmowało zadaną liczbę minut",
+    "update-the-total": "Zaktualizujesz sumę okna, dodając minutę, która wchodzi, i odejmując tę, która wychodzi",
+    "find-the-busiest-window": "Przesuniesz okno stałej szerokości po całym logu i zapamiętasz najlepszą sumę",
+    "grow-and-shrink": "Powiększysz okno zmienne z prawej strony i zmniejszysz je z lewej, dopóki jego warunek jest spełniony",
+    "count-the-cost": "Podasz koszt okna przesuwnego: O(n) kroków"
+  },
+  "steps": {
+    "overview": {
+      "title": "Okno, które przesuwa się po logu",
+      "caption": "[[sliding-window]] (okno przesuwne) to zakres sąsiednich komórek tablicy, który przesuwa się po niej o jedną komórkę naraz. Zaznaczają go dwa wskaźniki: `left` to pierwsza komórka okna, a `right` to ostatnia. Rysunek pokazuje gotowy przykład: log żądań na minutę i pięciominutowe okno z największą liczbą żądań, od `m2` do `m6`."
+    },
+    "the-problem": {
+      "title": "Które pięć minut było najbardziej obciążone?",
+      "caption": "Serwer zapisuje, ile żądań przyszło w każdej minucie. Przed premierą chcesz znaleźć pięć minut z rzędu z największą liczbą żądań. Prosty sposób to dodać pięć minut każdego możliwego okna. Dla logu z jednej doby, 1440 minut, to ponad 7000 dodawań, a dla tygodnia minut ponad 50 000. Większość tej pracy powtarza minuty, które dodałeś chwilę wcześniej."
+    },
+    "first-window": {
+      "title": "Dodaj pierwsze okno tylko raz",
+      "caption": "Ustawiasz `left` na `m1`, a `right` na piątej minucie, `m5`: okno ma pięć minut. Dodajesz je jeden raz: 2 + 5 + 1 + 4 + 3 = 15 żądań. To jedyny moment, w którym dodajesz razem wszystkie pięć minut."
+    },
+    "slide-one-minute": {
+      "title": "Przesuń o jedną minutę",
+      "caption": "Oba wskaźniki idą o jedną minutę w prawo. `m6` wchodzi do okna z 6 żądaniami, a `m1` z 2 żądaniami z niego wychodzi. Nowa suma to 15 + 6 - 2 = 19, dwie operacje zamiast pięciu dodawań. Nowe okno, od `m2` do `m6`, jest na razie najbardziej obciążone.",
+      "keyIdea": "Żeby przesunąć okno o jedną komórkę, dodaj komórkę, która wchodzi, i odejmij tę, która wychodzi."
+    },
+    "slide-to-the-end": {
+      "title": "Przesuwaj, aż log się skończy",
+      "caption": "Przesuwasz dalej. Okno od `m3` do `m7` ma 19 + 2 - 5 = 16 żądań, a ostatnie okno, od `m4` do `m8`, ma 16 + 1 - 1 = 16. Pamiętasz najlepszą sumę, jaką widziałeś, czyli 19, i miejsce, gdzie jej okno się zaczęło: `m2`. Sumy wyniosły 15, 19, 16 i 16."
+    },
+    "cost-of-sliding": {
+      "title": "Każda minuta wchodzi raz i raz wychodzi",
+      "caption": "Każda minuta jest dodawana, gdy `right` do niej dojdzie, i odejmowana, gdy `left` ją minie, i na tym koniec. Log z `n` minut kosztuje około 2n aktualizacji, jak szerokie by nie było okno: [[linear-time]], O(n). Dodawanie każdego okna od zera kosztuje około `n * k` dodawań przy oknie o `k` minutach, a im szersze okno, tym wolniej.",
+      "keyIdea": "Okno stałej szerokości kosztuje O(n) niezależnie od szerokości, bo każda komórka wchodzi i wychodzi raz."
+    },
+    "grow-the-window": {
+      "title": "Teraz okno samo ustala rozmiar",
+      "caption": "Drugie pytanie: jaki jest najkrótszy przedział minut z co najmniej 12 żądaniami? Teraz rozmiar nie jest zadany. To [[variable-window]] (okno zmienne): rośnie w prawo, aż jego suma osiągnie cel. `left` zostaje na `m1`, a `right` idzie minuta po minucie: 2, 7, 8, a na `m4` 12. Okno od `m1` do `m4` jest wystarczająco długie."
+    },
+    "shrink-the-window": {
+      "title": "Zmniejszaj od lewej, póki nadal jest 12",
+      "caption": "Okno osiąga 12, więc zapisujesz jego długość, 4 minuty. Potem próbujesz je skrócić, przesuwając `left` do przodu. Odrzucenie `m1` zabiera 2 i suma spada do 10, poniżej 12. Przestajesz zmniejszać, a okno od `m2` do `m4` musi znów urosnąć.",
+      "keyIdea": "Okno zmienne rośnie z prawej strony, aż warunek jest spełniony, a potem maleje z lewej, dopóki nadal jest spełniony."
+    },
+    "grow-and-shrink-again": {
+      "title": "Znów rośnie, potem maleje",
+      "caption": "`right` idzie na `m5` i suma wynosi 13. Okno od `m2` do `m5` ma 4 minuty, nie lepiej niż wcześniej, więc `left` mija `m2` i suma spada do 8. Potem `right` idzie na `m6`: suma to 14, a okno to `m3` do `m6`. `left` i `right` zawsze idą tylko do przodu."
+    },
+    "the-shortest-stretch": {
+      "title": "Zmniejszaj tak długo, jak pozwala suma",
+      "caption": "Okno od `m3` do `m6` ma 14 żądań. Odrzucenie `m3`, która ma 1 żądanie, zostawia 13, nadal co najmniej 12, więc `left` idzie na `m4`: trzy minuty. Odrzucenie `m4` zostawiłoby 9, więc `left` się zatrzymuje. Najkrótszy przedział z 12 żądaniami to od `m4` do `m6`, trzy minuty i 13 żądań.",
+      "keyIdea": "Zmniejszaj tylko dopóki warunek jest spełniony: ostatnie okno, które go spełniało, jest najkrótsze dla tego położenia `right`."
+    },
+    "cost-of-resizing": {
+      "title": "Dwa wskaźniki, które nie wracają",
+      "caption": "`right` odwiedza każdą minutę raz, a `left` każdą minutę co najwyżej raz, więc razem robią najwyżej 2n ruchów. Okno zmienne też kosztuje O(n), mimo że czasem kurczy się o wiele minut z rzędu. Liczy się to, że żaden wskaźnik nigdy się nie cofa.",
+      "keyIdea": "Jeśli oba wskaźniki idą tylko do przodu, cały przebieg kosztuje O(n)."
+    },
+    "busiest-window-in-practice": {
+      "title": "Dalej: znajdź najbardziej obciążone okno sam",
+      "caption": "W Practice piszesz `busiestWindow`. Funkcja dostaje liczbę żądań w każdej minucie i szerokość okna `size`, a zwraca minutę, w której zaczyna się najbardziej obciążone okno. Gdy dwa okna mają tę samą sumę, wygrywa wcześniejsze. Zwraca -1, gdy w logu nie mieści się żadne okno tej szerokości. To okno stałej szerokości z tej Lekcji: dodajesz pierwsze okno raz, a potem je przesuwasz."
+    },
+    "where-you-meet-it": {
+      "title": "Gdzie to spotkasz",
+      "caption": "Okna nad poruszającym się strumieniem pojawiają się w kilku systemach poza logiem serwera. Uwaga pod zastosowaniami mówi, kiedy okno jest złym narzędziem."
+    }
+  },
+  "checks": {
+    "where-the-window-ends": {
+      "prompt": "Okno obejmuje pięć minut z rzędu, a `left` stoi na `m1`. Wskaż minutę, na którą idzie `right`.",
+      "explanation": "`right` idzie na `m5`. Okno zawiera zarówno `m1`, jak i komórkę, na której stoi `right`, więc obejmuje `m1`, `m2`, `m3`, `m4` i `m5`. Wybranie `m6` dałoby okno szerokie na sześć minut."
+    },
+    "total-after-one-slide": {
+      "prompt": "Okno od `m1` do `m5` ma 15 żądań. Przesuwa się o jedną minutę w prawo i obejmuje teraz `m2` do `m6`. Jaka jest nowa suma?",
+      "options": {
+        "add-and-subtract": "19, bo `m6` z 6 żądaniami wchodzi, a `m1` z 2 żądaniami wychodzi",
+        "add-only": "21, bo `m6` z 6 żądaniami wchodzi, a minuty, które już były w oknie, zostają",
+        "subtract-only": "13, bo `m1` z 2 żądaniami wychodzi i okno się zmniejsza",
+        "unchanged": "15, bo jedna minuta wchodzi i jedna wychodzi, więc suma się nie zmienia"
+      },
+      "explanation": "Suma to 19: 15 + 6 - 2. Okno przesuwne się przesuwa, a nie rośnie, więc minutę, która wchodzi, trzeba połączyć z tą, która wychodzi. Samo dodawanie daje 21 i liczy `m1`, której już nie ma w oknie. Samo odejmowanie daje 13 i zapomina, że `m6` jest w środku. Jedna w środku i jedna na zewnątrz nie oznacza, że suma stoi w miejscu, bo obie minuty mają różne liczby żądań."
+    },
+    "where-the-sliding-stops": {
+      "prompt": "Okno ma pięć minut szerokości i przesuwa się o minutę naraz, dopóki całe mieści się w logu z ośmiu minut. Wskaż minutę, na której kończy `right`.",
+      "explanation": "`right` kończy na `m8`, ostatniej minucie logu. Okno może się przesuwać, dopóki `right` ma następną minutę, na którą może przejść. Gdy `right` stoi na `m8`, nie ma już czego dodać, więc ostatnie okno to `m4` do `m8`."
+    },
+    "cost-of-the-fixed-window": {
+      "prompt": "Log ma `n` minut, a okno ma szerokość `k` minut. Okno przesuwa się od początku do końca logu, a suma jest aktualizowana w każdym kroku. Ile to w sumie pracy?",
+      "options": {
+        "linear": "O(n), bo każda minuta jest dodawana raz, gdy wchodzi, i odejmowana raz, gdy wychodzi",
+        "n-times-k": "O(n * k), bo każde okno nadal musi dodać swoje `k` minut",
+        "only-k": "O(k), bo patrzy się tylko na minuty wewnątrz okna",
+        "quadratic": "O(n^2), bo każda minuta jest zestawiana z każdą inną minutą"
+      },
+      "explanation": "O(n), bo każda z `n` minut wchodzi raz i wychodzi raz, a każde z tych zdarzeń to praca O(1). Dodawanie `k` minut dla każdego okna to wolny sposób, którego okno unika: kosztuje O(n * k). Patrzenie tylko na `k` minut pomija to, że okno odwiedza cały log. A żadna minuta nie jest zestawiana z inną."
+    },
+    "where-right-stops": {
+      "prompt": "`left` stoi na `m1`. `right` idzie minutę po minucie, a suma liczy każdą minutę od `left` do `right`. Wskaż pierwszą minutę, przy której suma osiąga 12.",
+      "explanation": "`right` zatrzymuje się na `m4`. Sumy to 2 na `m1`, 7 na `m2`, 8 na `m3` i 12 na `m4`, a 12 jest pierwszą sumą co najmniej równą 12. Pójście dalej na `m5` dałoby okno dłuższe, niż trzeba."
+    },
+    "what-happens-at-twelve": {
+      "prompt": "Okno od `m1` do `m4` ma dokładnie 12 żądań, czyli cel. Ma cztery minuty. Co robisz dalej, żeby poszukać krótszego przedziału?",
+      "options": {
+        "shrink-from-left": "Przesuwasz `left` o minutę do przodu, bo krótsze okno może nadal mieć 12 bez `m1`",
+        "keep-growing": "Przesuwasz `right` na `m5`, bo okno, które osiągnęło cel, trzeba wydłużyć, zanim się poprawi",
+        "stop-now": "Kończysz, bo pierwsze okno, które osiąga 12, jest też najkrótsze",
+        "restart": "Przesuwasz `left` od razu na `m4`, bo okno, które osiągnęło cel, powinno zacząć od `right`"
+      },
+      "explanation": "Przesuwasz `left` o minutę do przodu. Odrzucenie `m1` może zostawić okno, które nadal ma 12, a takie okno byłoby krótsze. Rozszerzanie tylko wydłuża okno. Zatrzymanie się przy pierwszym trafieniu jest błędem: pierwsze okno z 12 nie musi być najkrótsze, a w logu jest takie z trzech minut. A przeskok `left` na `m4` pomija okna pomiędzy."
+    },
+    "where-left-stops": {
+      "prompt": "Okno od `m3` do `m6` ma 14 żądań, a `left` idzie o minutę do przodu, dopóki suma jest co najmniej 12. Wskaż minutę, na której `left` się zatrzymuje.",
+      "explanation": "`left` zatrzymuje się na `m4`. Odrzucenie `m3`, która ma 1 żądanie, zostawia 13, nadal wystarczająco. Odrzucenie `m4`, która ma 4, zostawiłoby 9, za mało, więc `left` zostaje. Zatrzymanie się na `m3` zostawiłoby okno dłuższe, niż trzeba."
+    },
+    "cost-of-the-variable-window": {
+      "prompt": "W logu z `n` minut okno zmienne rośnie z prawej strony i maleje z lewej. Ile pracy kosztuje cały przebieg w najgorszym przypadku?",
+      "options": {
+        "both-forward": "O(n), bo `left` i `right` idą tylko do przodu, więc każda minuta wchodzi i wychodzi najwyżej raz",
+        "restart-each": "O(n^2), bo za każdym razem, gdy `right` się przesunie, `left` może musieć zacząć od początku",
+        "n-log-n": "O(n log n), bo okno jest dzielone na pół przy każdym zmniejszaniu",
+        "only-the-window": "O(k), bo okno jest tak szerokie, jak szukany przedział"
+      },
+      "explanation": "O(n). Żaden wskaźnik się nie cofa, więc `right` robi najwyżej `n` ruchów, a `left` najwyżej `n`. `left` nie zaczyna od nowa po ruchu `right`: idzie dalej od miejsca, w którym był. Okno kurczy się, odrzucając minuty po jednej, a nie przez dzielenie na pół. A okno może mieć szerokość całego logu, więc koszt zależy od `n`, a nie od szerokości okna."
+    }
+  },
+  "terms": {
+    "sliding-window": {
+      "term": "sliding window",
+      "gloss": "okno przesuwne: zakres sąsiednich komórek tablicy, który przesuwa się po niej, a suma lub inne podsumowanie jest aktualizowane, gdy komórki wchodzą i wychodzą."
+    },
+    "variable-window": {
+      "term": "variable window",
+      "gloss": "okno zmienne: okno przesuwne o niestałym rozmiarze, które rośnie z prawej strony, aż warunek jest spełniony, i maleje z lewej, dopóki nadal jest spełniony."
+    },
+    "linear-time": {
+      "term": "linear time",
+      "gloss": "czas liniowy: koszt, który rośnie razem z rozmiarem danych n, zapisywany O(n)."
+    }
+  },
+  "exercise": {
+    "title": "Znajdź najbardziej obciążone okno",
+    "task": "Napisz funkcję `busiestWindow`, która przyjmuje liczbę żądań w każdej minucie logu oraz szerokość okna `size`, czyli liczbę minut z rzędu. Zwróć indeks minuty, w której zaczyna się najbardziej obciążone okno: to z największą łączną liczbą żądań. Gdy kilka okien ma tę samą sumę, zwróć najwcześniejsze. Zwróć -1, gdy `size` jest mniejszy niż 1 albo większy niż log. Użyj [[sliding-window]], żeby cały log był czytany w O(n), jak szerokie by nie było okno.",
+    "hints": [
+      "Dwa sąsiednie okna mają wspólne wszystkie minuty poza dwiema. Gdy okno przesuwa się o minutę w prawo, która minuta wchodzi, a która wychodzi?",
+      "Dodaj pierwsze `size` minut jeden raz. Potem każdy ruch zmienia sumę o minutę, która wchodzi, minus minutę, która wychodzi. Pamiętaj najlepszą dotychczasową sumę i indeks, w którym jej okno się zaczęło.",
+      "Zamieniaj najlepszą sumę tylko wtedy, gdy nowa jest ściśle większa, żeby wcześniejsze okno wygrywało remis. Sprawdź najpierw rozmiar: `size` poniżej 1 albo większy niż długość logu nie ma okna do zwrócenia."
+    ]
+  }
+}
