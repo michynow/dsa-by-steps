@@ -104,7 +104,6 @@ export const linkedListsLesson: Lesson = {
       id: 'now-playing-pointer',
       kind: 'explain',
       events: [
-        { type: 'clear-highlights' },
         {
           type: 'point',
           pointer: { id: 'now-playing', label: 'now-playing', target: song('intro') },
@@ -131,7 +130,6 @@ export const linkedListsLesson: Lesson = {
         { type: 'highlight', highlight: { target: song('glow'), tone: 'focus' } },
         { type: 'link', structureId: 'queue', from: 'glow', to: 'echo' },
         { type: 'link', structureId: 'queue', from: 'intro', to: 'glow' },
-        { type: 'clear-highlights' },
       ],
       check: {
         kind: 'choice',
@@ -216,7 +214,6 @@ export const linkedListsLesson: Lesson = {
         { type: 'drop-pointer', pointerId: 'prev' },
         { type: 'drop-pointer', pointerId: 'current' },
         { type: 'drop-pointer', pointerId: 'next' },
-        { type: 'clear-highlights' },
       ],
     },
   ],

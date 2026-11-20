@@ -320,12 +320,20 @@ function checkIssues(step: Step, check: Check, scene: Scene | undefined): readon
   }
 }
 
+function withoutHighlights(scene: Scene | undefined): Scene | undefined {
+  return scene === undefined ? undefined : { ...scene, highlights: [] };
+}
+
 function allCheckIssues(content: LessonContent, scenes: readonly Scene[]): readonly ContentIssue[] {
   const { initialScene, steps } = content.lesson;
   return steps.flatMap((step, index) =>
     step.check === undefined
       ? []
-      : checkIssues(step, step.check, index === 0 ? initialScene : scenes[index - 1]),
+      : checkIssues(
+          step,
+          step.check,
+          withoutHighlights(index === 0 ? initialScene : scenes[index - 1]),
+        ),
   );
 }
 

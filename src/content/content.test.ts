@@ -20,7 +20,7 @@ function expectedScenes(content: LessonContent): readonly Scene[] {
   const scenes: Scene[] = [];
   let current = content.lesson.initialScene;
   for (const step of content.lesson.steps) {
-    const next = applyStepEvents(current, step.events);
+    const next = applyStepEvents({ ...current, highlights: [] }, step.events);
     if (!next.ok) throw new Error(`${keyOf(content)} step ${step.id}: ${next.error.code}`);
     scenes.push(next.value);
     current = next.value;

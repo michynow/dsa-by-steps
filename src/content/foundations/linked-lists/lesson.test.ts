@@ -1,4 +1,4 @@
-import { scenesOf } from '@/domain';
+import { scenesOf, stepStartScene } from '@/domain';
 import type { Scene } from '@/domain';
 import { lessonContent } from '../../registry';
 import { linkedListsContent } from './index';
@@ -72,10 +72,7 @@ function summarise(scene: Scene): Summary {
 function sceneBefore(stepId: string): Scene {
   const index = lesson.steps.findIndex((step) => step.id === stepId);
   if (index === -1) throw new Error(`unknown step ${stepId}`);
-  if (index === 0) return lesson.initialScene;
-  const scene = scenes[index - 1];
-  if (scene === undefined) throw new Error(`no scene before ${stepId}`);
-  return scene;
+  return stepStartScene(lesson, scenes, index);
 }
 
 const firstFour = ['Intro', 'Echo', 'Drift', 'Pulse'] as const;
