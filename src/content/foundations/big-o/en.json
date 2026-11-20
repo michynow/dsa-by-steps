@@ -1,0 +1,179 @@
+{
+  "title": "Big-O",
+  "story": {
+    "title": "The search box that slows to a crawl",
+    "summary": "Your shop's search box answers at once with 100 products and makes shoppers wait with 100,000. You count steps to see why, and what to change."
+  },
+  "uses": [
+    {
+      "title": "Database indexes",
+      "body": "A query on an unindexed column reads every row, which is O(n). A B-tree index finds a row in O(log n), which is why databases keep indexes on the columns you search by."
+    },
+    {
+      "title": "Sorting in standard libraries",
+      "body": "Array.prototype.sort in JavaScript uses a sort that takes O(n log n) comparisons, far fewer than the O(n²) of a simple pair-by-pair sort when n is large."
+    },
+    {
+      "title": "Collision detection in games",
+      "body": "Testing every object against every other object is O(n²), so game engines first sort objects into grids or trees and test only the ones that are close together."
+    },
+    {
+      "title": "Virtualized lists",
+      "body": "A long list in a web app can render only the rows that are on screen, so the work depends on the visible rows and not on how many rows exist."
+    }
+  ],
+  "whenNot": "Big-O describes how the cost grows for large inputs, not how many seconds a program takes. It drops constant factors, so an O(n) program that is 50 times slower per step can still lose to an O(n²) one for small n. For a few dozen items the simplest code is usually fine. Measure before you optimise.",
+  "outcomes": {
+    "read-in-constant-time": "Explain why reading an array position costs O(1)",
+    "scan-in-linear-time": "Count the steps of a linear search, including the worst case",
+    "predict-growth": "Predict how the steps change when the input doubles",
+    "count-pairs-quadratically": "Count the comparisons needed to check every pair",
+    "drop-constant-factors": "Reduce a step count to its Big-O by dropping constant factors"
+  },
+  "steps": {
+    "overview": {
+      "title": "What Big-O describes",
+      "caption": "[[big-o]] describes how the number of steps a program takes grows as its input grows. Here your shop keeps six products in an array, and a search box has to find one of them. The rest of the Lesson counts the steps that search takes."
+    },
+    "the-problem": {
+      "title": "A search box that slows down",
+      "caption": "With 100 products your search box feels instant. With 100,000 products the same code makes shoppers wait. Nothing in the code changed, only the number of products. The cursor starts on the first product, and you will count how many products the search reads."
+    },
+    "counting-steps": {
+      "title": "Count steps, not seconds",
+      "caption": "Seconds depend on the computer, so you count steps instead. Here one step is reading one product: the cursor reads mug, and that is one step. Call the number of products n, and look at how the steps grow with n.",
+      "keyIdea": "Big-O counts steps as the input grows, not seconds."
+    },
+    "constant-lookup": {
+      "title": "Reading one position",
+      "caption": "An array jumps straight to a position, so reading the fifth product, book, takes one step however many products the shop has. A cost that does not grow with n is [[constant-time]], written O(1)."
+    },
+    "linear-scan": {
+      "title": "Searching product by product",
+      "caption": "A shopper searches for tape. The cursor goes back to the start and reads mug, lamp, pen and then tape, where it stops: four steps. Reading one item after another until you find the match is a linear search, and a cost that grows in step with n is [[linear-time]], written O(n)."
+    },
+    "missing-product": {
+      "title": "When the product is missing",
+      "caption": "Now a shopper searches for sock, which the shop does not sell. The search reads all six products before it can say that sock is missing. In the worst case a linear search reads all n products.",
+      "keyIdea": "A linear search takes up to n steps, because the worst case reads every item."
+    },
+    "growth-with-size": {
+      "title": "Why 100,000 products crawl",
+      "caption": "Each extra product adds at most one step to the search. With 100 products the worst case is 100 steps, and with 100,000 products it is 100,000 steps. A thousand times more products means a thousand times more steps, and that is the slowdown shoppers feel.",
+      "keyIdea": "In O(n), doubling n doubles the steps."
+    },
+    "duplicate-listings": {
+      "title": "Finding duplicate listings",
+      "caption": "A second job: you suspect that some products are listed twice. Here the listings are mug, pen, mug, lamp and tape. To find the duplicates you compare each listing with every listing after it, starting with mug and pen."
+    },
+    "count-pairs": {
+      "title": "Counting the comparisons",
+      "caption": "The first listing is compared with the four after it, the second with three, the third with two and the fourth with one. That is 4 + 3 + 2 + 1 = 10 comparisons for 5 listings, and the two mugs meet in one of them."
+    },
+    "quadratic-growth": {
+      "title": "How the comparisons grow",
+      "caption": "For n listings the count is (n − 1) + (n − 2) + … + 1, which equals n(n − 1)/2. For 1,000 listings that is 499,500 comparisons, and for 100,000 listings it is almost 5 billion. When the steps grow roughly with n × n, the cost is [[quadratic-time]], written O(n²).",
+      "keyIdea": "In O(n²), doubling n multiplies the steps by about four."
+    },
+    "ignore-constants": {
+      "title": "Dropping the small print",
+      "caption": "Suppose a program reads every item three times in a row. That is 3n steps, but Big-O keeps only how the cost grows, so it is still O(n): tripling n still triples the steps. For the same reason n² + n is O(n²), because for large n the n² part dominates.",
+      "keyIdea": "Big-O keeps the fastest-growing part and drops constant factors."
+    },
+    "pairs-preview": {
+      "title": "Next up: count pairs that add up",
+      "caption": "In Practice your shop sells gift cards, and you count the pairs of products whose prices add up to a target. With the prices 3, 7, 3 and 5 and a target of 10, the pairs are 3 with 7, and 7 with the second 3: two pairs. Comparing every pair is O(n²), which is too slow for 100,000 prices, so aim for one pass that remembers the prices it has already seen."
+    },
+    "where-you-meet-it": {
+      "title": "Where you will meet it",
+      "caption": "Here is where Big-O decides which design a real system picks. The note under the list says when it can mislead you."
+    }
+  },
+  "checks": {
+    "cost-of-reading-by-position": {
+      "prompt": "The shop keeps n products in an array. How many products does the program look at to read the fifth one?",
+      "options": {
+        "one-step": "One, because an array jumps straight to a position: the cost does not depend on n",
+        "walk-from-start": "Five, because the program walks from the first product to the fifth: the cost grows with the position",
+        "walk-from-nearer-end": "About n divided by 2, because the program starts from whichever end is nearer"
+      },
+      "explanation": "The program looks at one product, because an array computes where a position is and goes straight there. It does not walk past the earlier products, so a bigger shop does not make the read slower. That is why reading by position is O(1)."
+    },
+    "last-product-read": {
+      "prompt": "The search box looks for tape and reads the products from the left, stopping as soon as it finds a match. Select the last product it reads.",
+      "explanation": "The search reads tape last, because it stops as soon as the match is found. It does not read book or mat, which come after tape. The number of steps depends on where the match sits, and in the worst case it is the end of the list."
+    },
+    "steps-for-missing-product": {
+      "prompt": "The shop has 6 products, and a shopper searches for sock, which it does not sell. The search reads from the left. How many products does it read?",
+      "options": {
+        "every-product": "All 6, because it can say sock is missing only after reading every product: n steps",
+        "half-the-products": "About 3, because on average the search stops in the middle of the list",
+        "single-step": "One, because the array already knows which products it holds"
+      },
+      "explanation": "The search reads all 6 products, because a product that is not there is never found, so nothing lets the search stop early. Stopping near the middle is an average for products that exist. An unsorted array does not know what it holds without reading it. So the worst case costs n steps."
+    },
+    "steps-when-shop-doubles": {
+      "prompt": "The shop grows from 100,000 to 200,000 products. How does the worst-case number of steps of the linear search change?",
+      "options": {
+        "doubles": "It doubles, because each product adds at most one step: the cost grows in step with n",
+        "unchanged": "It stays the same, because the computer reads each product just as fast",
+        "grows-slightly": "It grows only slightly, because the search stops as soon as it finds the product"
+      },
+      "explanation": "The worst case doubles, because every extra product can add one step. How fast the computer reads one product does not change how many products there are to read. Stopping early helps only when the product is near the front, and Big-O counts the worst case. So O(n) means twice the products, twice the steps."
+    },
+    "comparisons-for-five-listings": {
+      "prompt": "You compare every listing with each listing after it, so no pair is compared twice. How many comparisons does that take for 5 listings?",
+      "options": {
+        "ten": "10, because the first listing is compared with 4 others, the next with 3, then 2, then 1",
+        "five": "5, because each listing is compared once",
+        "twenty-five": "25, because each of the 5 listings is compared with all 5 listings"
+      },
+      "explanation": "It takes 10 comparisons: 4 + 3 + 2 + 1. One comparison per listing would miss most pairs, because a listing has to meet every other one. Comparing each listing with all 5 counts a listing against itself and counts every pair twice. For n listings the count is n(n − 1)/2."
+    },
+    "comparisons-when-listings-double": {
+      "prompt": "The shop compares every pair of listings. It grows from 1,000 to 2,000 listings. About how many times more comparisons does it make?",
+      "options": {
+        "four-times": "About four times as many, because the pairs grow with n × n: doubling n doubles both factors",
+        "twice": "About twice as many, because twice as many listings means twice as much work",
+        "one-per-new-listing": "About 1,000 more, because each of the 1,000 new listings adds one comparison"
+      },
+      "explanation": "The comparisons grow about four times: from 499,500 to 1,999,000. Twice as much work would be right for a single pass, but here every new listing is compared with all the earlier ones. A new listing adds one comparison per existing listing, not one in total. This is what O(n²) means."
+    },
+    "cost-of-three-passes": {
+      "prompt": "A program reads every one of n products three times in a row, so it takes 3n steps. What is its Big-O cost?",
+      "options": {
+        "linear": "O(n), because Big-O ignores constant factors: tripling n still triples the steps",
+        "exact-count": "O(3n), because Big-O has to count every step exactly",
+        "cubic": "O(n³), because reading three times multiplies n by itself three times"
+      },
+      "explanation": "The cost is O(n). Big-O describes the growth, and a constant factor such as 3 changes the speed but not the shape of the growth. It does not count every step exactly, which is why it drops the 3. Three passes add up the steps, they do not multiply n by itself, so the cost is nowhere near n³."
+    }
+  },
+  "terms": {
+    "big-o": {
+      "term": "Big-O",
+      "gloss": "A notation for how the number of steps of a program grows as its input grows, such as O(n)."
+    },
+    "constant-time": {
+      "term": "constant time",
+      "gloss": "A cost that does not grow with the input size, written O(1)."
+    },
+    "linear-time": {
+      "term": "linear time",
+      "gloss": "A cost that grows in step with the input size n, written O(n)."
+    },
+    "quadratic-time": {
+      "term": "quadratic time",
+      "gloss": "A cost that grows with n × n, written O(n²): doubling n makes it about four times larger."
+    }
+  },
+  "exercise": {
+    "title": "Count the pairs that add up to a gift card",
+    "task": "Your shop sells gift cards and wants to know how many pairs of products add up to a card's value. Write countPairsWithSum, which takes the prices and a target and returns how many pairs of positions i < j have prices[i] + prices[j] equal to the target. Equal prices at different positions are separate pairs, so [5, 5, 5] with a target of 10 has 3 pairs. Keep it O(n): checking every pair is too slow for a long list. The Complexity Test passes only the prices, so do not rely on target being present.",
+    "hints": [
+      "Checking every pair of prices is O(n²). Instead, for each price ask which other price would complete the target.",
+      "While you read the prices from left to right, remember how many times you have seen each price. A Map from a price to its count answers a lookup in O(1) on average.",
+      "For the current price, look up how many earlier prices equal the target minus it, and add that number to your total. Record the current price only after the lookup."
+    ]
+  }
+}
