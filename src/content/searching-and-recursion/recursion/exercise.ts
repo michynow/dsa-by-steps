@@ -53,7 +53,20 @@ function totalSize(entry: Entry): number {
 `,
   visibleTests: [
     totalOf('flat-folder', folder('Docs', [file('cv.pdf', 20), file('letter.txt', 5)]), 25),
+    totalOf(
+      'folder-in-folder',
+      folder('Docs', [
+        folder('Drafts', [file('v1.txt', 4), file('v2.txt', 6)]),
+        file('cv.pdf', 20),
+      ]),
+      30,
+    ),
     totalOf('nested-folders', photos, 90),
+    totalOf(
+      'deep-chain',
+      folder('Root', [folder('A', [folder('B', [file('deep.txt', 9)])]), file('top.txt', 1)]),
+      10,
+    ),
     totalOf(
       'empty-subfolder',
       folder('Docs', [folder('Drafts', []), file('cv.pdf', 20), file('empty.txt', 0)]),

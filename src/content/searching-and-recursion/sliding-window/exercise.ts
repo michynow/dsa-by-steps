@@ -42,7 +42,9 @@ export const busiestWindowExercise: Exercise = {
 `,
   visibleTests: [
     busiestIn('rush-in-the-middle', [2, 5, 1, 4, 3, 6, 2, 1], 5, 1),
+    busiestIn('window-at-the-start', [9, 4, 1, 2, 3], 2, 0),
     busiestIn('single-minute-window', [3, 8, 2, 8], 1, 1),
+    busiestIn('rush-at-the-end', [1, 2, 1, 3, 8, 9], 2, 4),
     busiestIn('every-window-ties', [5, 1, 5, 1, 5, 1], 2, 0),
   ],
   hiddenTests: [

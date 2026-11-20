@@ -63,7 +63,7 @@ export type ExerciseIssue =
 
 const contentLocales: readonly Locale[] = ['en', 'pl'];
 
-const minimumVisibleTests = 3;
+const minimumVisibleTests = 5;
 
 export function testIdsOf(exercise: Exercise): readonly string[] {
   return [

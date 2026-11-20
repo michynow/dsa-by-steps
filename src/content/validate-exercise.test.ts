@@ -102,9 +102,9 @@ describe('validateLessonContent exercise', () => {
     ]);
   });
 
-  it('reports fewer than three visible tests', () => {
-    expect(validate(withExercise({ visibleTests: exercise.visibleTests.slice(0, 2) }))).toEqual([
-      { code: 'too-few-visible-tests', count: 2 },
+  it('reports fewer than five visible tests', () => {
+    expect(validate(withExercise({ visibleTests: exercise.visibleTests.slice(0, 4) }))).toEqual([
+      { code: 'too-few-visible-tests', count: 4 },
     ]);
   });
 
